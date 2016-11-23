@@ -1,0 +1,15 @@
+H:\proj\C#\ControlClient\ControlClient\bin\Debug\ControlClient.exe.config
+H:\proj\C#\ControlClient\ControlClient\bin\Debug\ControlClient.exe
+H:\proj\C#\ControlClient\ControlClient\bin\Debug\ControlClient.pdb
+H:\proj\C#\ControlClient\ControlClient\obj\Debug\ControlClient.csprojResolveAssemblyReference.cache
+H:\proj\C#\ControlClient\ControlClient\obj\Debug\MainWindow.baml
+H:\proj\C#\ControlClient\ControlClient\obj\Debug\MainWindow.g.cs
+H:\proj\C#\ControlClient\ControlClient\obj\Debug\App.g.cs
+H:\proj\C#\ControlClient\ControlClient\obj\Debug\ControlClient_MarkupCompile.cache
+H:\proj\C#\ControlClient\ControlClient\obj\Debug\ControlClient.g.resources
+H:\proj\C#\ControlClient\ControlClient\obj\Debug\ControlClient.Properties.Resources.resources
+H:\proj\C#\ControlClient\ControlClient\obj\Debug\ControlClient.csproj.GenerateResource.Cache
+H:\proj\C#\ControlClient\ControlClient\obj\Debug\ControlClient.exe
+H:\proj\C#\ControlClient\ControlClient\obj\Debug\ControlClient.pdb
+H:\proj\C#\ControlClient\ControlClient\obj\Debug\Login.baml
+H:\proj\C#\ControlClient\ControlClient\obj\Debug\Login.g.cs

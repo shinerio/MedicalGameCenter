@@ -1,0 +1,20 @@
+﻿<Window x:Class="ControlClient.Login"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        AllowsTransparency="True"
+        Background="{x:Null}"
+        WindowStyle="None"
+        BorderBrush="Blue"
+        BorderThickness="2"
+        Height="250" Width="300">
+    <Grid Background="White">
+        <Grid HorizontalAlignment="Stretch" Name='topTitle' Height="40" Margin="0,0,0,0" VerticalAlignment="Top" Background="SkyBlue" MouseLeftButtonDown="TopBar_MouseLeftButtonDown">
+            <Label Content="注册远程终端" TextElement.Foreground="White" TextElement.FontSize="20" HorizontalAlignment="Center" Margin="0,0,0,0" VerticalAlignment="Center"/>
+        </Grid>
+        <TextBox BorderBrush="Blue" Name="userName"  HorizontalAlignment="Center" Height="40" TextWrapping="Wrap" TextElement.Foreground="LightGray" VerticalContentAlignment="Center" FontSize="20" Text="请输入用户名" VerticalAlignment="Top" Width="180" Margin="0,70,0,0" MouseEnter="UserName_MouseEnter" MouseLeave="userName_MouseLeave"/>
+        <Label Content="请输入密码" Name="passTip" HorizontalAlignment="Center" Height="40" TextElement.Foreground="LightGray" VerticalContentAlignment="Center" FontSize="20"  VerticalAlignment="Top" Width="180" Margin="0,120,0,0"/>
+        <PasswordBox BorderBrush="Blue" Background="Transparent" Name="passWord" HorizontalAlignment="Center" Height="40" TextElement.Foreground="LightGray" VerticalContentAlignment="Center" FontSize="20"  VerticalAlignment="Top" Width="180" Margin="0,120,0,0" MouseEnter="passWord_MouseEnter" MouseLeave="passWord_MouseLeave"/>
+        <Button Content="登录" Background="Blue" HorizontalAlignment="Left" TextElement.Foreground="White" FontSize="20"  Margin="40,180,0,0" VerticalAlignment="Top" Width="90" Height="30" Click="Login_Click"/>
+        <Button Content="取消" HorizontalAlignment="Right" Margin="0,180,40,0" VerticalAlignment="Top" FontSize="20" Width="90" Height="30" Click="Cancel"/>
+    </Grid>
+</Window>
