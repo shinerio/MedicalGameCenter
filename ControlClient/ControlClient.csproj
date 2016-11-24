@@ -121,9 +121,6 @@
     <Resource Include="img\scale.png" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="icLauncher.ico" />
-  </ItemGroup>
-  <ItemGroup>
     <Resource Include="img\user.png" />
   </ItemGroup>
   <ItemGroup>
@@ -133,10 +130,13 @@
     <Resource Include="img\addGame.jpg" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="img\logo.jpg" />
+    <Resource Include="img\zuixiaohua.png" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="img\zuixiaohua.png" />
+    <Resource Include="img\logo.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="icLauncher.ico" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

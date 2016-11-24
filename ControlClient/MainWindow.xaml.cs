@@ -159,6 +159,8 @@ namespace ControlClient
                 l.HorizontalAlignment = HorizontalAlignment.Center;
                 g.Children.Add(l);
                 Grid.SetRow(l, 1);
+                g.VerticalAlignment = VerticalAlignment.Center;
+                g.HorizontalAlignment = HorizontalAlignment.Center;
                 main.gameContainer.Children.Add(g);
                 Grid.SetColumn(g, nowColumn);
                 Grid.SetRow(g, nowRow);
@@ -183,9 +185,11 @@ namespace ControlClient
                 String gameName = fileName.Substring(subStart + 1, subEnd - subStart-1);
                 Label l = new Label();
                 l.Content = gameName;
+                g.VerticalAlignment = VerticalAlignment.Center;
                 l.HorizontalAlignment = HorizontalAlignment.Center;
                 g.Children.Add(l);
                 Grid.SetRow(l, 1);
+                g.HorizontalAlignment = HorizontalAlignment.Center;
                 main.gameContainer.Children.Add(g);
                 Grid.SetColumn(g, nowColumn);
                 Grid.SetRow(g, nowRow);
@@ -197,7 +201,7 @@ namespace ControlClient
             }
         }
         //清空游戏
-        private void ClearGame(object sender, MouseButtonEventArgs e)
+        private void ClearGame(object sender, RoutedEventArgs e)
         {
             string file = System.Windows.Forms.Application.ExecutablePath;
             Configuration config = ConfigurationManager.OpenExeConfiguration(file);
@@ -294,6 +298,18 @@ namespace ControlClient
                 MessageBox.Show("目标IP地址不能为空","出错了");
             }
         }
+
+        private void MenuButton_MouseEnter(object sender, MouseEventArgs e)
+        {
+            Button g = (Button)sender;
+            g.Background = new SolidColorBrush(Color.FromArgb(100, 149, 237, 0));          
+        }
+
+        private void MenuButton_MouseLeave(object sender, MouseEventArgs e)
+        {
+            Button g = (Button)sender;
+            g.Background = new SolidColorBrush(Color.FromRgb(0,0,139));
+        } 
 
     }
 }
