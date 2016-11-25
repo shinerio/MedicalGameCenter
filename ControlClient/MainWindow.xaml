@@ -29,7 +29,7 @@
                     <ImageBrush ImageSource=".\img\zuixiaohua.png" Stretch="Fill"/>
                 </Button.Background>
             </Button>
-            <Button  HorizontalAlignment="Right" Height="45" Margin="0,2,110,0" BorderBrush="Transparent" VerticalAlignment="Top" Width="45" Click="Login" MouseEnter="doNone" RenderTransformOrigin="0.504,0.5">
+            <Button  HorizontalAlignment="Right" Height="45" Margin="0,2,110,0" BorderBrush="Transparent" VerticalAlignment="Top" Width="45" Click="Login" MouseEnter="doNone" Focusable="False" RenderTransformOrigin="0.504,0.5">
                 <Button.Background>
                     <ImageBrush ImageSource=".\img\user.png" Stretch="Fill" />
                 </Button.Background>
@@ -43,11 +43,11 @@
             <Label Content="手套未接入" TextBlock.FontWeight="Bold" FontSize="18" Foreground="White"  HorizontalAlignment="Left" Margin="35,0,0,0" VerticalAlignment="Center"/>
         </Grid>
         <Grid HorizontalAlignment="Left" Margin="0,55,0,30"  Background="LightBlue" VerticalAlignment="Stretch" Width="150">
-            <Button  HorizontalAlignment="Left"  Content="游戏菜单" TextBlock.FontWeight="Bold" FontSize="14" Foreground="White" Background="DarkBlue" Height="30" Margin="20,20,0,0" VerticalAlignment="Top" Width="110" MouseEnter="MenuButton_MouseEnter" MouseLeave="MenuButton_MouseLeave" Click="GameMenu"/>
-            <Button  HorizontalAlignment="Left" Content="清空游戏" TextBlock.FontWeight="Bold" FontSize="14" Foreground="White" Background="DarkBlue" Height="30" Margin="20,60,0,0" VerticalAlignment="Top" Width="110" MouseEnter="MenuButton_MouseEnter" MouseLeave="MenuButton_MouseLeave" Click="ClearGame"/>
-            <Button  HorizontalAlignment="Left" Content="设备帮助" TextBlock.FontWeight="Bold" FontSize="14" Foreground="White" Background="DarkBlue" Height="30" Margin="20,100,0,0" VerticalAlignment="Top" Width="110" MouseEnter="MenuButton_MouseEnter" MouseLeave="MenuButton_MouseLeave" Click="DeviceHelp"/>
-            <Button  HorizontalAlignment="Left" Content="关于我们" TextBlock.FontWeight="Bold" FontSize="14" Foreground="White" Background="DarkBlue" Height="30" Margin="20,140,0,0" VerticalAlignment="Top" Width="110" MouseEnter="MenuButton_MouseEnter" MouseLeave="MenuButton_MouseLeave"/>
-            <Button  HorizontalAlignment="Left" Content="启动服务" TextBlock.FontWeight="Bold" FontSize="14" Foreground="White" Background="DarkBlue" Height="30" Margin="20,180,0,0" VerticalAlignment="Top" Width="110" MouseEnter="MenuButton_MouseEnter" MouseLeave="MenuButton_MouseLeave" Click="StartServe"/>
+            <Button  HorizontalAlignment="Left" Focusable="False" Content="游戏菜单" TextBlock.FontWeight="Bold" FontSize="14" Foreground="White" Background="DarkBlue" Height="30" Margin="20,20,0,0" VerticalAlignment="Top" Width="110" MouseEnter="MenuButton_MouseEnter" MouseLeave="MenuButton_MouseLeave" Click="GameMenu"/>
+            <Button  HorizontalAlignment="Left" Focusable="False" Content="清空游戏" TextBlock.FontWeight="Bold" FontSize="14" Foreground="White" Background="DarkBlue" Height="30" Margin="20,60,0,0" VerticalAlignment="Top" Width="110" MouseEnter="MenuButton_MouseEnter" MouseLeave="MenuButton_MouseLeave" Click="ClearGame"/>
+            <Button  HorizontalAlignment="Left" Focusable="False" Content="设备帮助" TextBlock.FontWeight="Bold" FontSize="14" Foreground="White" Background="DarkBlue" Height="30" Margin="20,100,0,0" VerticalAlignment="Top" Width="110" MouseEnter="MenuButton_MouseEnter" MouseLeave="MenuButton_MouseLeave" Click="DeviceHelp"/>
+            <Button  HorizontalAlignment="Left" Focusable="False" Content="关于我们" TextBlock.FontWeight="Bold" FontSize="14" Foreground="White" Background="DarkBlue" Height="30" Margin="20,140,0,0" VerticalAlignment="Top" Width="110" MouseEnter="MenuButton_MouseEnter" MouseLeave="MenuButton_MouseLeave"/>
+            <Button  HorizontalAlignment="Left" Focusable="False" Content="启动服务" TextBlock.FontWeight="Bold" FontSize="14" Foreground="White" Background="DarkBlue" Height="30" Margin="20,180,0,0" VerticalAlignment="Top" Width="110" MouseEnter="MenuButton_MouseEnter" MouseLeave="MenuButton_MouseLeave" Click="StartServe"/>
             <Label HorizontalAlignment="Left" Name="showData" VerticalContentAlignment="Center" HorizontalContentAlignment="Center" FontSize="30" Height="40" Margin="10,420,0,0"  VerticalAlignment="Top" Width="120"/>
         </Grid>
         <Grid HorizontalAlignment="Stretch"  Name="MainContainer" Margin="150,55,0,30" VerticalAlignment="Stretch" Background="LightYellow">
