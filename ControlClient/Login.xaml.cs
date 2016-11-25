@@ -66,7 +66,7 @@ namespace ControlClient
 
         private void passWord_MouseLeave(object sender, MouseEventArgs e)
         {
-            if (passWord.Password ==null || "".Equals(passWord.Password.ToString()))
+            if (password.Password ==null || "".Equals(password.Password.ToString()))
             {
                 passTip.Content = "请输入密码";
                 passTip.Visibility = Visibility.Visible;
@@ -82,6 +82,45 @@ namespace ControlClient
         private void Cancel(object sender, RoutedEventArgs e)
         {
             this.Close();
+        }
+
+        private void Image_MouseEnter(object sender, MouseEventArgs e)
+        {
+            Image img = (Image)sender;
+            img.Source = new BitmapImage(new Uri("./img/switchLogin_enter.png",UriKind.Relative));
+            loginTip.Visibility = Visibility.Visible;
+        }
+
+        private void Image_MouseLeave(object sender, MouseEventArgs e)
+        {
+            Image img = (Image)sender;
+            img.Source = new BitmapImage(new Uri("./img/switchLogin_Leave.png", UriKind.Relative));
+            loginTip.Visibility = Visibility.Hidden;
+        }
+
+        bool loginMethod = true;
+        private void Image_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
+        {
+            if (loginMethod) {
+            faceLogin.Visibility = Visibility.Visible;
+            content.Children.Clear();
+            content.Children.Add(switchBtn);
+            faceLogin.Source = new BitmapImage(new Uri("./img/face.png", UriKind.Relative));
+            loginMethod = false;
+            }
+            else
+            {
+                faceLogin.Visibility = Visibility.Hidden;
+                content.Children.Clear();
+                content.Children.Add(switchBtn);
+                content.Children.Add(passTip);
+                content.Children.Add(password);
+                content.Children.Add(userName);
+                content.Children.Add(login);
+                content.Children.Add(cancel);
+                content.Children.Add(loginTip);
+                loginMethod = true;
+            }
         }
 
     }

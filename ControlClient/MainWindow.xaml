@@ -14,22 +14,22 @@
     <Grid Background="White">
         <Grid HorizontalAlignment="Stretch"  Name="topTitle" Height="55" Background="Blue" Margin="0,0,0,0" VerticalAlignment="Top" MouseLeftButtonDown="topTitle_MouseLeftButtonDown">
 
-            <Button  HorizontalAlignment="Right" Height="25" Margin="0,2,10,5" BorderBrush="Transparent" VerticalAlignment="Top" Width="25" Focusable="False" Click="Button_Click">
+            <Button  HorizontalAlignment="Right" Height="25" Margin="0,2,10,5" BorderBrush="Transparent" VerticalAlignment="Top" Width="25" Focusable="False" Click="Button_Click" MouseEnter="doNone" >
                 <Button.Background>
                     <ImageBrush ImageSource=".\img\exit.png" Stretch="Fill"/>
                 </Button.Background>
             </Button>
-            <Button  HorizontalAlignment="Right" Height="25" Margin="0,2,40,0" BorderBrush="Transparent" VerticalAlignment="Top" Width="25" Focusable="False" Click="Scale_click">
+            <Button  HorizontalAlignment="Right" Height="25" Margin="0,2,40,0"  BorderBrush="Transparent" VerticalAlignment="Top" Width="25" Focusable="False" Click="Scale_click" MouseEnter="doNone" >
                 <Button.Background>
                     <ImageBrush ImageSource=".\img\scale.png" Stretch="Fill"/>
                 </Button.Background>
             </Button>
-            <Button  HorizontalAlignment="Right" Height="25" Margin="0,2,70,5" BorderBrush="Transparent" VerticalAlignment="Top" Width="25" Focusable="False" Click="zuixiaohua">
+            <Button  HorizontalAlignment="Right" Height="25" Margin="0,2,70,5" BorderBrush="Transparent" VerticalAlignment="Top" Width="25" Focusable="False" MouseEnter="doNone"  Click="zuixiaohua">
                 <Button.Background>
                     <ImageBrush ImageSource=".\img\zuixiaohua.png" Stretch="Fill"/>
                 </Button.Background>
             </Button>
-            <Button  HorizontalAlignment="Right" Height="45" Margin="0,2,110,0" BorderBrush="Transparent" VerticalAlignment="Top" Width="45" Click="Login" RenderTransformOrigin="0.504,0.5">
+            <Button  HorizontalAlignment="Right" Height="45" Margin="0,2,110,0" BorderBrush="Transparent" VerticalAlignment="Top" Width="45" Click="Login" MouseEnter="doNone" RenderTransformOrigin="0.504,0.5">
                 <Button.Background>
                     <ImageBrush ImageSource=".\img\user.png" Stretch="Fill" />
                 </Button.Background>
@@ -43,13 +43,15 @@
             <Label Content="手套未接入" TextBlock.FontWeight="Bold" FontSize="18" Foreground="White"  HorizontalAlignment="Left" Margin="35,0,0,0" VerticalAlignment="Center"/>
         </Grid>
         <Grid HorizontalAlignment="Left" Margin="0,55,0,30"  Background="LightBlue" VerticalAlignment="Stretch" Width="150">
-            <Button  HorizontalAlignment="Left"  Content="游戏菜单" TextBlock.FontWeight="Bold" FontSize="14" Foreground="White" Background="DarkBlue" Height="30" Margin="20,20,0,0" VerticalAlignment="Top" Width="110" MouseEnter="MenuButton_MouseEnter" MouseLeave="MenuButton_MouseLeave"/>
+            <Button  HorizontalAlignment="Left"  Content="游戏菜单" TextBlock.FontWeight="Bold" FontSize="14" Foreground="White" Background="DarkBlue" Height="30" Margin="20,20,0,0" VerticalAlignment="Top" Width="110" MouseEnter="MenuButton_MouseEnter" MouseLeave="MenuButton_MouseLeave" Click="GameMenu"/>
             <Button  HorizontalAlignment="Left" Content="清空游戏" TextBlock.FontWeight="Bold" FontSize="14" Foreground="White" Background="DarkBlue" Height="30" Margin="20,60,0,0" VerticalAlignment="Top" Width="110" MouseEnter="MenuButton_MouseEnter" MouseLeave="MenuButton_MouseLeave" Click="ClearGame"/>
-            <Button  HorizontalAlignment="Left" Content="设备帮助" TextBlock.FontWeight="Bold" FontSize="14" Foreground="White" Background="DarkBlue" Height="30" Margin="20,100,0,0" VerticalAlignment="Top" Width="110" MouseEnter="MenuButton_MouseEnter" MouseLeave="MenuButton_MouseLeave"/>
+            <Button  HorizontalAlignment="Left" Content="设备帮助" TextBlock.FontWeight="Bold" FontSize="14" Foreground="White" Background="DarkBlue" Height="30" Margin="20,100,0,0" VerticalAlignment="Top" Width="110" MouseEnter="MenuButton_MouseEnter" MouseLeave="MenuButton_MouseLeave" Click="DeviceHelp"/>
             <Button  HorizontalAlignment="Left" Content="关于我们" TextBlock.FontWeight="Bold" FontSize="14" Foreground="White" Background="DarkBlue" Height="30" Margin="20,140,0,0" VerticalAlignment="Top" Width="110" MouseEnter="MenuButton_MouseEnter" MouseLeave="MenuButton_MouseLeave"/>
+            <Button  HorizontalAlignment="Left" Content="启动服务" TextBlock.FontWeight="Bold" FontSize="14" Foreground="White" Background="DarkBlue" Height="30" Margin="20,180,0,0" VerticalAlignment="Top" Width="110" MouseEnter="MenuButton_MouseEnter" MouseLeave="MenuButton_MouseLeave" Click="StartServe"/>
             <Label HorizontalAlignment="Left" Name="showData" VerticalContentAlignment="Center" HorizontalContentAlignment="Center" FontSize="30" Height="40" Margin="10,420,0,0"  VerticalAlignment="Top" Width="120"/>
         </Grid>
-        <Grid HorizontalAlignment="Stretch" Name="gameContainer" Margin="150,55,0,30" VerticalAlignment="Stretch" Background="LightYellow">
+        <Grid HorizontalAlignment="Stretch"  Name="MainContainer" Margin="150,55,0,30" VerticalAlignment="Stretch" Background="LightYellow">
+        <Grid Visibility="Visible" HorizontalAlignment="Stretch" Name="gameContainer" Margin="0,0,0,0" VerticalAlignment="Stretch" Background="LightYellow">
             <Grid.RowDefinitions>
                 <RowDefinition Height="25*"/>
                 <RowDefinition Height="25*" />
@@ -63,6 +65,14 @@
                 <ColumnDefinition Width="25.0*" />
             </Grid.ColumnDefinitions>
             <Image HorizontalAlignment="Stretch" Margin="3,3,3,3"  Name="addGame" Source=".\img\addGame.jpg" VerticalAlignment="Stretch" MouseLeftButtonUp="AddGame"/>
+        </Grid>
+            <Grid Visibility="Hidden" HorizontalAlignment="Stretch" Name="DeviceHelpContainer" Margin="0,0,0,0" VerticalAlignment="Stretch" Background="LightYellow">
+                <Label Content="控制端IP" TextElement.Foreground="LightSeaGreen" FontSize="20" VerticalAlignment="Top" Height="40" Margin="0,10,350,0" HorizontalAlignment="Center"></Label>
+                <TextBox Name="localIP" VerticalContentAlignment="Center" Width="250" Height="40" VerticalAlignment="Top" Margin="0,10,0,0" HorizontalAlignment="Center"></TextBox>
+                <Label Content="游戏端IP" TextElement.Foreground="LightSeaGreen" FontSize="20" VerticalAlignment="Top" Height="40" Margin="0,70,350,0" HorizontalAlignment="Center"></Label>
+                <TextBox Name="targetIP"  VerticalContentAlignment="Center" Width="250" Height="40" VerticalAlignment="Top" Margin="0,70,0,0" HorizontalAlignment="Center"></TextBox>
+                <Button VerticalAlignment="Bottom" Name="settingsDer" Background="DarkBlue" TextBlock.FontWeight="Bold" FontSize="14" Foreground="White"  Content="确定" HorizontalAlignment="Right" Width="80" Height="30" Margin="0,0,20,20" Click="settingsDer_Click"></Button>
+            </Grid>
         </Grid>
     </Grid>
 </Window>

@@ -35,7 +35,6 @@ namespace ControlClient
         {
             InitializeComponent();
             initGame(this);
-            startServer();
         }
 
         private void topTitle_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
@@ -200,22 +199,41 @@ namespace ControlClient
                 Utils.UpdateAppConfig(nowRow.ToString() + nowColumn, fileName);
             }
         }
+        //游戏菜单
+        private void GameMenu(object sender, RoutedEventArgs e)
+        {
+            DeviceHelpContainer.Visibility = Visibility.Hidden;
+            gameContainer.Visibility = Visibility.Visible;
+        }
+
+        //设备支持
+        private void DeviceHelp(object sender, RoutedEventArgs e)
+        {
+            gameContainer.Visibility = Visibility.Hidden;
+            DeviceHelpContainer.Visibility = Visibility.Visible;
+            localIP.Text = Utils.getConfig("localIP");
+            targetIP.Text = Utils.getConfig("targetIP");
+        }
         //清空游戏
         private void ClearGame(object sender, RoutedEventArgs e)
         {
-            string file = System.Windows.Forms.Application.ExecutablePath;
-            Configuration config = ConfigurationManager.OpenExeConfiguration(file);
-            foreach (string key in config.AppSettings.Settings.AllKeys)
-            {     
-                if(!key.Contains("IP"))
-                config.AppSettings.Settings.Remove(key);
+            MessageBoxResult confirmToDel = MessageBox.Show("确认要清空游戏吗？", "提示", MessageBoxButton.YesNo, MessageBoxImage.Question);
+            if (confirmToDel == MessageBoxResult.Yes)
+            {
+                string file = System.Windows.Forms.Application.ExecutablePath;
+                Configuration config = ConfigurationManager.OpenExeConfiguration(file);
+                foreach (string key in config.AppSettings.Settings.AllKeys)
+                {
+                    if (!key.Contains("IP"))
+                        config.AppSettings.Settings.Remove(key);
+                }
+                config.Save(ConfigurationSaveMode.Modified);
+                ConfigurationManager.RefreshSection("appSettings");
+                gameContainer.Children.Clear();
+                gameContainer.Children.Add(addGame);
+                Grid.SetColumn(addGame, 0);
+                Grid.SetRow(addGame, 0);
             }
-            config.Save(ConfigurationSaveMode.Modified);
-            ConfigurationManager.RefreshSection("appSettings");
-            gameContainer.Children.Clear();
-            gameContainer.Children.Add(addGame);
-            Grid.SetColumn(addGame, 0);
-            Grid.SetRow(addGame, 0);
         }
 
         //登录窗口
@@ -253,7 +271,6 @@ namespace ControlClient
                 showData.Content = "left";
             }
         }
-    
        static void startServer()
        {
            server = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
@@ -265,7 +282,7 @@ namespace ControlClient
                    server.Bind(new IPEndPoint(IPAddress.Parse(localIP), 6001));//绑定端口号和IP
                    Thread t = new Thread(sendMsg);//开启发送消息线程
                    t.IsBackground = true;
-                   t.Start();
+                   t.Start();     
                }catch(Exception){
                    MessageBox.Show("本机IP地址无效", "出错了");
                }
@@ -274,7 +291,8 @@ namespace ControlClient
                MessageBox.Show("本机IP地址不能为空", "出错了");
            }
        }
- 
+
+       static bool isServe = true;  //服务进程是否继续
         //发送数据
         static void sendMsg()
         {
@@ -282,8 +300,9 @@ namespace ControlClient
             if (targetIP != null) {
                 try
                 {
-                    EndPoint point = new IPEndPoint(IPAddress.Parse("127.0.0.1"), 6000);
-                    while (true)
+                    EndPoint point = new IPEndPoint(IPAddress.Parse(targetIP), 6000);
+                    MessageBox.Show("服务启动成功", "success");
+                    while (isServe)
                     {
                         server.SendTo(Encoding.UTF8.GetBytes(msg), point);
                     }
@@ -302,14 +321,47 @@ namespace ControlClient
         private void MenuButton_MouseEnter(object sender, MouseEventArgs e)
         {
             Button g = (Button)sender;
-            g.Background = new SolidColorBrush(Color.FromArgb(100, 149, 237, 0));          
+            g.Background = new SolidColorBrush(Color.FromArgb(100, 149, 237, 0)); 
+          
         }
 
         private void MenuButton_MouseLeave(object sender, MouseEventArgs e)
         {
             Button g = (Button)sender;
             g.Background = new SolidColorBrush(Color.FromRgb(0,0,139));
-        } 
+        }
+
+        private void doNone(object sender, MouseEventArgs e)
+        {
+        }
+
+        //设备帮助修改配置确认
+        private void settingsDer_Click(object sender, RoutedEventArgs e)
+        {
+            String slocalIP = localIP.Text.ToString();
+            String stargetIP = targetIP.Text.ToString();
+            Utils.UpdateAppConfig("localIP",slocalIP);
+            Utils.UpdateAppConfig("targetIP", stargetIP);
+            isServe = false;
+            if (server != null) { 
+            server.Close();
+            }
+            server = null;
+           
+            MessageBox.Show("修改成功,请重启服务", "success");
+        }
+
+        private void StartServe(object sender, RoutedEventArgs e)
+        {
+            if (server!=null)
+            {
+                MessageBox.Show("服务已启动，请勿重复点击", "error");
+            }else{
+                startServer();
+                isServe = true;
+            }
+
+        }
 
     }
 }
