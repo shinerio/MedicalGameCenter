@@ -15,24 +15,40 @@
         <Grid HorizontalAlignment="Stretch"  Name="topTitle" Height="55" Background="Blue" Margin="0,0,0,0" VerticalAlignment="Top" MouseLeftButtonDown="topTitle_MouseLeftButtonDown">
 
             <Button  HorizontalAlignment="Right" Height="25" Margin="0,2,10,5" BorderBrush="Transparent" VerticalAlignment="Top" Width="25" Focusable="False" Click="Button_Click" MouseEnter="doNone" >
-                <Button.Background>
-                    <ImageBrush ImageSource=".\img\exit.png" Stretch="Fill"/>
-                </Button.Background>
+                <Button.Template>
+                    <ControlTemplate x:Name="exitTemp">
+                        <ContentControl>
+                            <Image Name="imgWork" Source=".\img\exit.png"></Image>
+                        </ContentControl>
+                    </ControlTemplate>
+                </Button.Template>
             </Button>
             <Button  HorizontalAlignment="Right" Height="25" Margin="0,2,40,0"  BorderBrush="Transparent" VerticalAlignment="Top" Width="25" Focusable="False" Click="Scale_click" MouseEnter="doNone" >
-                <Button.Background>
-                    <ImageBrush ImageSource=".\img\scale.png" Stretch="Fill"/>
-                </Button.Background>
+                <Button.Template>
+                    <ControlTemplate x:Name="scaleTemp">
+                        <ContentControl>
+                            <Image Name="imgWork" Source=".\img\scale.png"></Image>
+                        </ContentControl>
+                    </ControlTemplate>
+                </Button.Template>
             </Button>
             <Button  HorizontalAlignment="Right" Height="25" Margin="0,2,70,5" BorderBrush="Transparent" VerticalAlignment="Top" Width="25" Focusable="False" MouseEnter="doNone"  Click="zuixiaohua">
-                <Button.Background>
-                    <ImageBrush ImageSource=".\img\zuixiaohua.png" Stretch="Fill"/>
-                </Button.Background>
+                <Button.Template>
+                    <ControlTemplate x:Name="zuixiaohuaTemp">
+                        <ContentControl>
+                            <Image Name="imgWork" Source=".\img\zuixiaohua.png"></Image>
+                        </ContentControl>
+                    </ControlTemplate>
+                </Button.Template>
             </Button>
             <Button  HorizontalAlignment="Right" Height="45" Margin="0,2,110,0" BorderBrush="Transparent" VerticalAlignment="Top" Width="45" Click="Login" MouseEnter="doNone" Focusable="False" RenderTransformOrigin="0.504,0.5">
-                <Button.Background>
-                    <ImageBrush ImageSource=".\img\user.png" Stretch="Fill" />
-                </Button.Background>
+                <Button.Template>
+                    <ControlTemplate x:Name="usersTemp">
+                        <ContentControl>
+                            <Image Name="imgWork" Source=".\img\user.png"></Image>
+                        </ContentControl>
+                    </ControlTemplate>
+                </Button.Template>
             </Button>
             <Label Content="未登录" TextBlock.FontWeight="Bold" FontSize="18" Foreground="White" HorizontalAlignment="Right" Margin="0,0,15,0" VerticalAlignment="Bottom"/>
             <Image HorizontalAlignment="Left"  Source=".\img\logo.png" Height="40" VerticalAlignment="Center" Width="40" Margin="5,0,0,0"/>
@@ -42,30 +58,54 @@
             <Image HorizontalAlignment="Left" Height="25" Margin="5,0,0,0"  Source=".\img\error.png" VerticalAlignment="Center" Width="25"/>
             <Label Content="手套未接入" TextBlock.FontWeight="Bold" FontSize="18" Foreground="White"  HorizontalAlignment="Left" Margin="35,0,0,0" VerticalAlignment="Center"/>
         </Grid>
-        <Grid HorizontalAlignment="Left" Margin="0,55,0,30"  Background="LightBlue" VerticalAlignment="Stretch" Width="150">
+
+
+        <Grid HorizontalAlignment="Stretch" Background="LightGray" Height="40" Margin="0,55,0,0" VerticalAlignment="Top">
+            <Button  Name="serverBtn" HorizontalAlignment="Left"  Focusable="False" BorderBrush="Transparent"  Height="30" Width="30" Margin="10,5,0,5" VerticalAlignment="Center" Click="StartServe">
+                <Button.Template>
+                    <ControlTemplate x:Name="serverBtnTemp">
+                        <ContentControl>
+                            <Image Name="imgWork" Source=".\img\service_off.png"></Image>
+                        </ContentControl>
+                    </ControlTemplate>
+                </Button.Template>
+            </Button>
+            <Label Content="服务" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="40,0,0,0" FontWeight="Bold" FontSize="15"/>
+            <Button  Name="aboutUs" HorizontalAlignment="Left"  Focusable="False" BorderBrush="Transparent"  Height="30" Width="30" Margin="90,5,0,5" VerticalAlignment="Center">
+                <Button.Template>
+                    <ControlTemplate x:Name="aboutUsTemp">
+                        <ContentControl>
+                            <Image Name="imgWork" Source=".\img\aboutus.png"></Image>
+                        </ContentControl>
+                    </ControlTemplate>
+                </Button.Template>
+            </Button>
+            <Label Content="关于我们" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="130,0,0,0" FontWeight="Bold" FontSize="15"/>
+        </Grid>
+
+
+        <Grid HorizontalAlignment="Left" Margin="0,95,0,30"  Background="LightBlue" VerticalAlignment="Stretch" Width="150">
             <Button  HorizontalAlignment="Left" Focusable="False" Content="游戏菜单" TextBlock.FontWeight="Bold" FontSize="14" Foreground="White" Background="DarkBlue" Height="30" Margin="20,20,0,0" VerticalAlignment="Top" Width="110" MouseEnter="MenuButton_MouseEnter" MouseLeave="MenuButton_MouseLeave" Click="GameMenu"/>
             <Button  HorizontalAlignment="Left" Focusable="False" Content="清空游戏" TextBlock.FontWeight="Bold" FontSize="14" Foreground="White" Background="DarkBlue" Height="30" Margin="20,60,0,0" VerticalAlignment="Top" Width="110" MouseEnter="MenuButton_MouseEnter" MouseLeave="MenuButton_MouseLeave" Click="ClearGame"/>
-            <Button  HorizontalAlignment="Left" Focusable="False" Content="设备帮助" TextBlock.FontWeight="Bold" FontSize="14" Foreground="White" Background="DarkBlue" Height="30" Margin="20,100,0,0" VerticalAlignment="Top" Width="110" MouseEnter="MenuButton_MouseEnter" MouseLeave="MenuButton_MouseLeave" Click="DeviceHelp"/>
-            <Button  HorizontalAlignment="Left" Focusable="False" Content="关于我们" TextBlock.FontWeight="Bold" FontSize="14" Foreground="White" Background="DarkBlue" Height="30" Margin="20,140,0,0" VerticalAlignment="Top" Width="110" MouseEnter="MenuButton_MouseEnter" MouseLeave="MenuButton_MouseLeave"/>
-            <Button  HorizontalAlignment="Left" Focusable="False" Content="启动服务" TextBlock.FontWeight="Bold" FontSize="14" Foreground="White" Background="DarkBlue" Height="30" Margin="20,180,0,0" VerticalAlignment="Top" Width="110" MouseEnter="MenuButton_MouseEnter" MouseLeave="MenuButton_MouseLeave" Click="StartServe"/>
+            <Button  HorizontalAlignment="Left" Focusable="False" Content="设备帮助" TextBlock.FontWeight="Bold" FontSize="14" Foreground="White" Background="DarkBlue" Height="30" Margin="20,100,0,0" VerticalAlignment="Top" Width="110" MouseEnter="MenuButton_MouseEnter" MouseLeave="MenuButton_MouseLeave" Click="DeviceHelp"/>       
             <Label HorizontalAlignment="Left" Name="showData" VerticalContentAlignment="Center" HorizontalContentAlignment="Center" FontSize="30" Height="40" Margin="10,420,0,0"  VerticalAlignment="Top" Width="120"/>
         </Grid>
-        <Grid HorizontalAlignment="Stretch"  Name="MainContainer" Margin="150,55,0,30" VerticalAlignment="Stretch" Background="LightYellow">
-        <Grid Visibility="Visible" HorizontalAlignment="Stretch" Name="gameContainer" Margin="0,0,0,0" VerticalAlignment="Stretch" Background="LightYellow">
-            <Grid.RowDefinitions>
-                <RowDefinition Height="25*"/>
-                <RowDefinition Height="25*" />
-                <RowDefinition Height="25*" />
-                <RowDefinition Height="25*" />
-            </Grid.RowDefinitions>
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="25.0*" />
-                <ColumnDefinition Width="25.0*" />
-                <ColumnDefinition Width="25.0*" />
-                <ColumnDefinition Width="25.0*" />
-            </Grid.ColumnDefinitions>
-            <Image HorizontalAlignment="Stretch" Margin="3,3,3,3"  Name="addGame" Source=".\img\addGame.jpg" VerticalAlignment="Stretch" MouseLeftButtonUp="AddGame"/>
-        </Grid>
+        <Grid HorizontalAlignment="Stretch"  Name="MainContainer" Margin="150,95,0,30" VerticalAlignment="Stretch" Background="LightYellow">
+            <Grid Visibility="Visible" HorizontalAlignment="Stretch" Name="gameContainer" Margin="0,0,0,0" VerticalAlignment="Stretch" Background="LightYellow">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="25*"/>
+                    <RowDefinition Height="25*" />
+                    <RowDefinition Height="25*" />
+                    <RowDefinition Height="25*" />
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="25.0*" />
+                    <ColumnDefinition Width="25.0*" />
+                    <ColumnDefinition Width="25.0*" />
+                    <ColumnDefinition Width="25.0*" />
+                </Grid.ColumnDefinitions>
+                <Image HorizontalAlignment="Stretch" Margin="3,3,3,3"  Name="addGame" Source=".\img\addGame.jpg" VerticalAlignment="Stretch" MouseLeftButtonUp="AddGame"/>
+            </Grid>
             <Grid Visibility="Hidden" HorizontalAlignment="Stretch" Name="DeviceHelpContainer" Margin="0,0,0,0" VerticalAlignment="Stretch" Background="LightYellow">
                 <Label Content="控制端IP" TextElement.Foreground="LightSeaGreen" FontSize="20" VerticalAlignment="Top" Height="40" Margin="0,10,350,0" HorizontalAlignment="Center"></Label>
                 <TextBox Name="localIP" VerticalContentAlignment="Center" Width="250" Height="40" VerticalAlignment="Top" Margin="0,10,0,0" HorizontalAlignment="Center"></TextBox>
@@ -74,5 +114,6 @@
                 <Button VerticalAlignment="Bottom" Name="settingsDer" Background="DarkBlue" TextBlock.FontWeight="Bold" FontSize="14" Foreground="White"  Content="确定" HorizontalAlignment="Right" Width="80" Height="30" Margin="0,0,20,20" Click="settingsDer_Click"></Button>
             </Grid>
         </Grid>
+
     </Grid>
 </Window>

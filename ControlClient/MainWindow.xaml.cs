@@ -292,7 +292,7 @@ namespace ControlClient
            }
        }
 
-       static bool isServe = true;  //服务进程是否继续
+       static bool isServe = false;  //是否在服务中
         //发送数据
         static void sendMsg()
         {
@@ -301,7 +301,6 @@ namespace ControlClient
                 try
                 {
                     EndPoint point = new IPEndPoint(IPAddress.Parse(targetIP), 6000);
-                    MessageBox.Show("服务启动成功", "success");
                     while (isServe)
                     {
                         server.SendTo(Encoding.UTF8.GetBytes(msg), point);
@@ -347,20 +346,49 @@ namespace ControlClient
             server.Close();
             }
             server = null;
-           
+            ControlTemplate template = serverBtn.FindName("serverBtnTemp") as ControlTemplate;
+
+            if (template != null)
+            {
+                Image img = template.FindName("imgWork", serverBtn) as Image;
+                img.Source = new BitmapImage(new Uri("./img/service_off.png",
+                                                   UriKind.Relative));
+            }
             MessageBox.Show("修改成功,请重启服务", "success");
         }
 
         private void StartServe(object sender, RoutedEventArgs e)
         {
-            if (server!=null)
+            if (isServe)
             {
-                MessageBox.Show("服务已启动，请勿重复点击", "error");
-            }else{
+                ControlTemplate template = serverBtn.FindName("serverBtnTemp") as ControlTemplate;
+
+                if (template != null)
+                {
+                    Image img = template.FindName("imgWork", serverBtn) as Image;
+                    img.Source = new BitmapImage(new Uri("./img/service_off.png",
+                                                       UriKind.Relative));
+                }
+                isServe = false;
+                if (server != null)
+                {
+                    server.Close();
+                }
+                server = null;
+
+            }
+            else { 
+            ControlTemplate template = serverBtn.FindName("serverBtnTemp") as ControlTemplate;
+
+                if (template != null)
+                {
+                    Image img = template.FindName("imgWork", serverBtn) as Image;
+                    img.Source = new BitmapImage(new Uri("./img/service_on.png",
+                                                       UriKind.Relative));
+                }
                 startServer();
                 isServe = true;
             }
-
         }
 
     }
