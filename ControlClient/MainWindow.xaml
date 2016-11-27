@@ -8,7 +8,7 @@
         BorderThickness="2"
         Width="800"
         Height="600"
-        Icon=".\img\game.png"
+        Icon=".\img\logo.png"
         KeyDown="ShowData_KeyDown" KeyUp="ShowData_KeyUp"
         >
     <Grid Background="White">
@@ -51,7 +51,7 @@
                 </Button.Template>
             </Button>
             <Label Content="未登录" TextBlock.FontWeight="Bold" FontSize="18" Foreground="White" HorizontalAlignment="Right" Margin="0,0,15,0" VerticalAlignment="Bottom"/>
-            <Image HorizontalAlignment="Left"  Source=".\img\game.png" Height="40" VerticalAlignment="Center" Width="40" Margin="5,0,0,0"/>
+            <Image HorizontalAlignment="Left"  Source=".\img\logo.png" Height="40" VerticalAlignment="Center" Width="40" Margin="5,0,0,0"/>
 
         </Grid>
         <Grid HorizontalAlignment="Stretch" Background="Gray" Height="30" Margin="0,0,0,0" VerticalAlignment="Bottom">
