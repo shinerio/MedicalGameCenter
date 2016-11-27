@@ -115,28 +115,10 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="img\exit.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <Resource Include="img\scale.png" />
-  </ItemGroup>
-  <ItemGroup>
     <Resource Include="img\user.png" />
   </ItemGroup>
   <ItemGroup>
     <Resource Include="img\error.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <Resource Include="img\addGame.jpg" />
-  </ItemGroup>
-  <ItemGroup>
-    <Resource Include="img\zuixiaohua.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <Resource Include="img\logo.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <Resource Include="icLauncher.ico" />
   </ItemGroup>
   <ItemGroup>
     <Resource Include="img\switchLogin_enter.png" />
@@ -151,6 +133,25 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="img\aboutus.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="img\exitAll.png" />
+    <Resource Include="img\minimize.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="img\maximize.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="icLauncher.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="img\game.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="img\addGame.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="img\clearGame.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
