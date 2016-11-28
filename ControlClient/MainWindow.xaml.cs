@@ -28,7 +28,7 @@ namespace ControlClient
     {
         static Socket server;  //数据源服务器
         static string msg = "hold";  //默认发送数据
-        static int  rowNum = 4;
+        static int rowNum = 4;
         static int cloumnNum = 4;
         string[,] gamePath = new string[rowNum, cloumnNum];
         public MainWindow()
@@ -51,7 +51,7 @@ namespace ControlClient
                 {
                     this.DragMove();
                 }
-            }  
+            }
         }
 
         private void Button_Click(object sender, RoutedEventArgs e)
@@ -77,29 +77,31 @@ namespace ControlClient
         }
 
         [System.Runtime.InteropServices.DllImport("shell32.dll")]
-        private static extern int ExtractIconEx(string lpszFile, int niconIndex, IntPtr[] phiconLarge, IntPtr[] phiconSmall, int nIcons);  
+        private static extern int ExtractIconEx(string lpszFile, int niconIndex, IntPtr[] phiconLarge, IntPtr[] phiconSmall, int nIcons);
         private void AddGame(object sender, MouseButtonEventArgs e)
         {
             OpenFileDialog openFile = new OpenFileDialog();
             openFile.ShowDialog();
             String fileName = openFile.FileName;
-            if (fileName != null && !"".Equals(fileName)) {
+            if (fileName != null && !"".Equals(fileName))
+            {
                 if (!fileName.EndsWith(".exe"))
                 {
                     MessageBox.Show("文件格式错误", "出错了");
                 }
-                else { 
-                doUpdate(this, fileName);
+                else
+                {
+                    doUpdate(this, fileName);
                 }
             }
         }
         private void startGame(object sender, RoutedEventArgs e)
         {
-           Image img =  (Image)sender;
+            Image img = (Image)sender;
             int row = Grid.GetRow(img);
             int column = Grid.GetColumn(img);
-            Process.Start(@gamePath[row, row]); 
-    
+            Process.Start(@gamePath[row, row]);
+
         }
         //初始化游戏
         public static void initGame(MainWindow main)
@@ -114,10 +116,10 @@ namespace ControlClient
                     doUpdate(main, path);
                 }
             }
-  
+
         }
         //更新游戏
-        public static void doUpdate(MainWindow main,String fileName)
+        public static void doUpdate(MainWindow main, String fileName)
         {
             IntPtr[] largeIcons, smallIcons;  //存放大/小图标的指针数组  
             string appPath = @fileName;
@@ -181,7 +183,7 @@ namespace ControlClient
                 Grid.SetRow(img, 0);
                 int subStart = fileName.LastIndexOf("\\");
                 int subEnd = fileName.LastIndexOf(".exe");
-                String gameName = fileName.Substring(subStart + 1, subEnd - subStart-1);
+                String gameName = fileName.Substring(subStart + 1, subEnd - subStart - 1);
                 Label l = new Label();
                 l.Content = gameName;
                 g.VerticalAlignment = VerticalAlignment.Center;
@@ -239,7 +241,7 @@ namespace ControlClient
         //登录窗口
         private void Login(object sender, RoutedEventArgs e)
         {
-            Login login =  new Login();
+            Login login = new Login();
             login.Owner = this;
             login.WindowStartupLocation = WindowStartupLocation.CenterOwner;
             login.ShowDialog();
@@ -258,7 +260,7 @@ namespace ControlClient
                 msg = "hold";
             }
         }
-       private void ShowData_KeyDown(object sender, KeyEventArgs e)
+        private void ShowData_KeyDown(object sender, KeyEventArgs e)
         {
             if (e.Key == Key.Right)
             {
@@ -271,33 +273,37 @@ namespace ControlClient
                 showData.Content = "left";
             }
         }
-       static void startServer()
-       {
-           server = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
-           String localIP = Utils.getConfig("localIP");
-           if (localIP != null)
-           {
-               try
-               {
-                   server.Bind(new IPEndPoint(IPAddress.Parse(localIP), 6001));//绑定端口号和IP
-                   Thread t = new Thread(sendMsg);//开启发送消息线程
-                   t.IsBackground = true;
-                   t.Start();     
-               }catch(Exception){
-                   MessageBox.Show("本机IP地址无效", "出错了");
-               }
-           }else
-           {
-               MessageBox.Show("本机IP地址不能为空", "出错了");
-           }
-       }
+        static void startServer()
+        {
+            server = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
+            String localIP = Utils.getConfig("localIP");
+            if (localIP != null)
+            {
+                try
+                {
+                    server.Bind(new IPEndPoint(IPAddress.Parse(localIP), 6001));//绑定端口号和IP
+                    Thread t = new Thread(sendMsg);//开启发送消息线程
+                    t.IsBackground = true;
+                    t.Start();
+                }
+                catch (Exception)
+                {
+                    MessageBox.Show("本机IP地址无效", "出错了");
+                }
+            }
+            else
+            {
+                MessageBox.Show("本机IP地址不能为空", "出错了");
+            }
+        }
 
-       static bool isServe = false;  //是否在服务中
+        static bool isServe = false;  //是否在服务中
         //发送数据
         static void sendMsg()
         {
             String targetIP = Utils.getConfig("targetIP");
-            if (targetIP != null) {
+            if (targetIP != null)
+            {
                 try
                 {
                     EndPoint point = new IPEndPoint(IPAddress.Parse(targetIP), 6000);
@@ -313,21 +319,34 @@ namespace ControlClient
             }
             else
             {
-                MessageBox.Show("目标IP地址不能为空","出错了");
+                MessageBox.Show("目标IP地址不能为空", "出错了");
             }
         }
 
         private void MenuButton_MouseEnter(object sender, MouseEventArgs e)
         {
+            Console.WriteLine("mouse_enter!!");
             Button g = (Button)sender;
-            g.Background = new SolidColorBrush(Color.FromArgb(100, 149, 237, 0)); 
-          
+            g.Background = new SolidColorBrush(Color.FromArgb(100, 149, 237, 0));
+
         }
 
         private void MenuButton_MouseLeave(object sender, MouseEventArgs e)
         {
             Button g = (Button)sender;
-            g.Background = new SolidColorBrush(Color.FromRgb(0,0,139));
+            g.Background = new SolidColorBrush(Color.FromRgb(242, 242, 242));
+        }
+
+        private void ServiceToolIcon_OnMouseEnter(object sender, MouseEventArgs e)
+        {
+            StackPanel stackPanel = (StackPanel)sender;
+            stackPanel.Background = Brushes.LightGray;
+        }
+
+        private void ServiceToolIcon_OnMouseLeave(object sender, MouseEventArgs e)
+        {
+            StackPanel stackPanel = (StackPanel)sender;
+            stackPanel.Background = new SolidColorBrush(Color.FromRgb(242, 242, 242));
         }
 
         private void doNone(object sender, MouseEventArgs e)
@@ -339,11 +358,12 @@ namespace ControlClient
         {
             String slocalIP = localIP.Text.ToString();
             String stargetIP = targetIP.Text.ToString();
-            Utils.UpdateAppConfig("localIP",slocalIP);
+            Utils.UpdateAppConfig("localIP", slocalIP);
             Utils.UpdateAppConfig("targetIP", stargetIP);
             isServe = false;
-            if (server != null) { 
-            server.Close();
+            if (server != null)
+            {
+                server.Close();
             }
             server = null;
             ControlTemplate template = serverBtn.FindName("serverBtnTemp") as ControlTemplate;
@@ -377,8 +397,9 @@ namespace ControlClient
                 server = null;
 
             }
-            else { 
-            ControlTemplate template = serverBtn.FindName("serverBtnTemp") as ControlTemplate;
+            else
+            {
+                ControlTemplate template = serverBtn.FindName("serverBtnTemp") as ControlTemplate;
 
                 if (template != null)
                 {
@@ -390,6 +411,5 @@ namespace ControlClient
                 isServe = true;
             }
         }
-
     }
 }
