@@ -142,9 +142,6 @@
     <Resource Include="img\maximize.png" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="img\game.png" />
-  </ItemGroup>
-  <ItemGroup>
     <Resource Include="img\addGame.png" />
   </ItemGroup>
   <ItemGroup>
