@@ -18,6 +18,9 @@ using System.Configuration;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading;
+using System.Timers;
+using WebSocketSharp;
+using WebSocketSharp.Server;
 
 namespace ControlClient
 {
@@ -26,7 +29,77 @@ namespace ControlClient
     /// </summary>
     public partial class MainWindow : Window
     {
+        // WebSocket数据处理类
+        public class GloveData : WebSocketBehavior
+        {
+            static System.Timers.Timer _timer = new System.Timers.Timer
+            {
+                Enabled = false,
+                AutoReset = true,
+                Interval = _interval
+            };
+
+            protected override void OnOpen()
+            {
+                _timer.Elapsed += new System.Timers.ElapsedEventHandler(SendMsg);
+                base.OnOpen();
+            }
+
+            protected override void OnMessage(MessageEventArgs e)
+            {
+                // _timer.Elapsed += new System.Timers.ElapsedEventHandler(SendMsg);
+                switch (e.Data)
+                {
+                    case "start":
+                        _timer.Start();
+                        break;
+                    case "stop":
+                        //Console.WriteLine("stop!!!!");
+                        _timer.Stop();
+                        //_timer.Dispose();
+                        break;
+                    default:
+                        break;
+                }
+            }
+
+            private void SendMsg(object source, ElapsedEventArgs e)
+            {
+                RefreshValue();
+                Send(Convert.ToString(_value));
+            }
+
+            private static void RefreshValue()
+            {
+                Random ran = new Random();
+                int dv = 0;
+                switch (_value)
+                {
+                    case 0:
+                        dv = ran.Next(0, 3);
+                        break;
+                    case 1:
+                        dv = ran.Next(-1, 3);
+                        break;
+                    case 99:
+                        dv = ran.Next(-2, 2);
+                        break;
+                    case 100:
+                        dv = ran.Next(-2, 1);
+                        break;
+                    default:
+                        dv = ran.Next(-2, 3);
+                        break;
+                }
+                _value = _value + dv;
+            }
+        }
         static Socket server;  //数据源服务器
+        static WebSocketServer WSServer;    //WebSocket服务端
+        private static int _value = 50;  //默认发送手套的标量值
+        private static String GloveDataServerName = "/GloveData";   //标量数据在WebSocket上的服务名
+        private static int _interval = 200;  //[TEST]数据发送间隔
+
         static string msg = "hold";  //默认发送数据
         static int rowNum = 4;
         static int cloumnNum = 4;
@@ -304,6 +377,9 @@ namespace ControlClient
                     Thread t = new Thread(sendMsg);//开启发送消息线程
                     t.IsBackground = true;
                     t.Start();
+                    WSServer = new WebSocketServer(String.Format("ws://{0}", localIP));//new WebSocket
+                    WSServer.AddWebSocketService<GloveData>(GloveDataServerName);
+                    WSServer.Start();
                 }
                 catch (Exception)
                 {
@@ -395,6 +471,10 @@ namespace ControlClient
                 if (server != null)
                 {
                     server.Close();
+                }
+                if (WSServer != null)
+                {
+                    WSServer.Stop();
                 }
                 server = null;
 
