@@ -217,6 +217,26 @@ namespace ControlClient
             targetIP.Text = Utils.getConfig("targetIP");
         }
         //清空游戏
+        private void ClearGame(object sender, MouseEventArgs e)
+        {
+            MessageBoxResult confirmToDel = MessageBox.Show("确认要清空游戏吗？", "提示", MessageBoxButton.YesNo, MessageBoxImage.Question);
+            if (confirmToDel == MessageBoxResult.Yes)
+            {
+                string file = System.Windows.Forms.Application.ExecutablePath;
+                Configuration config = ConfigurationManager.OpenExeConfiguration(file);
+                foreach (string key in config.AppSettings.Settings.AllKeys)
+                {
+                    if (!key.Contains("IP"))
+                        config.AppSettings.Settings.Remove(key);
+                }
+                config.Save(ConfigurationSaveMode.Modified);
+                ConfigurationManager.RefreshSection("appSettings");
+                gameContainer.Children.Clear();
+                gameContainer.Children.Add(addGame);
+                Grid.SetColumn(addGame, 0);
+                Grid.SetRow(addGame, 0);
+            }
+        }
         private void ClearGame(object sender, RoutedEventArgs e)
         {
             MessageBoxResult confirmToDel = MessageBox.Show("确认要清空游戏吗？", "提示", MessageBoxButton.YesNo, MessageBoxImage.Question);
@@ -237,7 +257,6 @@ namespace ControlClient
                 Grid.SetRow(addGame, 0);
             }
         }
-
         //登录窗口
         private void Login(object sender, RoutedEventArgs e)
         {
@@ -323,20 +342,6 @@ namespace ControlClient
             }
         }
 
-        private void MenuButton_MouseEnter(object sender, MouseEventArgs e)
-        {
-            Console.WriteLine("mouse_enter!!");
-            Button g = (Button)sender;
-            g.Background = new SolidColorBrush(Color.FromArgb(100, 149, 237, 0));
-
-        }
-
-        private void MenuButton_MouseLeave(object sender, MouseEventArgs e)
-        {
-            Button g = (Button)sender;
-            g.Background = new SolidColorBrush(Color.FromRgb(242, 242, 242));
-        }
-
         private void ServiceToolIcon_OnMouseEnter(object sender, MouseEventArgs e)
         {
             StackPanel stackPanel = (StackPanel)sender;
@@ -349,9 +354,6 @@ namespace ControlClient
             stackPanel.Background = new SolidColorBrush(Color.FromRgb(242, 242, 242));
         }
 
-        private void doNone(object sender, MouseEventArgs e)
-        {
-        }
 
         //设备帮助修改配置确认
         private void settingsDer_Click(object sender, RoutedEventArgs e)
