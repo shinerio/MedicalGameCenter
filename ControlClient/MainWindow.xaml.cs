@@ -17,6 +17,7 @@ using System.Windows.Shapes;
 using System.Configuration;
 using System.Net;
 using System.Net.Sockets;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Timers;
 using WebSocketSharp;
@@ -94,10 +95,130 @@ namespace ControlClient
                 _value = _value + dv;
             }
         }
+        public class CommandData : WebSocketBehavior
+        {
+            // 标识评估状态
+            enum EvaluateStatus
+            {
+                Idle,
+                Ready,
+                Running
+            }
+
+            static Regex digitRegex = new Regex(@"\d+");
+            private static int EvaluateTime = 0;
+            private static EvaluateStatus status = EvaluateStatus.Idle;
+            public static bool isRunning = false;
+            Random random = new Random();
+            static System.Timers.Timer _timer = new System.Timers.Timer
+            {
+                Enabled = false,
+                AutoReset = false
+            };
+            protected override void OnOpen()
+            {
+                _timer.Elapsed += new System.Timers.ElapsedEventHandler(StopRunning);
+                base.OnOpen();
+            }
+
+            protected override void OnMessage(MessageEventArgs e)
+            {
+                //执行间隔时间,单位为毫秒;此时时间间隔为1秒
+                // _timer.Elapsed += new System.Timers.ElapsedEventHandler(SendMsg);
+                String data = e.Data;
+                if (status == EvaluateStatus.Ready && digitRegex.IsMatch(data))
+                {
+                    EvaluateTime = String2Int(data);
+                }
+                switch (data)
+                {
+                    case "evaluate_request":
+                        //TODO: 弹出评估请求框
+                        MessageBoxResult result = MessageBox.Show("是否同意开始评估？", "请选择", MessageBoxButton.YesNo, MessageBoxImage.Question);
+                        if (result == MessageBoxResult.Yes)
+                        {
+                            status = EvaluateStatus.Ready;
+                            Send("evaluate_request_accepted");
+                        }
+                        else
+                        {
+                            status = EvaluateStatus.Idle;
+                            Send("evaluate_request_refused");
+                        }
+                        break;
+                    case "evaluate_start":
+                        if (status == EvaluateStatus.Ready)
+                        {
+
+                            Send(String.Format("evaluate_started time:{0}", EvaluateTime));
+                            status = EvaluateStatus.Running;
+                            isRunning = true;
+                            _timer.Interval = EvaluateTime * 1000;
+                            _timer.Start();
+                            //TODO: 开始评估操作
+                            WriteDBThread.run();    //Test
+                        }
+                        break;
+                    default:
+                        break;
+                }
+            }
+
+            private void StopRunning(object source, ElapsedEventArgs e)
+            {
+                isRunning = false;
+                Send("evaluate_stop");
+                ResetStatus();
+            }
+
+            private void ResetStatus()
+            {
+                status = EvaluateStatus.Idle;
+                _timer.Stop();
+            }
+
+            private int String2Int(String s)
+            {
+                int i;
+                if (!Int32.TryParse(s, out i))
+                {
+                    i = 1;
+                }
+                return i;
+            }
+
+            private class WriteDBThread
+            {
+                public static void run()
+                {
+                    WriteDBThread t = new WriteDBThread();
+                    Thread parameterThread = new Thread(new ParameterizedThreadStart(t.InsertData));
+                    parameterThread.Name = "Write Database";
+                    parameterThread.Start(50);
+                }
+
+                private void InsertData(object ms)
+                {
+                    int j = 10;
+                    int.TryParse(ms.ToString(), out j); //这里采用了TryParse方法，避免不能转换时出现异常
+                    // 结果先写入测试文件
+                    using (System.IO.StreamWriter file =
+                        new System.IO.StreamWriter(@"./test.txt", true))
+                    {
+                        while (CommandData.isRunning)
+                        {
+                            file.WriteLine(new Random().Next(0, 101));
+                            Thread.Sleep(j); //让线程暂停  
+                        }
+                    }
+                }
+            }
+        }
         static Socket server;  //数据源服务器
         static WebSocketServer WSServer;    //WebSocket服务端
         private static int _value = 50;  //默认发送手套的标量值
         private static String GloveDataServerName = "/GloveData";   //标量数据在WebSocket上的服务名
+        private static String CommandDataServerName = "/CommandData";   //评估命令在WebSocket上的服务名
         private static int _interval = 200;  //[TEST]数据发送间隔
 
         static string msg = "hold";  //默认发送数据
@@ -379,6 +500,7 @@ namespace ControlClient
                     t.Start();
                     WSServer = new WebSocketServer(String.Format("ws://{0}", localIP));//new WebSocket
                     WSServer.AddWebSocketService<GloveData>(GloveDataServerName);
+                    WSServer.AddWebSocketService<CommandData>(CommandDataServerName);
                     WSServer.Start();
                 }
                 catch (Exception)
@@ -492,6 +614,11 @@ namespace ControlClient
                 startServer();
                 isServe = true;
             }
+        }
+
+        private void AboutUs_OnMouseLeftButtonUp(object sender, MouseButtonEventArgs e)
+        {
+
         }
     }
 }
