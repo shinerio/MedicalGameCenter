@@ -326,9 +326,12 @@ namespace ControlClient
             ExtractIconEx(appPath, 0, largeIcons, smallIcons, IconCount);
             //  for (int i = 0; i < IconCount; i++)
             //    {
+             BitmapSource returnSource = null;
+            if (IconCount > 0) { 
             System.Drawing.Icon newIcon = System.Drawing.Icon.FromHandle(largeIcons[0]);
             System.Drawing.Bitmap bmp = newIcon.ToBitmap();
-            BitmapSource returnSource = System.Windows.Interop.Imaging.CreateBitmapSourceFromHBitmap(bmp.GetHbitmap(), IntPtr.Zero, Int32Rect.Empty, BitmapSizeOptions.FromEmptyOptions());
+            returnSource = System.Windows.Interop.Imaging.CreateBitmapSourceFromHBitmap(bmp.GetHbitmap(), IntPtr.Zero, Int32Rect.Empty, BitmapSizeOptions.FromEmptyOptions());
+            }
             Image img = new Image();
             img.Source = returnSource;
             int nowColumn = Grid.GetColumn(main.addGame);
@@ -454,7 +457,7 @@ namespace ControlClient
         //登录窗口
         private void Login(object sender, RoutedEventArgs e)
         {
-            Login login = new Login();
+            Login login = new Login(loginStatus);            
             login.Owner = this;
             login.WindowStartupLocation = WindowStartupLocation.CenterOwner;
             login.ShowDialog();
