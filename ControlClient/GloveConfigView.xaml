@@ -1,0 +1,26 @@
+﻿<Window x:Class="ControlClient.GloveConfigView"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:ControlClient"
+        mc:Ignorable="d"
+        Title="GloveConfigView" Height="300" Width="300">
+    <Grid>
+        <Button x:Name="btn_StartCali" Content="开始校准" HorizontalAlignment="Left" Margin="112,34,0,0" VerticalAlignment="Top" Width="75" Click="btn_StartCali_Click"/>
+        <Button x:Name="btn_EndCali" Content="停止校准" HorizontalAlignment="Left" Margin="112,90,0,0" VerticalAlignment="Top" Width="75" Height="21" Click="btn_EndCali_Click"/>
+        <Button x:Name="btn_EraseCali" Content="Erase" HorizontalAlignment="Left" Margin="112,10,0,0" VerticalAlignment="Top" Width="75" Click="btn_EraseCali_Click"/>
+        <Label x:Name="label" Content="Step1" HorizontalAlignment="Left" Margin="27,7,0,0" VerticalAlignment="Top" RenderTransformOrigin="0.336,-0.477"/>
+        <Label x:Name="label_Copy" Content="Step2" HorizontalAlignment="Left" Margin="27,27,0,0" VerticalAlignment="Top" RenderTransformOrigin="0.336,-0.477"/>
+        <Label x:Name="label_Copy1" Content="Step3 各个方向充分旋转设备共10秒左右" HorizontalAlignment="Left" Margin="27,59,0,0" VerticalAlignment="Top" RenderTransformOrigin="0.336,-0.477" Width="257"/>
+        <Label x:Name="label_Copy2" Content="Step4" HorizontalAlignment="Left" Margin="27,85,0,0" VerticalAlignment="Top" RenderTransformOrigin="0.336,-0.477"/>
+        <Label x:Name="lbl_info" Content="请按步骤校准，若磁力计校准过直接进行5、6" HorizontalAlignment="Left" Margin="27,124,0,0" VerticalAlignment="Top" RenderTransformOrigin="0.336,-0.477" Width="257"/>
+        <Label x:Name="label_Copy3" Content="Step5" HorizontalAlignment="Left" Margin="27,169,0,0" VerticalAlignment="Top" RenderTransformOrigin="0.336,-0.477"/>
+        <Label x:Name="label_Copy4" Content="Step6" HorizontalAlignment="Left" Margin="27,200,0,0" VerticalAlignment="Top" RenderTransformOrigin="0.336,-0.477"/>
+        <Button x:Name="btn_worst" Content="最差姿势" HorizontalAlignment="Left" Margin="112,175,0,0" VerticalAlignment="Top" Width="75" Click="btn_worst_Click"/>
+        <Button x:Name="btn_best" Content="最佳姿势" HorizontalAlignment="Left" Margin="112,203,0,0" VerticalAlignment="Top" Width="75" Click="btn_best_Click"/>
+        <Button x:Name="btn_reset" Content="复位姿势" HorizontalAlignment="Left" Margin="112,238,0,0" VerticalAlignment="Top" Width="75" Click="btn_reset_Click"/>
+        <Label x:Name="label_Copy5" Content="可选" HorizontalAlignment="Left" Margin="37,235,0,0" VerticalAlignment="Top" RenderTransformOrigin="0.336,-0.477"/>
+
+    </Grid>
+</Window>

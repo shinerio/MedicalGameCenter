@@ -22,7 +22,7 @@ using System.Threading;
 using System.Timers;
 using WebSocketSharp;
 using WebSocketSharp.Server;
-
+using GloveLib;
 namespace ControlClient
 {
     /// <summary>
@@ -223,10 +223,26 @@ namespace ControlClient
         static int rowNum = 4;
         static int cloumnNum = 4;
         string[,] gamePath = new string[rowNum, cloumnNum];
+
+        //fuyang all the class below are singleton pattern
+        //glove module for some init function
+        private GloveModule gloveModule;
+        //glove controller class for all access to glove api
+        private GloveController gc;
         public MainWindow()
         {
             InitializeComponent();
+            InitModule();
             initGame(this);
+        }
+
+        private void InitModule()
+        {
+            ConsoleManager.Show();
+            gloveModule = GloveModule.GetSingleton(this);
+            gc = gloveModule.gc;
+
+
         }
 
         private void topTitle_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
@@ -617,9 +633,34 @@ namespace ControlClient
             }
         }
 
-        private void AboutUs_OnMouseLeftButtonUp(object sender, MouseButtonEventArgs e)
-        {
 
+        private void btn_Connect_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                if (!gc.IsConnected(0))
+                {
+                    var PortName = cbb_port.SelectedItem.ToString();
+                    gc.Connect(PortName, 0);
+                    btn_Connect.Content = "关闭";
+                    lbl_gloveStatus.Content = "手套已接入";
+                }
+                else
+                {
+                    gc.Close(0);
+                    btn_Connect.Content = "打开";
+                    lbl_gloveStatus.Content = "手套未接入";
+                }
+            }
+            catch (Exception ee)
+            {
+                MessageBox.Show(ee.ToString());
+            }
+        }
+
+        private void btn_Config_Click(object sender, RoutedEventArgs e)
+        {
+            (new GloveConfigView()).Show();
         }
     }
 }

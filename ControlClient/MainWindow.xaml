@@ -8,7 +8,7 @@
         BorderThickness="2"
         Width="800"
         Height="600"
-        Icon=".\img\logo.png"
+        Icon=".\img\logo.jpg"
         KeyDown="ShowData_KeyDown" KeyUp="ShowData_KeyUp"
         >
     <Grid Background="White">
@@ -52,9 +52,18 @@
             <Label Content="未登录" Name="loginStatus"  TextBlock.FontWeight="Bold" FontSize="15" Foreground="AntiqueWhite" HorizontalAlignment="Right" Margin="0,0,0,3" VerticalAlignment="Bottom" Height="30"/>
             <Image HorizontalAlignment="Left"  Source=".\img\logo.png" Height="40" VerticalAlignment="Center" Width="40" Margin="5,0,0,0"/>
         </Grid>
-        <Grid HorizontalAlignment="Stretch" Background="Gray" Height="30" Margin="0,0,0,0" VerticalAlignment="Bottom">
-            <Image HorizontalAlignment="Left" Margin="9,0,0,0"  Source=".\img\error.png" Width="26"/>
-            <Label Content="手套未接入" TextBlock.FontWeight="Bold" FontSize="16" Foreground="White"  HorizontalAlignment="Left" Margin="35,0,0,0"/>
+        <Grid HorizontalAlignment="Stretch" Background="Gray" Height="60" VerticalAlignment="Bottom">
+            <Image HorizontalAlignment="Left" Margin="9,0,0,0" VerticalAlignment="Top"  Source=".\img\error.png" Width="26"/>
+            <Label x:Name="lbl_gloveStatus" Content="手套未接入" TextBlock.FontWeight="Bold" FontSize="16" Foreground="White"  HorizontalAlignment="Left" Margin="49,0,0,28"/>
+            <TextBox Name="txt_log" AcceptsReturn="True" 
+                 Foreground="White"
+                 Background="Black"
+                 VerticalScrollBarVisibility="Auto" MaxLines="4"
+                 HorizontalScrollBarVisibility="Auto" IsReadOnly="True" Margin="149,0,0,0"
+                 />
+            <Button x:Name="btn_Connect" Content="打开" HorizontalAlignment="Left" Margin="70,26,0,0" VerticalAlignment="Top" Width="42" Click="btn_Connect_Click" Height="21" />
+            <ComboBox x:Name="cbb_port" HorizontalAlignment="Left" Margin="0,26,0,0" VerticalAlignment="Top" Width="70"/>
+            <Button x:Name="btn_Config" Content="配置" HorizontalAlignment="Left" Margin="112,26,0,0" VerticalAlignment="Top" Width="37" Height="21" Click="btn_Config_Click" />
         </Grid>
 
 
@@ -84,7 +93,7 @@
                     </Button>
                     <Label Content="清空游戏" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="0,5,10,5" FontWeight="Bold" FontSize="15" Height="30"/>
                 </StackPanel>
-                <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" MouseEnter="ServiceToolIcon_OnMouseEnter" MouseLeave="ServiceToolIcon_OnMouseLeave" MouseLeftButtonUp="AboutUs_OnMouseLeftButtonUp">
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" MouseEnter="ServiceToolIcon_OnMouseEnter" MouseLeave="ServiceToolIcon_OnMouseLeave">
                     <Button  Name="aboutUs" HorizontalAlignment="Left"  Focusable="False" BorderBrush="Transparent"  Height="30" Width="30" Margin="10,5,0,5" VerticalAlignment="Center">
                         <Button.Template>
                             <ControlTemplate x:Name="aboutUsTemp">
@@ -100,13 +109,13 @@
         </Grid>
 
 
-        <Grid HorizontalAlignment="Left" Margin="0,95,0,30"  Background="LightBlue" VerticalAlignment="Stretch" Width="150">
+        <Grid HorizontalAlignment="Left" Margin="0,95,0,60"  Background="LightBlue" VerticalAlignment="Stretch" Width="150">
             <Button  Name ="Game_Menu" HorizontalAlignment="Left" Focusable="False" Content="游戏菜单" TextBlock.FontWeight="Bold" FontSize="14" Foreground="Black" Background="#f2f2f2" Height="30" Margin="20,20,0,0" VerticalAlignment="Top" Width="110"  Click="GameMenu">
             </Button>
             <Button  HorizontalAlignment="Left" Focusable="False" Content="设备帮助" TextBlock.FontWeight="Bold" FontSize="14" Foreground="Black" Background="#f2f2f2" Height="30" Margin="20,60,0,0" VerticalAlignment="Top" Width="110" Click="DeviceHelp"/>
-            <Label HorizontalAlignment="Left" Name="showData" VerticalContentAlignment="Center" HorizontalContentAlignment="Center" FontSize="30" Height="40" Margin="10,420,0,0"  VerticalAlignment="Top" Width="120"/>
+            <Label HorizontalAlignment="Left" Name="showData" VerticalContentAlignment="Center" HorizontalContentAlignment="Center" FontSize="30" Height="40" Margin="10,391,0,0"  VerticalAlignment="Top" Width="120"/>
         </Grid>
-        <Grid HorizontalAlignment="Stretch"  Name="MainContainer" Margin="150,95,0,30" VerticalAlignment="Stretch" Background="LightYellow">
+        <Grid HorizontalAlignment="Stretch"  Name="MainContainer" Margin="150,95,0,60" VerticalAlignment="Stretch" Background="LightYellow">
             <Grid Visibility="Visible" HorizontalAlignment="Stretch" Name="gameContainer" VerticalAlignment="Stretch" Background="LightYellow">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="25*"/>
