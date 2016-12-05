@@ -42,5 +42,6 @@ namespace ControlClient
             config.Save(ConfigurationSaveMode.Modified);
             ConfigurationManager.RefreshSection("appSettings");
         }
+
     }
 }
