@@ -33,6 +33,7 @@ namespace ControlClient
         // WebSocket数据处理类
         public class GloveData : WebSocketBehavior
         {
+            private static Random ran = new Random();
             static System.Timers.Timer _timer = new System.Timers.Timer
             {
                 Enabled = false,
@@ -72,24 +73,23 @@ namespace ControlClient
 
             private static void RefreshValue()
             {
-                Random ran = new Random();
                 int dv = 0;
                 switch (_value)
                 {
                     case 0:
-                        dv = ran.Next(0, 3);
+                        dv = ran.Next(0, 2);
                         break;
                     case 1:
-                        dv = ran.Next(-1, 3);
+                        dv = ran.Next(-1, 2);
                         break;
                     case 99:
-                        dv = ran.Next(-2, 2);
+                        dv = ran.Next(-1, 2);
                         break;
                     case 100:
-                        dv = ran.Next(-2, 1);
+                        dv = ran.Next(-1, 1);
                         break;
                     default:
-                        dv = ran.Next(-2, 3);
+                        dv = ran.Next(-1, 2);
                         break;
                 }
                 _value = _value + dv;
@@ -123,8 +123,6 @@ namespace ControlClient
 
             protected override void OnMessage(MessageEventArgs e)
             {
-                //执行间隔时间,单位为毫秒;此时时间间隔为1秒
-                // _timer.Elapsed += new System.Timers.ElapsedEventHandler(SendMsg);
                 String data = e.Data;
                 if (status == EvaluateStatus.Ready && digitRegex.IsMatch(data))
                 {
@@ -219,7 +217,7 @@ namespace ControlClient
         private static int _value = 50;  //默认发送手套的标量值
         private static String GloveDataServerName = "/GloveData";   //标量数据在WebSocket上的服务名
         private static String CommandDataServerName = "/CommandData";   //评估命令在WebSocket上的服务名
-        private static int _interval = 200;  //[TEST]数据发送间隔
+        private static int _interval = 50;  //[TEST]数据发送间隔
 
         static string msg = "hold";  //默认发送数据
         static int rowNum = 4;
