@@ -24,7 +24,7 @@ namespace ControlClient
     /// </summary>
     public partial class MainWindow : Window
     {
-      private ControlServerManage csm = ControlServerManage.GetInstance();
+        private ControlServerManage csm;
       private static int rowNum = 4;    //the number of game gridlist's row and cloumn
       private static int cloumnNum = 4;
       private string[,] gamePath = new string[rowNum, cloumnNum];//corresponding game's path
@@ -39,13 +39,14 @@ namespace ControlClient
             InitializeComponent();
             InitModule();
             InitGame(this);
+            csm = ControlServerManage.GetInstance(cbb_port, lbl_gloveStatus);
         }
 
         private void InitModule()
         {
             ConsoleManager.Show();
             gloveModule = GloveModule.GetSingleton(this);
-            gc = gloveModule.gc;
+           // gc = gloveModule.gc;
         }
 
         private void topTitle_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
@@ -345,6 +346,7 @@ namespace ControlClient
                 csm.startServer();             
             }
         }
+        /*
          //glovec connection
         private void btn_Connect_Click(object sender, RoutedEventArgs e)
         {
@@ -352,6 +354,7 @@ namespace ControlClient
             {
                 if (!gc.IsConnected(0))
                 {
+                    
                     var PortName = cbb_port.SelectedItem.ToString();
                     gc.Connect(PortName, 0);
                     btn_Connect.Content = "关闭";
@@ -368,7 +371,7 @@ namespace ControlClient
             {
                 MessageBox.Show(ee.ToString());
             }
-        }
+        }*/
 
         //glove config
         private void btn_Config_Click(object sender, RoutedEventArgs e)

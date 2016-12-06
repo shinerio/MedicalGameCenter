@@ -8,6 +8,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Controls;
 using WebSocketSharp.Server;
 
 namespace ControlClient
@@ -20,12 +21,20 @@ namespace ControlClient
         private  String GloveDataServerName = "/GloveData";   //标量数据在WebSocket上的服务名
         private  String CommandDataServerName = "/CommandData";   //评估命令在WebSocket上的服务名 
         private  bool isServe = false;  //是否在服务中
-        private ControlServerManage() { }
-      
-        public  static ControlServerManage GetInstance()
+        //glove controller class for all access to glove api
+        private GloveController gc;
+        //port selector
+        private static ComboBox cbb_port;
+        //lable for glove connection
+        private static Label lbl_gloveStatus;
+        private ControlServerManage() { gc = GloveModule.GetSingleton().gc; }
+
+        public static ControlServerManage GetInstance(ComboBox pbb_port, Label gloveStatus)
         {
             if (instance == null)
             {
+                lbl_gloveStatus = gloveStatus;
+                cbb_port = pbb_port;
                 instance = new ControlServerManage();
             }
             return instance;
@@ -45,6 +54,12 @@ namespace ControlClient
                     try
                      {
                     isServe = true;
+                    if (!gc.IsConnected(0))        //接入手套
+                    {
+                        var PortName = cbb_port.SelectedItem.ToString();
+                        gc.Connect(PortName, 0);
+                        lbl_gloveStatus.Content = "手套已接入";
+                    }
                     server.Bind(new IPEndPoint(IPAddress.Parse(localIP), 6001));//绑定端口号和IP
                     Thread t = new Thread(sendMsg);//开启发送消息线程
                     t.IsBackground = true;
@@ -53,10 +68,9 @@ namespace ControlClient
                     WSServer.AddWebSocketService<GloveData>(GloveDataServerName);
                     WSServer.AddWebSocketService<CommandData>(CommandDataServerName);
                     WSServer.Start();             
-                    } catch (Exception)
+                    } catch (Exception e)
                     {
-                    isServe = false;
-                    MessageBox.Show("本机IP地址无效", "出错了");
+                    MessageBox.Show(e.ToString(), "出错了");
                     }
                  } else
                  {
@@ -71,6 +85,15 @@ namespace ControlClient
         public void endServer()
         {
             isServe = false;
+            try { 
+            if (gc.IsConnected(0))        //接入手套
+            {
+                gc.Close(0);
+                lbl_gloveStatus.Content = "手套未接入";
+            }
+                }catch(Exception e){
+                    MessageBox.Show(e.ToString(), "出错了");
+                }
             if (server != null)
             {
                 server.Close();

@@ -19,7 +19,10 @@ namespace ControlClient
             }
             return Instance;
         }
-
+        public static GloveModule GetSingleton()
+        {
+            return Instance;      
+        }
         public SocketManager sm;
         public  GloveController gc;
         private DataWarehouse dh;
