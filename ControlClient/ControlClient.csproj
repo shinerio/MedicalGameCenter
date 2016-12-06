@@ -4,7 +4,7 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{AE4CE8A2-2B39-4C5F-957A-3F60D05C2B38}</ProjectGuid>
+    <ProjectGuid>{4B6BEE66-E183-4717-BEE6-E98095CE8790}</ProjectGuid>
     <OutputType>WinExe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>ControlClient</RootNamespace>
@@ -44,10 +44,13 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>libs\GloveLibPC.dll</HintPath>
     </Reference>
+    <Reference Include="Newtonsoft.Json, Version=4.5.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL" />
     <Reference Include="System" />
     <Reference Include="System.Configuration" />
     <Reference Include="System.Data" />
+    <Reference Include="System.DirectoryServices.Protocols" />
     <Reference Include="System.Drawing" />
+    <Reference Include="System.ServiceModel" />
     <Reference Include="System.Web.Extensions" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
@@ -72,11 +75,14 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Doctor.cs" />
     <Compile Include="GloveConfigView.xaml.cs">
       <DependentUpon>GloveConfigView.xaml</DependentUpon>
     </Compile>
     <Compile Include="GloveModule.cs" />
+    <Compile Include="HttpWebResponseUtility.cs" />
     <Compile Include="Logger.cs" />
+    <Compile Include="Patient.cs" />
     <Compile Include="Settings.cs" />
     <Compile Include="Utils.cs" />
     <Page Include="GloveConfigView.xaml">
