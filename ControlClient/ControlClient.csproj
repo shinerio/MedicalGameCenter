@@ -79,6 +79,7 @@
     <Compile Include="GloveConfigView.xaml.cs">
       <DependentUpon>GloveConfigView.xaml</DependentUpon>
     </Compile>
+    <Compile Include="GloveData.cs" />
     <Compile Include="GloveModule.cs" />
     <Compile Include="HttpWebResponseUtility.cs" />
     <Compile Include="Logger.cs" />
