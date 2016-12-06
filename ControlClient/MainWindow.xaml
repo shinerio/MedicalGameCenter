@@ -9,11 +9,10 @@
         Width="800"
         Height="600"
         Icon=".\img\logo.jpg"
-        KeyDown="ShowData_KeyDown" KeyUp="ShowData_KeyUp"
         >
     <Grid Background="White">
         <Grid HorizontalAlignment="Stretch"  Name="topTitle" Height="55" Background="#1b6093" Margin="0,0,0,0" VerticalAlignment="Top" MouseLeftButtonDown="topTitle_MouseLeftButtonDown" >
-            <Button  HorizontalAlignment="Right" Height="22" Margin="0,5,6,0" BorderBrush="Transparent" VerticalAlignment="Top" Width="24" Focusable="False" Click="Button_Click"  >
+            <Button  HorizontalAlignment="Right" Height="22" Margin="0,5,6,0" BorderBrush="Transparent" VerticalAlignment="Top" Width="24" Focusable="False" Click="ShutdownAll"  >
                 <Button.Template>
                     <ControlTemplate x:Name="exitTemp">
                         <ContentControl>
@@ -22,7 +21,7 @@
                     </ControlTemplate>
                 </Button.Template>
             </Button>
-            <Button  HorizontalAlignment="Right" Height="17" Margin="0,7,40,0"  BorderBrush="Transparent" VerticalAlignment="Top" Width="20" Focusable="False" Click="Scale_click">
+            <Button  HorizontalAlignment="Right" Height="17" Margin="0,7,40,0"  BorderBrush="Transparent" VerticalAlignment="Top" Width="20" Focusable="False" Click="ScaleWindow">
                 <Button.Template>
                     <ControlTemplate x:Name="scaleTemp">
                         <ContentControl>
@@ -31,7 +30,7 @@
                     </ControlTemplate>
                 </Button.Template>
             </Button>
-            <Button  HorizontalAlignment="Right" Height="22" Margin="0,5,75,0" BorderBrush="Transparent" VerticalAlignment="Top" Width="20" Focusable="False"  Click="zuixiaohua">
+            <Button  HorizontalAlignment="Right" Height="22" Margin="0,5,75,0" BorderBrush="Transparent" VerticalAlignment="Top" Width="20" Focusable="False"  Click="MinimizeWindow">
                 <Button.Template>
                     <ControlTemplate x:Name="zuixiaohuaTemp">
                         <ContentControl>
@@ -69,8 +68,8 @@
 
         <Grid HorizontalAlignment="Stretch" Background="#f2f2f2" Height="40" Margin="0,55,0,0" VerticalAlignment="Top">
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" Width="auto">
-                <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" MouseEnter="ServiceToolIcon_OnMouseEnter" MouseLeave="ServiceToolIcon_OnMouseLeave"  MouseLeftButtonUp="StartServe">
-                    <Button  x:Name="serverBtn" HorizontalAlignment="Left"  Focusable="False" BorderBrush="Transparent"  Height="30" Width="30" Margin="10,5,0,5" VerticalAlignment="Center" Click="StartServe">
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" MouseEnter="ServiceToolIcon_OnMouseEnter" MouseLeave="ServiceToolIcon_OnMouseLeave"  MouseLeftButtonUp="SwitchServe">
+                    <Button  x:Name="serverBtn" HorizontalAlignment="Left"  Focusable="False" BorderBrush="Transparent"  Height="30" Width="30" Margin="10,5,0,5" VerticalAlignment="Center" Click="SwitchServe">
                         <Button.Template>
                             <ControlTemplate x:Name="serverBtnTemp">
                                 <ContentControl>

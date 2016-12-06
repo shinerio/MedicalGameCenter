@@ -61,7 +61,7 @@ namespace ControlClient
 
         }
 
-        public void GetScore()
+        public  void GetScore()
         {
             var s = rhb.GetScore();
         }

@@ -35,7 +35,6 @@ namespace ControlClient
             var mLogger = Logger.GetInstance(mw.txt_log);
             gc.RegisterLogger(mLogger);
             rhb = Rehabilitation.GetSingleton();
-
             dh = DataWarehouse.GetSingleton();
             string[] ports = gc.GetPorts();
             if (ports.Length > 0)
@@ -46,9 +45,7 @@ namespace ControlClient
             // socket module
             sm = SocketManager.GetInstance();
             sm.Start(10200);
-
             sc = SkeletonCalculator.GetSingleton("");
-
             pullDataTimer = new Timer(10);
             pullDataTimer.Elapsed += pullDataTimer_Tick;
             pullDataTimer.Start();
@@ -68,10 +65,10 @@ namespace ControlClient
             {
                 //send right
                 var f_r = dh.GetFrameData(HandType.Right, Definition.MODEL_TYPE);
-                var s = sc.UpdateRaw(f_r);
+                var s = sc.UpdateRaw(f_r);               
                 if (s != null)
                 {
-                    sm.Send(s.ToJson());
+                    //sm.Send(s.ToJson());
                 }
                 var score = rhb.GetScore();
                 if (score!=-1)
