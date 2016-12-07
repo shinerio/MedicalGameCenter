@@ -138,7 +138,7 @@ namespace ControlClient
                 }
                 catch (Exception e)
                 {
-                    MessageBox.Show("目标IP地址无效", "出错了");
+                    MessageBox.Show(e.ToString(), "出错了");
                     isServe = false;
                 }
             }
