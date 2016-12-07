@@ -6,14 +6,14 @@ using System.Threading.Tasks;
 using WebSocketSharp.Server;
 using WebSocketSharp;
 using System.Timers;
+using GloveLib;
 namespace ControlClient
 {       
     // WebSocket数据处理类
     public class GloveData : WebSocketBehavior
     {
         private static int _interval = 50;  //[TEST]数据发送间隔
-        private static int _value = 50;  //默认发送手套的标量值
-        private static Random ran = new Random();
+        private static Rehabilitation rhb = Rehabilitation.GetSingleton();
         static System.Timers.Timer _timer = new System.Timers.Timer
         {
             Enabled = false,
@@ -47,32 +47,7 @@ namespace ControlClient
 
         private void SendMsg(object source, ElapsedEventArgs e)
         {
-            RefreshValue();
-            Send(Convert.ToString(_value));
-        }
-
-        private static void RefreshValue()
-        {
-            int dv = 0;
-            switch (_value)
-            {
-                case 0:
-                    dv = ran.Next(0, 2);
-                    break;
-                case 1:
-                    dv = ran.Next(-1, 2);
-                    break;
-                case 99:
-                    dv = ran.Next(-1, 2);
-                    break;
-                case 100:
-                    dv = ran.Next(-1, 1);
-                    break;
-                default:
-                    dv = ran.Next(-1, 2);
-                    break;
-            }
-            _value = _value + dv;
+            Send(Convert.ToString(rhb.GetScore()));
         }
     }
 }

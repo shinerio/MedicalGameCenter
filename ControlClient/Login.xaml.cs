@@ -58,25 +58,9 @@ namespace ControlClient
                 {
                     this.DragMove();
                 }
-            }  
-        }
-
-        private void passWord_MouseEnter(object sender, MouseEventArgs e)
-        {
-            if ("请输入密码".Equals(passTip.Content.ToString())) { 
-                passTip.Content = "";
-                passTip.Visibility = Visibility.Hidden;
             }
         }
 
-        private void passWord_MouseLeave(object sender, MouseEventArgs e)
-        {
-            if (passwordText.Password == null || "".Equals(passwordText.Password.ToString()))
-            {
-                passTip.Content = "请输入密码";
-                passTip.Visibility = Visibility.Visible;
-            }
-        }
         //登录操作
         private void Login_Click(object sender, RoutedEventArgs e)
         {
@@ -102,7 +86,7 @@ namespace ControlClient
             {
                 str = str.Replace("\"", "'");  //java和c#的json格式转化
                 Patient patient = JsonConvert.DeserializeObject<Patient>(str);
-                loginstatus.Content = "你好！"+patient.realname;
+                loginstatus.Content = "你好！" + patient.realname;
                 this.Close();
             }
         }
@@ -116,41 +100,52 @@ namespace ControlClient
         private void Image_MouseEnter(object sender, MouseEventArgs e)
         {
             Image img = (Image)sender;
-            img.Source = new BitmapImage(new Uri("./img/switchLogin_enter.png",UriKind.Relative));
-            loginTip.Visibility = Visibility.Visible;
+            img.Source = new BitmapImage(new Uri("./img/switchLogin_enter.png", UriKind.Relative));
         }
 
         private void Image_MouseLeave(object sender, MouseEventArgs e)
         {
             Image img = (Image)sender;
             img.Source = new BitmapImage(new Uri("./img/switchLogin_Leave.png", UriKind.Relative));
-            loginTip.Visibility = Visibility.Hidden;
         }
 
         bool loginMethod = true;
         private void Image_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
         {
-            if (loginMethod) {
-            faceLogin.Visibility = Visibility.Visible;
-            content.Children.Clear();
-            content.Children.Add(switchBtn);
-            faceLogin.Source = new BitmapImage(new Uri("./img/face.png", UriKind.Relative));
-            loginMethod = false;
+            if (loginMethod)
+            {
+                faceLogin.Visibility = Visibility.Visible;
+                content.Children.Clear();
+                content.Children.Add(switchBtn);
+                faceLogin.Source = new BitmapImage(new Uri("./img/face.png", UriKind.Relative));
+                loginMethod = false;
             }
             else
             {
                 faceLogin.Visibility = Visibility.Hidden;
                 content.Children.Clear();
                 content.Children.Add(switchBtn);
-                content.Children.Add(passTip);
                 content.Children.Add(passwordText);
                 content.Children.Add(userNameText);
                 content.Children.Add(login);
                 content.Children.Add(cancel);
-                content.Children.Add(loginTip);
                 loginMethod = true;
             }
         }
 
+        private void userNameText_GotFocus(object sender, RoutedEventArgs e)
+        {
+            if ("请输入用户名".Equals(userNameText.Text.ToString()))
+            {
+                userNameText.Text = "";
+            }
+        }
+        private void userNameText_LostFocus(object sender, RoutedEventArgs e)
+        {
+            if (userNameText.Text.ToString() == null || userNameText.Text.ToString().Equals(""))
+            {
+                userNameText.Text = "请输入用户名";
+            }
+        }
     }
 }
