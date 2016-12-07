@@ -7,12 +7,12 @@ using WebSocketSharp.Server;
 using WebSocketSharp;
 using System.Timers;
 namespace ControlClient
-{       
+{
     // WebSocket数据处理类
     public class GloveData : WebSocketBehavior
     {
-        private static int _interval = 50;  //[TEST]数据发送间隔
-        private static int _value = 50;  //默认发送手套的标量值
+        private static int _interval = 20;  //[TEST]数据发送间隔
+        private static int _value = 50;  //发送手套的标量值
         private static Random ran = new Random();
         static System.Timers.Timer _timer = new System.Timers.Timer
         {
@@ -49,6 +49,11 @@ namespace ControlClient
         {
             RefreshValue();
             Send(Convert.ToString(_value));
+        }
+
+        public static void SetValue(int value)
+        {
+            _value = value;
         }
 
         private static void RefreshValue()

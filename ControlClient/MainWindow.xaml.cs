@@ -25,9 +25,9 @@ namespace ControlClient
     public partial class MainWindow : Window
     {
         private ControlServerManage csm;
-      private static int rowNum = 4;    //the number of game gridlist's row and cloumn
-      private static int cloumnNum = 4;
-      private string[,] gamePath = new string[rowNum, cloumnNum];//corresponding game's path
+        private static int rowNum = 4;    //the number of game gridlist's row and cloumn
+        private static int cloumnNum = 4;
+        private string[,] gamePath = new string[rowNum, cloumnNum];//corresponding game's path
 
         //fuyang all the class below are singleton pattern
         //glove module for some init function
@@ -46,7 +46,7 @@ namespace ControlClient
         {
             ConsoleManager.Show();
             gloveModule = GloveModule.GetSingleton(this);
-           // gc = gloveModule.gc;
+            // gc = gloveModule.gc;
         }
 
         private void topTitle_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
@@ -142,11 +142,12 @@ namespace ControlClient
             ExtractIconEx(appPath, 0, largeIcons, smallIcons, IconCount);
             //  for (int i = 0; i < IconCount; i++)
             //    {
-             BitmapSource returnSource = null;
-            if (IconCount > 0) { 
-            System.Drawing.Icon newIcon = System.Drawing.Icon.FromHandle(largeIcons[0]);
-            System.Drawing.Bitmap bmp = newIcon.ToBitmap();
-            returnSource = System.Windows.Interop.Imaging.CreateBitmapSourceFromHBitmap(bmp.GetHbitmap(), IntPtr.Zero, Int32Rect.Empty, BitmapSizeOptions.FromEmptyOptions());
+            BitmapSource returnSource = null;
+            if (IconCount > 0)
+            {
+                System.Drawing.Icon newIcon = System.Drawing.Icon.FromHandle(largeIcons[0]);
+                System.Drawing.Bitmap bmp = newIcon.ToBitmap();
+                returnSource = System.Windows.Interop.Imaging.CreateBitmapSourceFromHBitmap(bmp.GetHbitmap(), IntPtr.Zero, Int32Rect.Empty, BitmapSizeOptions.FromEmptyOptions());
             }
             Image img = new Image();
             img.Source = returnSource;
@@ -253,7 +254,7 @@ namespace ControlClient
         //show login window
         private void Login(object sender, RoutedEventArgs e)
         {
-            Login login = new Login(loginStatus);            
+            Login login = new Login(loginStatus);
             login.Owner = this;
             login.WindowStartupLocation = WindowStartupLocation.CenterOwner;
             login.ShowDialog();
@@ -289,7 +290,7 @@ namespace ControlClient
          */
 
 
- 
+
         //top navigation bar in_out_effect
         private void ServiceToolIcon_OnMouseEnter(object sender, MouseEventArgs e)
         {
@@ -311,7 +312,7 @@ namespace ControlClient
             String stargetIP = targetIP.Text.ToString();
             Utils.UpdateAppConfig("localIP", slocalIP);
             Utils.UpdateAppConfig("targetIP", stargetIP);
-            csm.endServer();        
+            csm.endServer();
             ControlTemplate template = serverBtn.FindName("serverBtnTemp") as ControlTemplate;
             if (template != null)
             {
@@ -334,7 +335,8 @@ namespace ControlClient
                                                        UriKind.Relative));
                 }
                 csm.endServer();
-            }else
+            }
+            else
             {
                 ControlTemplate template = serverBtn.FindName("serverBtnTemp") as ControlTemplate;
                 if (template != null)
@@ -343,7 +345,7 @@ namespace ControlClient
                     img.Source = new BitmapImage(new Uri("./img/service_on.png",
                                                        UriKind.Relative));
                 }
-                csm.startServer();             
+                csm.startServer();
             }
         }
         /*

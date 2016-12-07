@@ -4,7 +4,7 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{4B6BEE66-E183-4717-BEE6-E98095CE8790}</ProjectGuid>
+    <ProjectGuid>{AE4CE8A2-2B39-4C5F-957A-3F60D05C2B38}</ProjectGuid>
     <OutputType>WinExe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>ControlClient</RootNamespace>
@@ -75,6 +75,8 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="CommandData.cs" />
+    <Compile Include="ControlServerManage.cs" />
     <Compile Include="Doctor.cs" />
     <Compile Include="GloveConfigView.xaml.cs">
       <DependentUpon>GloveConfigView.xaml</DependentUpon>
