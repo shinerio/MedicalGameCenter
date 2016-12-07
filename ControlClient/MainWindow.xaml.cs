@@ -24,21 +24,21 @@ namespace ControlClient
     /// </summary>
     public partial class MainWindow : Window
     {
-        private ControlServerManage csm;
-      private static int rowNum = 4;    //the number of game gridlist's row and cloumn
-      private static int cloumnNum = 4;
-      private string[,] gamePath = new string[rowNum, cloumnNum];//corresponding game's path
+        private ControlServerManage csm;   
+        private static int rowNum = 4;    //the number of game gridlist's row and cloumn
+        private static int cloumnNum = 4;
+        private string[,] gamePath = new string[rowNum, cloumnNum];//corresponding game's path
 
         //fuyang all the class below are singleton pattern
         //glove module for some init function
         private GloveModule gloveModule;
         //glove controller class for all access to glove api
-        private GloveController gc;
+       // private GloveController gc;
         public MainWindow()
         {
             InitializeComponent();
             InitModule();
-            InitGame(this);
+            InitGame();
             csm = ControlServerManage.GetInstance(cbb_port, lbl_gloveStatus);
         }
 
@@ -46,16 +46,14 @@ namespace ControlClient
         {
             ConsoleManager.Show();
             gloveModule = GloveModule.GetSingleton(this);
-           // gc = gloveModule.gc;
+            // gc = gloveModule.gc;
         }
 
         private void topTitle_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
             base.OnMouseLeftButtonDown(e);
-
             // 获取鼠标相对标题栏位置  
             Point position = e.GetPosition(topTitle);
-
             // 如果鼠标位置在标题栏内，允许拖动  
             if (e.LeftButton == MouseButtonState.Pressed)
             {
@@ -69,6 +67,7 @@ namespace ControlClient
         private void ShutdownAll(object sender, RoutedEventArgs e)
         {
             Application.Current.Shutdown(-1);
+            System.Environment.Exit(-1);
         }
 
         private void ScaleWindow(object sender, RoutedEventArgs e)
@@ -104,32 +103,56 @@ namespace ControlClient
                 return;
             }
             String fileName = openFile.FileName;
-            doUpdate(this, fileName);
+            doUpdate(fileName);
         }
         private void startGame(object sender, RoutedEventArgs e)
         {
-            Image img = (Image)sender;
-            int row = Grid.GetRow(img);
-            int column = Grid.GetColumn(img);
-            Process.Start(@gamePath[row, row]);
-
+            Image img = (Image)e.OriginalSource;
+            String str = img.Name;
+            int row = -1;
+            int column = -1;
+            int.TryParse(str.Substring(4,1),out row);
+            int.TryParse(str.Substring(5, 1), out column);
+            try {
+                Process.Start(@gamePath[row, column]); 
+             }catch(System.ComponentModel.Win32Exception){
+                 MessageBox.Show("游戏已被修改或不存在\n请检查游戏路径，并重新添加", "出错了");
+                 DeleteGameByKey("gamepath"+row+column);
+             }
+            catch (Exception)
+            {
+                MessageBox.Show("不可解决的错误\n游戏可能已经损坏","出错了");
+            }
         }
-        public static void InitGame(MainWindow main)
+        private void DeleteGame(object sender, RoutedEventArgs e)
+        {
+            MessageBoxResult confirmToDel = MessageBox.Show("是否删除游戏？", "提示", MessageBoxButton.YesNo, MessageBoxImage.Question);
+            if (confirmToDel == MessageBoxResult.Yes) {
+                Image img = (Image)e.OriginalSource;
+                String str = img.Name;
+                int row = -1;
+                int column = -1;
+                int.TryParse(str.Substring(4, 1), out row);
+                int.TryParse(str.Substring(5, 1), out column);   
+            DeleteGameByKey("gamepath"+ row  + column);
+            }
+        }
+        public void InitGame()
         {
             string file = System.Windows.Forms.Application.ExecutablePath;
             Configuration config = ConfigurationManager.OpenExeConfiguration(file);
             foreach (string key in config.AppSettings.Settings.AllKeys)
             {
-                if (!key.Contains("IP"))
+                if (key.Contains("gamepath"))
                 {
                     String path = config.AppSettings.Settings[key].Value.ToString();
-                    doUpdate(main, path);
+                    doUpdate(path);
                 }
             }
 
         }
         //更新游戏
-        public static void doUpdate(MainWindow main, String fileName)
+        public  void doUpdate(String fileName)
         {
             IntPtr[] largeIcons, smallIcons;  //存放大/小图标的指针数组  
             string appPath = @fileName;
@@ -142,16 +165,23 @@ namespace ControlClient
             ExtractIconEx(appPath, 0, largeIcons, smallIcons, IconCount);
             //  for (int i = 0; i < IconCount; i++)
             //    {
-             BitmapSource returnSource = null;
-            if (IconCount > 0) { 
-            System.Drawing.Icon newIcon = System.Drawing.Icon.FromHandle(largeIcons[0]);
-            System.Drawing.Bitmap bmp = newIcon.ToBitmap();
-            returnSource = System.Windows.Interop.Imaging.CreateBitmapSourceFromHBitmap(bmp.GetHbitmap(), IntPtr.Zero, Int32Rect.Empty, BitmapSizeOptions.FromEmptyOptions());
+            BitmapSource returnSource = null;
+            if (IconCount > 0)
+            {
+                System.Drawing.Icon newIcon = System.Drawing.Icon.FromHandle(largeIcons[0]);
+                System.Drawing.Bitmap bmp = newIcon.ToBitmap();
+                returnSource = System.Windows.Interop.Imaging.CreateBitmapSourceFromHBitmap(bmp.GetHbitmap(), IntPtr.Zero, Int32Rect.Empty, BitmapSizeOptions.FromEmptyOptions());
             }
-            Image img = new Image();
-            img.Source = returnSource;
-            int nowColumn = Grid.GetColumn(main.addGame);
-            int nowRow = Grid.GetRow(main.addGame);
+            Image img = new Image();          
+            if (returnSource == null)
+            {
+                img.Source = new BitmapImage(new Uri("./img/defaultGameICO.png",
+                                                   UriKind.Relative));
+            }else {
+                img.Source = returnSource;
+            }
+            int nowColumn = Grid.GetColumn(addGame);
+            int nowRow = Grid.GetRow(addGame);
             if (nowRow == cloumnNum - 1 && nowColumn == rowNum - 1)
             {
                 MessageBox.Show("游戏数目已达上限", "出错了");
@@ -168,6 +198,7 @@ namespace ControlClient
                 int subStart = fileName.LastIndexOf("\\");
                 int subEnd = fileName.LastIndexOf(".exe");
                 String gameName = fileName.Substring(subStart + 1, subEnd - subStart - 1);
+                img.Name = "game" + nowRow+nowColumn;
                 Label l = new Label();
                 l.Content = gameName;
                 l.HorizontalAlignment = HorizontalAlignment.Center;
@@ -175,15 +206,16 @@ namespace ControlClient
                 Grid.SetRow(l, 1);
                 g.VerticalAlignment = VerticalAlignment.Center;
                 g.HorizontalAlignment = HorizontalAlignment.Center;
-                main.gameContainer.Children.Add(g);
+                gameContainer.Children.Add(g);
                 Grid.SetColumn(g, nowColumn);
                 Grid.SetRow(g, nowRow);
-                main.gamePath[nowRow, nowColumn] = fileName;
-                img.MouseLeftButtonUp += main.startGame;  //add mouseClick event                       
-                Grid.SetColumn(main.addGame, 0);
-                Grid.SetRow(main.addGame, nowRow + 1);
+                gamePath[nowRow, nowColumn] = fileName;
+                img.MouseLeftButtonUp += new MouseButtonEventHandler(this.startGame);  //add LeftMouseClick event 
+                img.MouseRightButtonUp += new MouseButtonEventHandler(this.DeleteGame); //add rightMouseClick event    
+                Grid.SetColumn(addGame, 0);
+                Grid.SetRow(addGame, nowRow + 1);
                 //  write the configuration file
-                Utils.UpdateAppConfig(nowRow.ToString() + nowColumn, fileName);
+                Utils.UpdateAppConfig("gamepath"+nowRow+ nowColumn, fileName);
             }
             else
             {
@@ -197,6 +229,7 @@ namespace ControlClient
                 int subStart = fileName.LastIndexOf("\\");
                 int subEnd = fileName.LastIndexOf(".exe");
                 String gameName = fileName.Substring(subStart + 1, subEnd - subStart - 1);
+                img.Name = "game" + nowRow + nowColumn;
                 Label l = new Label();
                 l.Content = gameName;
                 g.VerticalAlignment = VerticalAlignment.Center;
@@ -204,14 +237,15 @@ namespace ControlClient
                 g.Children.Add(l);
                 Grid.SetRow(l, 1);
                 g.HorizontalAlignment = HorizontalAlignment.Center;
-                main.gameContainer.Children.Add(g);
+                gameContainer.Children.Add(g);
                 Grid.SetColumn(g, nowColumn);
                 Grid.SetRow(g, nowRow);
-                main.gamePath[nowRow, nowColumn] = fileName;
-                img.MouseLeftButtonUp += main.startGame;
-                Grid.SetColumn(main.addGame, nowColumn + 1);
+                gamePath[nowRow, nowColumn] = fileName;
+                img.MouseLeftButtonUp += new MouseButtonEventHandler(this.startGame);  //add LeftMouseClick event 
+                img.MouseRightButtonUp += new MouseButtonEventHandler(this.DeleteGame); //add rightMouseClick event    
+                Grid.SetColumn(addGame, nowColumn + 1);
                 //  write the configuration file
-                Utils.UpdateAppConfig(nowRow.ToString() + nowColumn, fileName);
+                Utils.UpdateAppConfig("gamepath" + nowRow + nowColumn, fileName);
             }
         }
         //open game gridlist page
@@ -229,6 +263,24 @@ namespace ControlClient
             localIP.Text = Utils.getConfig("localIP");
             targetIP.Text = Utils.getConfig("targetIP");
         }
+        //delete selected game
+        private void DeleteGameByKey(String selectkey)
+        {
+            string file = System.Windows.Forms.Application.ExecutablePath;
+            Configuration config = ConfigurationManager.OpenExeConfiguration(file);
+            foreach (string key in config.AppSettings.Settings.AllKeys)
+            {
+                if (selectkey != null && selectkey.Equals(key))
+                    config.AppSettings.Settings.Remove(key);
+            }
+            config.Save(ConfigurationSaveMode.Modified);
+            ConfigurationManager.RefreshSection("appSettings");
+            gameContainer.Children.Clear();
+            gameContainer.Children.Add(addGame);
+            Grid.SetColumn(addGame, 0);
+            Grid.SetRow(addGame, 0);
+            InitGame();
+        }
         //clear game list
         private void ClearGame(object sender, RoutedEventArgs e)
         {
@@ -239,7 +291,7 @@ namespace ControlClient
                 Configuration config = ConfigurationManager.OpenExeConfiguration(file);
                 foreach (string key in config.AppSettings.Settings.AllKeys)
                 {
-                    if (!key.Contains("IP"))
+                    if (key.Contains("gamepath"))
                         config.AppSettings.Settings.Remove(key);
                 }
                 config.Save(ConfigurationSaveMode.Modified);
@@ -253,43 +305,11 @@ namespace ControlClient
         //show login window
         private void Login(object sender, RoutedEventArgs e)
         {
-            Login login = new Login(loginStatus);            
+            Login login = new Login(loginStatus);
             login.Owner = this;
             login.WindowStartupLocation = WindowStartupLocation.CenterOwner;
             login.ShowDialog();
-        }
-        /*
-        private void ShowData_KeyUp(object sender, KeyEventArgs e)
-        {
-            if (e.Key == Key.Right)
-            {
-                showData.Content = "hold";
-                msg = "hold";
-            }
-            if (e.Key == Key.Left)
-            {
-                showData.Content = "hold";
-                msg = "hold";
-            }
-        }
-        private void ShowData_KeyDown(object sender, KeyEventArgs e)
-        {
-            if (e.Key == Key.Right)
-            {
-                msg = "right";
-                showData.Content = "right";
-               
-            }
-            if (e.Key == Key.Left)
-            {
-                msg = "left";
-                showData.Content = "left";
-            }
-        }
-         */
-
-
- 
+        }       
         //top navigation bar in_out_effect
         private void ServiceToolIcon_OnMouseEnter(object sender, MouseEventArgs e)
         {
@@ -311,7 +331,7 @@ namespace ControlClient
             String stargetIP = targetIP.Text.ToString();
             Utils.UpdateAppConfig("localIP", slocalIP);
             Utils.UpdateAppConfig("targetIP", stargetIP);
-            csm.endServer();        
+            csm.endServer();
             ControlTemplate template = serverBtn.FindName("serverBtnTemp") as ControlTemplate;
             if (template != null)
             {
@@ -326,52 +346,42 @@ namespace ControlClient
         {
             if (csm.getServerStatus())
             {
-                ControlTemplate template = serverBtn.FindName("serverBtnTemp") as ControlTemplate;
-                if (template != null)
+                try
                 {
-                    Image img = template.FindName("imgWork", serverBtn) as Image;
-                    img.Source = new BitmapImage(new Uri("./img/service_off.png",
-                                                       UriKind.Relative));
+                    csm.endServer();
+                    ControlTemplate template = serverBtn.FindName("serverBtnTemp") as ControlTemplate;
+                    if (template != null)
+                    {
+                        Image img = template.FindName("imgWork", serverBtn) as Image;
+                        img.Source = new BitmapImage(new Uri("./img/service_off.png",
+                                                           UriKind.Relative));
+                    }
                 }
-                csm.endServer();
-            }else
+                catch (Exception ee)
+                {
+                    MessageBox.Show(ee.ToString(), "出错了");
+                }
+
+            }
+            else
             {
-                ControlTemplate template = serverBtn.FindName("serverBtnTemp") as ControlTemplate;
-                if (template != null)
+                try
                 {
-                    Image img = template.FindName("imgWork", serverBtn) as Image;
-                    img.Source = new BitmapImage(new Uri("./img/service_on.png",
-                                                       UriKind.Relative));
+                    csm.startServer();
+                    ControlTemplate template = serverBtn.FindName("serverBtnTemp") as ControlTemplate;
+                    if (template != null)
+                    {
+                        Image img = template.FindName("imgWork", serverBtn) as Image;
+                        img.Source = new BitmapImage(new Uri("./img/service_on.png",
+                                                           UriKind.Relative));
+                    }
                 }
-                csm.startServer();             
+                catch (Exception ee)
+                {
+                    MessageBox.Show(ee.ToString(), "出错了");
+                }
             }
         }
-        /*
-         //glovec connection
-        private void btn_Connect_Click(object sender, RoutedEventArgs e)
-        {
-            try
-            {
-                if (!gc.IsConnected(0))
-                {
-                    
-                    var PortName = cbb_port.SelectedItem.ToString();
-                    gc.Connect(PortName, 0);
-                    btn_Connect.Content = "关闭";
-                    lbl_gloveStatus.Content = "手套已接入";
-                }
-                else
-                {
-                    gc.Close(0);
-                    btn_Connect.Content = "打开";
-                    lbl_gloveStatus.Content = "手套未接入";
-                }
-            }
-            catch (Exception ee)
-            {
-                MessageBox.Show(ee.ToString());
-            }
-        }*/
 
         //glove config
         private void btn_Config_Click(object sender, RoutedEventArgs e)

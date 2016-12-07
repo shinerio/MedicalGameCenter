@@ -67,8 +67,8 @@ namespace ControlClient
             try
             {
                 //send right
-                var f_r = dh.GetFrameData(HandType.Right, Definition.MODEL_TYPE);
-                var s = sc.UpdateRaw(f_r);               
+                var f_r = dh.GetFrameData(HandType.Right, Definition.MODEL_TYPE);          
+                var s = sc.UpdateRaw(f_r);
                 if (s != null)
                 {
                     //sm.Send(s.ToJson());
