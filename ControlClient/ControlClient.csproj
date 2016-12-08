@@ -39,6 +39,9 @@
     <StartupObject>
     </StartupObject>
   </PropertyGroup>
+  <PropertyGroup>
+    <ApplicationIcon>icLauncher.ico</ApplicationIcon>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="GloveLibPC, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
@@ -88,6 +91,7 @@
     <Compile Include="Patient.cs" />
     <Compile Include="Settings.cs" />
     <Compile Include="Utils.cs" />
+    <Compile Include="WebSockData.cs" />
     <Page Include="GloveConfigView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -140,10 +144,8 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="img\addGame.jpg" />
     <Resource Include="img\error.png" />
     <Resource Include="img\exit.png" />
-    <Resource Include="img\logo.jpg" />
     <Resource Include="img\scale.png" />
     <Resource Include="img\user.png" />
     <Resource Include="img\zuixiaohua.png" />
@@ -163,6 +165,8 @@
     <Resource Include="img\switchLogin_Leave.png" />
   </ItemGroup>
   <ItemGroup>
+    <Resource Include="icLauncher.ico" />
+    <Resource Include="img\defaultGameICO.png" />
     <Content Include="model\HandArm.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>

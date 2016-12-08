@@ -24,21 +24,28 @@ namespace ControlClient
     /// </summary>
     public partial class MainWindow : Window
     {
+<<<<<<< HEAD
         private ControlServerManage csm;
         private static int rowNum = 4;    //the number of game gridlist's row and cloumn
         private static int cloumnNum = 4;
         private string[,] gamePath = new string[rowNum, cloumnNum];//corresponding game's path
+=======
+        private ControlServerManage csm;   
+        private static int rowNum = 4;    //the number of game gridlist's row and cloumn
+        private static int columnNum = 4;
+        private string[,] gamePath = new string[rowNum, columnNum];//corresponding game's path
+>>>>>>> cd33337b3c7f1488260a4f28745326463b2753c2
 
         //fuyang all the class below are singleton pattern
         //glove module for some init function
         private GloveModule gloveModule;
         //glove controller class for all access to glove api
-        private GloveController gc;
+       // private GloveController gc;
         public MainWindow()
         {
             InitializeComponent();
             InitModule();
-            InitGame(this);
+            InitGame();
             csm = ControlServerManage.GetInstance(cbb_port, lbl_gloveStatus);
         }
 
@@ -52,10 +59,8 @@ namespace ControlClient
         private void topTitle_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
             base.OnMouseLeftButtonDown(e);
-
             // 获取鼠标相对标题栏位置  
             Point position = e.GetPosition(topTitle);
-
             // 如果鼠标位置在标题栏内，允许拖动  
             if (e.LeftButton == MouseButtonState.Pressed)
             {
@@ -69,6 +74,7 @@ namespace ControlClient
         private void ShutdownAll(object sender, RoutedEventArgs e)
         {
             Application.Current.Shutdown(-1);
+            System.Environment.Exit(-1);
         }
 
         private void ScaleWindow(object sender, RoutedEventArgs e)
@@ -104,32 +110,63 @@ namespace ControlClient
                 return;
             }
             String fileName = openFile.FileName;
-            doUpdate(this, fileName);
+            if (fileName.Contains(".exe"))
+            {
+                doUpdate(fileName);
+            }
+            else
+            {
+                MessageBox.Show("不支持的文件格式","出错了");
+            }
         }
         private void startGame(object sender, RoutedEventArgs e)
         {
-            Image img = (Image)sender;
-            int row = Grid.GetRow(img);
-            int column = Grid.GetColumn(img);
-            Process.Start(@gamePath[row, row]);
-
+            Image img = (Image)e.OriginalSource;
+            String str = img.Name;
+            int row = -1;
+            int column = -1;
+            int.TryParse(str.Substring(4,1),out row);
+            int.TryParse(str.Substring(5, 1), out column);
+            try {
+                Process.Start(@gamePath[row, column]); 
+             }catch(System.ComponentModel.Win32Exception){
+                 MessageBox.Show("游戏已被修改或不存在\n请检查游戏路径，并重新添加", "出错了");
+                 DeleteGameByKey("gamepath"+row+column);
+             }
+            catch (Exception)
+            {
+                MessageBox.Show("不可解决的错误\n游戏可能已经损坏","出错了");
+            }
         }
-        public static void InitGame(MainWindow main)
+        private void DeleteGame(object sender, RoutedEventArgs e)
+        {
+            MessageBoxResult confirmToDel = MessageBox.Show("是否删除游戏？", "提示", MessageBoxButton.YesNo, MessageBoxImage.Question);
+            if (confirmToDel == MessageBoxResult.Yes) {
+                Image img = (Image)e.OriginalSource;
+                String str = img.Name;
+                int row = -1;
+                int column = -1;
+                int.TryParse(str.Substring(4, 1), out row);
+                int.TryParse(str.Substring(5, 1), out column);   
+                DeleteGameByKey("gamepath"+ row  + column);
+            }
+        }
+        public void InitGame()
         {
             string file = System.Windows.Forms.Application.ExecutablePath;
             Configuration config = ConfigurationManager.OpenExeConfiguration(file);
             foreach (string key in config.AppSettings.Settings.AllKeys)
             {
-                if (!key.Contains("IP"))
+                if (key.Contains("gamepath"))
                 {
                     String path = config.AppSettings.Settings[key].Value.ToString();
-                    doUpdate(main, path);
+                    doUpdate(path);
                 }
             }
 
         }
         //更新游戏
-        public static void doUpdate(MainWindow main, String fileName)
+        public  void doUpdate(String fileName)
         {
             IntPtr[] largeIcons, smallIcons;  //存放大/小图标的指针数组  
             string appPath = @fileName;
@@ -149,15 +186,21 @@ namespace ControlClient
                 System.Drawing.Bitmap bmp = newIcon.ToBitmap();
                 returnSource = System.Windows.Interop.Imaging.CreateBitmapSourceFromHBitmap(bmp.GetHbitmap(), IntPtr.Zero, Int32Rect.Empty, BitmapSizeOptions.FromEmptyOptions());
             }
-            Image img = new Image();
-            img.Source = returnSource;
-            int nowColumn = Grid.GetColumn(main.addGame);
-            int nowRow = Grid.GetRow(main.addGame);
-            if (nowRow == cloumnNum - 1 && nowColumn == rowNum - 1)
+            Image img = new Image();          
+            if (returnSource == null)
+            {
+                img.Source = new BitmapImage(new Uri("./img/defaultGameICO.png",
+                                                   UriKind.Relative));
+            }else {
+                img.Source = returnSource;
+            }
+            int nowColumn = Grid.GetColumn(addGame);
+            int nowRow = Grid.GetRow(addGame);
+            if (nowRow == columnNum - 1 && nowColumn == rowNum - 1)
             {
                 MessageBox.Show("游戏数目已达上限", "出错了");
             }
-            else if (nowColumn == cloumnNum - 1)  //换行
+            else if (nowColumn == columnNum - 1)  //换行
             {
                 Grid g = new Grid();
                 RowDefinition rw1 = new RowDefinition();
@@ -169,6 +212,7 @@ namespace ControlClient
                 int subStart = fileName.LastIndexOf("\\");
                 int subEnd = fileName.LastIndexOf(".exe");
                 String gameName = fileName.Substring(subStart + 1, subEnd - subStart - 1);
+                img.Name = "game" + nowRow+nowColumn;
                 Label l = new Label();
                 l.Content = gameName;
                 l.HorizontalAlignment = HorizontalAlignment.Center;
@@ -176,15 +220,16 @@ namespace ControlClient
                 Grid.SetRow(l, 1);
                 g.VerticalAlignment = VerticalAlignment.Center;
                 g.HorizontalAlignment = HorizontalAlignment.Center;
-                main.gameContainer.Children.Add(g);
+                gameContainer.Children.Add(g);
                 Grid.SetColumn(g, nowColumn);
                 Grid.SetRow(g, nowRow);
-                main.gamePath[nowRow, nowColumn] = fileName;
-                img.MouseLeftButtonUp += main.startGame;  //add mouseClick event                       
-                Grid.SetColumn(main.addGame, 0);
-                Grid.SetRow(main.addGame, nowRow + 1);
+                gamePath[nowRow, nowColumn] = fileName;
+                img.MouseLeftButtonUp += new MouseButtonEventHandler(this.startGame);  //add LeftMouseClick event 
+                img.MouseRightButtonUp += new MouseButtonEventHandler(this.DeleteGame); //add rightMouseClick event 
+                Grid.SetColumn(addGame, 0);
+                Grid.SetRow(addGame, nowRow + 1);
                 //  write the configuration file
-                Utils.UpdateAppConfig(nowRow.ToString() + nowColumn, fileName);
+                Utils.UpdateAppConfig("gamepath"+nowRow+ nowColumn, fileName);
             }
             else
             {
@@ -198,6 +243,7 @@ namespace ControlClient
                 int subStart = fileName.LastIndexOf("\\");
                 int subEnd = fileName.LastIndexOf(".exe");
                 String gameName = fileName.Substring(subStart + 1, subEnd - subStart - 1);
+                img.Name = "game" + nowRow + nowColumn;
                 Label l = new Label();
                 l.Content = gameName;
                 g.VerticalAlignment = VerticalAlignment.Center;
@@ -205,14 +251,15 @@ namespace ControlClient
                 g.Children.Add(l);
                 Grid.SetRow(l, 1);
                 g.HorizontalAlignment = HorizontalAlignment.Center;
-                main.gameContainer.Children.Add(g);
+                gameContainer.Children.Add(g);
                 Grid.SetColumn(g, nowColumn);
                 Grid.SetRow(g, nowRow);
-                main.gamePath[nowRow, nowColumn] = fileName;
-                img.MouseLeftButtonUp += main.startGame;
-                Grid.SetColumn(main.addGame, nowColumn + 1);
+                gamePath[nowRow, nowColumn] = fileName;
+                img.MouseLeftButtonUp += new MouseButtonEventHandler(this.startGame);  //add LeftMouseClick event 
+                img.MouseRightButtonUp += new MouseButtonEventHandler(this.DeleteGame); //add rightMouseClick event    
+                Grid.SetColumn(addGame, nowColumn + 1);
                 //  write the configuration file
-                Utils.UpdateAppConfig(nowRow.ToString() + nowColumn, fileName);
+                Utils.UpdateAppConfig("gamepath" + nowRow + nowColumn, fileName);
             }
         }
         //open game gridlist page
@@ -230,6 +277,25 @@ namespace ControlClient
             localIP.Text = Utils.getConfig("localIP");
             targetIP.Text = Utils.getConfig("targetIP");
         }
+        //delete selected game
+        private void DeleteGameByKey(String selectkey)
+        {
+            string file = System.Windows.Forms.Application.ExecutablePath;
+            Configuration config = ConfigurationManager.OpenExeConfiguration(file);
+            foreach (string key in config.AppSettings.Settings.AllKeys)
+            {
+                if (selectkey != null && selectkey.Equals(key))
+                    config.AppSettings.Settings.Remove(key);
+            }
+            config.Save(ConfigurationSaveMode.Modified);
+            ConfigurationManager.RefreshSection("appSettings");
+            FormatConfig();
+            gameContainer.Children.Clear();
+            gameContainer.Children.Add(addGame);
+            Grid.SetColumn(addGame, 0);
+            Grid.SetRow(addGame, 0);
+            InitGame();
+        }
         //clear game list
         private void ClearGame(object sender, RoutedEventArgs e)
         {
@@ -240,7 +306,7 @@ namespace ControlClient
                 Configuration config = ConfigurationManager.OpenExeConfiguration(file);
                 foreach (string key in config.AppSettings.Settings.AllKeys)
                 {
-                    if (!key.Contains("IP"))
+                    if (key.Contains("gamepath"))
                         config.AppSettings.Settings.Remove(key);
                 }
                 config.Save(ConfigurationSaveMode.Modified);
@@ -258,6 +324,7 @@ namespace ControlClient
             login.Owner = this;
             login.WindowStartupLocation = WindowStartupLocation.CenterOwner;
             login.ShowDialog();
+<<<<<<< HEAD
         }
         /*
         private void ShowData_KeyUp(object sender, KeyEventArgs e)
@@ -291,6 +358,9 @@ namespace ControlClient
 
 
 
+=======
+        }       
+>>>>>>> cd33337b3c7f1488260a4f28745326463b2753c2
         //top navigation bar in_out_effect
         private void ServiceToolIcon_OnMouseEnter(object sender, MouseEventArgs e)
         {
@@ -327,58 +397,89 @@ namespace ControlClient
         {
             if (csm.getServerStatus())
             {
-                ControlTemplate template = serverBtn.FindName("serverBtnTemp") as ControlTemplate;
-                if (template != null)
+                try
                 {
-                    Image img = template.FindName("imgWork", serverBtn) as Image;
-                    img.Source = new BitmapImage(new Uri("./img/service_off.png",
-                                                       UriKind.Relative));
+                    csm.endServer();
+                    ControlTemplate template = serverBtn.FindName("serverBtnTemp") as ControlTemplate;
+                    if (template != null)
+                    {
+                        Image img = template.FindName("imgWork", serverBtn) as Image;
+                        img.Source = new BitmapImage(new Uri("./img/service_off.png",
+                                                           UriKind.Relative));
+                    }
                 }
+<<<<<<< HEAD
                 csm.endServer();
             }
             else
             {
                 ControlTemplate template = serverBtn.FindName("serverBtnTemp") as ControlTemplate;
                 if (template != null)
+=======
+                catch (Exception ee)
+>>>>>>> cd33337b3c7f1488260a4f28745326463b2753c2
                 {
-                    Image img = template.FindName("imgWork", serverBtn) as Image;
-                    img.Source = new BitmapImage(new Uri("./img/service_on.png",
-                                                       UriKind.Relative));
+                    MessageBox.Show(ee.ToString(), "出错了");
                 }
+<<<<<<< HEAD
                 csm.startServer();
+=======
+
+>>>>>>> cd33337b3c7f1488260a4f28745326463b2753c2
+            }
+            else
+            {
+                try
+                {
+                    csm.startServer();
+                    ControlTemplate template = serverBtn.FindName("serverBtnTemp") as ControlTemplate;
+                    if (template != null)
+                    {
+                        Image img = template.FindName("imgWork", serverBtn) as Image;
+                        img.Source = new BitmapImage(new Uri("./img/service_on.png",
+                                                           UriKind.Relative));
+                    }
+                }
+                catch (Exception ee)
+                {
+                    MessageBox.Show(ee.ToString(), "出错了");
+                }
             }
         }
-        /*
-         //glovec connection
-        private void btn_Connect_Click(object sender, RoutedEventArgs e)
-        {
-            try
-            {
-                if (!gc.IsConnected(0))
-                {
-                    
-                    var PortName = cbb_port.SelectedItem.ToString();
-                    gc.Connect(PortName, 0);
-                    btn_Connect.Content = "关闭";
-                    lbl_gloveStatus.Content = "手套已接入";
-                }
-                else
-                {
-                    gc.Close(0);
-                    btn_Connect.Content = "打开";
-                    lbl_gloveStatus.Content = "手套未接入";
-                }
-            }
-            catch (Exception ee)
-            {
-                MessageBox.Show(ee.ToString());
-            }
-        }*/
 
         //glove config
         private void btn_Config_Click(object sender, RoutedEventArgs e)
         {
             (new GloveConfigView()).Show();
+        }
+
+        private void FormatConfig()
+        {
+            string file = System.Windows.Forms.Application.ExecutablePath;
+            Configuration config = ConfigurationManager.OpenExeConfiguration(file);
+            int row = 0;
+            int column = 0;
+            foreach (string key in config.AppSettings.Settings.AllKeys)
+            {
+                if (key.Contains("gamepath"))
+                {
+                    String value = config.AppSettings.Settings[key].Value.ToString();
+                    config.AppSettings.Settings.Remove(key);
+                    config.AppSettings.Settings.Add("gamepath" + row + column, value);
+                    if (column == columnNum - 1)
+                    {
+                        row++;
+                        column = 0;
+                    }
+                    else
+                    {
+                        column++;
+                    }                   
+                }
+                   
+            }
+            config.Save(ConfigurationSaveMode.Modified);
+            ConfigurationManager.RefreshSection("appSettings");            
         }
     }
 }

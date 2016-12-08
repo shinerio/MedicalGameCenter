@@ -1,6 +1,7 @@
 ﻿using GloveLib;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
@@ -67,8 +68,24 @@ namespace ControlClient
                     WSServer = new WebSocketServer(String.Format("ws://{0}", localIP));//new WebSocket
                     WSServer.AddWebSocketService<GloveData>(GloveDataServerName);
                     WSServer.AddWebSocketService<CommandData>(CommandDataServerName);
-                    WSServer.Start();             
-                    } catch (Exception e)
+                    WSServer.Start();
+                     }
+                    catch (NullReferenceException)
+                    {
+                       MessageBox.Show("请检查手套是否连接正常", "出错了");
+                       throw new Exception("这是已处理错误");
+                    }
+                    catch (IOException)
+                    {
+                        MessageBox.Show("请检查手套是否连接正常", "出错了");
+                        throw new Exception("这是已处理错误");
+                    }
+                    catch (FormatException)
+                    {
+                        MessageBox.Show("源IP地址无效", "出错了");
+                        throw new Exception("这是已处理错误");
+                    } 
+                    catch (Exception e)
                     {
                     MessageBox.Show(e.ToString(), "出错了");
                     }
@@ -79,7 +96,7 @@ namespace ControlClient
             }
             else
             {
-                MessageBox.Show("服务启动失败", "出错了");
+                MessageBox.Show("服务启动失败，端口已被占用", "出错了");
             }
         }
         public void endServer()
@@ -105,7 +122,7 @@ namespace ControlClient
             server = null;
             WSServer = null;
         }
-        private  string msg = "hold";  //默认发送数据
+       // private  string msg = "hold";  //默认发送数据
         //发送数据
         private  void sendMsg()
         {
@@ -119,21 +136,9 @@ namespace ControlClient
                     int now = 0;
                     while (isServe)
                     {
-                        now = rhb.GetScore();
-                        if (now > 80)
-                        {
-                            msg = "left";
+                        if (server != null&&(now=rhb.GetScore())!=-1) { 
+                        server.SendTo(Encoding.UTF8.GetBytes(now.ToString()), point);
                         }
-                        else if (now < 30)
-                        {
-                            msg = "right";
-                        }
-                        else
-                        {
-                            msg = "hold";
-                        }
-                        if (server != null)
-                        server.SendTo(Encoding.UTF8.GetBytes(msg), point);
                     }
                 }
                 catch (Exception e)

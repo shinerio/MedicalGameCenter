@@ -8,7 +8,7 @@
         BorderThickness="2"
         Width="800"
         Height="600"
-        Icon=".\img\logo.jpg"
+        Icon=".\img\logo.png"
         >
     <Grid Background="White">
         <Grid HorizontalAlignment="Stretch"  Name="topTitle" Height="55" Background="#1b6093" Margin="0,0,0,0" VerticalAlignment="Top" MouseLeftButtonDown="topTitle_MouseLeftButtonDown" >
