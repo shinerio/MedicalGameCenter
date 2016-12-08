@@ -26,8 +26,8 @@ namespace ControlClient
     {
         private ControlServerManage csm;   
         private static int rowNum = 4;    //the number of game gridlist's row and cloumn
-        private static int cloumnNum = 4;
-        private string[,] gamePath = new string[rowNum, cloumnNum];//corresponding game's path
+        private static int columnNum = 4;
+        private string[,] gamePath = new string[rowNum, columnNum];//corresponding game's path
 
         //fuyang all the class below are singleton pattern
         //glove module for some init function
@@ -103,7 +103,14 @@ namespace ControlClient
                 return;
             }
             String fileName = openFile.FileName;
-            doUpdate(fileName);
+            if (fileName.Contains(".exe"))
+            {
+                doUpdate(fileName);
+            }
+            else
+            {
+                MessageBox.Show("不支持的文件格式","出错了");
+            }
         }
         private void startGame(object sender, RoutedEventArgs e)
         {
@@ -134,7 +141,7 @@ namespace ControlClient
                 int column = -1;
                 int.TryParse(str.Substring(4, 1), out row);
                 int.TryParse(str.Substring(5, 1), out column);   
-            DeleteGameByKey("gamepath"+ row  + column);
+                DeleteGameByKey("gamepath"+ row  + column);
             }
         }
         public void InitGame()
@@ -182,11 +189,11 @@ namespace ControlClient
             }
             int nowColumn = Grid.GetColumn(addGame);
             int nowRow = Grid.GetRow(addGame);
-            if (nowRow == cloumnNum - 1 && nowColumn == rowNum - 1)
+            if (nowRow == columnNum - 1 && nowColumn == rowNum - 1)
             {
                 MessageBox.Show("游戏数目已达上限", "出错了");
             }
-            else if (nowColumn == cloumnNum - 1)  //换行
+            else if (nowColumn == columnNum - 1)  //换行
             {
                 Grid g = new Grid();
                 RowDefinition rw1 = new RowDefinition();
@@ -211,7 +218,7 @@ namespace ControlClient
                 Grid.SetRow(g, nowRow);
                 gamePath[nowRow, nowColumn] = fileName;
                 img.MouseLeftButtonUp += new MouseButtonEventHandler(this.startGame);  //add LeftMouseClick event 
-                img.MouseRightButtonUp += new MouseButtonEventHandler(this.DeleteGame); //add rightMouseClick event    
+                img.MouseRightButtonUp += new MouseButtonEventHandler(this.DeleteGame); //add rightMouseClick event 
                 Grid.SetColumn(addGame, 0);
                 Grid.SetRow(addGame, nowRow + 1);
                 //  write the configuration file
@@ -275,6 +282,7 @@ namespace ControlClient
             }
             config.Save(ConfigurationSaveMode.Modified);
             ConfigurationManager.RefreshSection("appSettings");
+            FormatConfig();
             gameContainer.Children.Clear();
             gameContainer.Children.Add(addGame);
             Grid.SetColumn(addGame, 0);
@@ -387,6 +395,35 @@ namespace ControlClient
         private void btn_Config_Click(object sender, RoutedEventArgs e)
         {
             (new GloveConfigView()).Show();
+        }
+
+        private void FormatConfig()
+        {
+            string file = System.Windows.Forms.Application.ExecutablePath;
+            Configuration config = ConfigurationManager.OpenExeConfiguration(file);
+            int row = 0;
+            int column = 0;
+            foreach (string key in config.AppSettings.Settings.AllKeys)
+            {
+                if (key.Contains("gamepath"))
+                {
+                    String value = config.AppSettings.Settings[key].Value.ToString();
+                    config.AppSettings.Settings.Remove(key);
+                    config.AppSettings.Settings.Add("gamepath" + row + column, value);
+                    if (column == columnNum - 1)
+                    {
+                        row++;
+                        column = 0;
+                    }
+                    else
+                    {
+                        column++;
+                    }                   
+                }
+                   
+            }
+            config.Save(ConfigurationSaveMode.Modified);
+            ConfigurationManager.RefreshSection("appSettings");            
         }
     }
 }
