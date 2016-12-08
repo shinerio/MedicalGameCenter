@@ -7,6 +7,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Timers;
 using System.Windows;
+using GloveLib;
 using WebSocketSharp;
 using WebSocketSharp.Server;
 
@@ -24,6 +25,7 @@ namespace ControlClient
 
         static Regex digitRegex = new Regex(@"\d+");
         private static int EvaluateTime = 0;
+        private static Rehabilitation rhb = Rehabilitation.GetSingleton();
         private static EvaluateStatus status = EvaluateStatus.Idle;
         public static bool isRunning = false;
         Random random = new Random();
@@ -71,7 +73,7 @@ namespace ControlClient
                         _timer.Interval = EvaluateTime * 1000;
                         _timer.Start();
                         //TODO: 开始评估操作
-                        WriteDBThread.run();    //Test
+                        WriteFileThread.Run();    //Test
                     }
                     break;
                 default:
@@ -102,28 +104,33 @@ namespace ControlClient
             return i;
         }
 
-        private class WriteDBThread
+        private static String GetCurrentTime()
         {
-            public static void run()
+            return DateTime.Now.ToString("yyyy/MM/dd-HH:mm:ss.ffff");
+        }
+
+        private class WriteFileThread
+        {
+            public static void Run()
             {
-                WriteDBThread t = new WriteDBThread();
+                WriteFileThread t = new WriteFileThread();
                 Thread parameterThread = new Thread(new ParameterizedThreadStart(t.InsertData));
-                parameterThread.Name = "Write Database";
-                parameterThread.Start(50);
+                parameterThread.Name = "Write DataFile";
+                parameterThread.Start(10);
             }
 
             private void InsertData(object ms)
             {
-                int j = 10;
-                int.TryParse(ms.ToString(), out j); //这里采用了TryParse方法，避免不能转换时出现异常
+                int t = 10;
+                int.TryParse(ms.ToString(), out t); //这里采用了TryParse方法，避免不能转换时出现异常
                 // 结果先写入测试文件
                 using (System.IO.StreamWriter file =
-                    new System.IO.StreamWriter(@"./test.txt", true))
+                    new System.IO.StreamWriter(@"./score.txt", true))
                 {
                     while (CommandData.isRunning)
                     {
-                        file.WriteLine(new Random().Next(0, 101));
-                        Thread.Sleep(j); //让线程暂停  
+                        file.WriteLine(String.Format("{0}\t{1}\t{2}", GetCurrentTime(), Login.UserName, rhb.GetScore()));
+                        Thread.Sleep(t); //让线程暂停  
                     }
                 }
             }

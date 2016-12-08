@@ -12,7 +12,7 @@ namespace ControlClient
     // WebSocket数据处理类
     public class GloveData : WebSocketBehavior
     {
-        private static int _interval = 50;  //[TEST]数据发送间隔
+        private static int _interval = 10;  //[TEST]数据发送间隔
         private static Rehabilitation rhb = Rehabilitation.GetSingleton();
         static System.Timers.Timer _timer = new System.Timers.Timer
         {
