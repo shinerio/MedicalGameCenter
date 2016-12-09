@@ -24,17 +24,11 @@ namespace ControlClient
     /// </summary>
     public partial class MainWindow : Window
     {
-<<<<<<< HEAD
-        private ControlServerManage csm;
-        private static int rowNum = 4;    //the number of game gridlist's row and cloumn
-        private static int cloumnNum = 4;
-        private string[,] gamePath = new string[rowNum, cloumnNum];//corresponding game's path
-=======
+
         private ControlServerManage csm;   
         private static int rowNum = 4;    //the number of game gridlist's row and cloumn
         private static int columnNum = 4;
         private string[,] gamePath = new string[rowNum, columnNum];//corresponding game's path
->>>>>>> cd33337b3c7f1488260a4f28745326463b2753c2
 
         //fuyang all the class below are singleton pattern
         //glove module for some init function
@@ -324,43 +318,7 @@ namespace ControlClient
             login.Owner = this;
             login.WindowStartupLocation = WindowStartupLocation.CenterOwner;
             login.ShowDialog();
-<<<<<<< HEAD
         }
-        /*
-        private void ShowData_KeyUp(object sender, KeyEventArgs e)
-        {
-            if (e.Key == Key.Right)
-            {
-                showData.Content = "hold";
-                msg = "hold";
-            }
-            if (e.Key == Key.Left)
-            {
-                showData.Content = "hold";
-                msg = "hold";
-            }
-        }
-        private void ShowData_KeyDown(object sender, KeyEventArgs e)
-        {
-            if (e.Key == Key.Right)
-            {
-                msg = "right";
-                showData.Content = "right";
-               
-            }
-            if (e.Key == Key.Left)
-            {
-                msg = "left";
-                showData.Content = "left";
-            }
-        }
-         */
-
-
-
-=======
-        }       
->>>>>>> cd33337b3c7f1488260a4f28745326463b2753c2
         //top navigation bar in_out_effect
         private void ServiceToolIcon_OnMouseEnter(object sender, MouseEventArgs e)
         {
@@ -408,24 +366,10 @@ namespace ControlClient
                                                            UriKind.Relative));
                     }
                 }
-<<<<<<< HEAD
-                csm.endServer();
-            }
-            else
-            {
-                ControlTemplate template = serverBtn.FindName("serverBtnTemp") as ControlTemplate;
-                if (template != null)
-=======
                 catch (Exception ee)
->>>>>>> cd33337b3c7f1488260a4f28745326463b2753c2
                 {
                     MessageBox.Show(ee.ToString(), "出错了");
                 }
-<<<<<<< HEAD
-                csm.startServer();
-=======
-
->>>>>>> cd33337b3c7f1488260a4f28745326463b2753c2
             }
             else
             {
