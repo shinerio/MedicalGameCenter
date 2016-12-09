@@ -22,6 +22,7 @@ namespace ControlClient
     /// </summary>
     public partial class Login : Window
     {
+        public static String UserName;
         private Label loginstatus;
         public Login(Label loginStatus)
         {
@@ -65,6 +66,7 @@ namespace ControlClient
         private void Login_Click(object sender, RoutedEventArgs e)
         {
             String username = userNameText.Text.ToString();
+            UserName = username;
             String password = passwordText.Password.ToString();
             String url = "http://localhost:8080/patient/login";
             IDictionary<string, string> parameters = new Dictionary<string, string>();

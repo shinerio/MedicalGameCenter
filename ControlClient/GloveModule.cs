@@ -68,6 +68,7 @@ namespace ControlClient
             {
                 //send right
                 var f_r = dh.GetFrameData(HandType.Right, Definition.MODEL_TYPE);          
+
                 var s = sc.UpdateRaw(f_r);
                 if (s != null)
                 {

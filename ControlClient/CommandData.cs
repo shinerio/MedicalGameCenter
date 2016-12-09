@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -7,6 +8,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Timers;
 using System.Windows;
+using GloveLib;
 using WebSocketSharp;
 using WebSocketSharp.Server;
 
@@ -24,6 +26,8 @@ namespace ControlClient
 
         static Regex digitRegex = new Regex(@"\d+");
         private static int EvaluateTime = 0;
+        private static Rehabilitation rhb = Rehabilitation.GetSingleton();
+        public static DataWarehouse dh = DataWarehouse.GetSingleton();
         private static EvaluateStatus status = EvaluateStatus.Idle;
         public static bool isRunning = false;
         Random random = new Random();
@@ -71,7 +75,7 @@ namespace ControlClient
                         _timer.Interval = EvaluateTime * 1000;
                         _timer.Start();
                         //TODO: 开始评估操作
-                        WriteDBThread.run();    //Test
+                        WriteFileThread.Run();    //Test
                     }
                     break;
                 default:
@@ -102,28 +106,68 @@ namespace ControlClient
             return i;
         }
 
-        private class WriteDBThread
+        private static String GetCurrentTime()
         {
-            public static void run()
+            return DateTime.Now.ToString("yyyy/MM/dd-HH:mm:ss.ffff");
+        }
+
+        private class WriteFileThread
+        {
+            public static ManualResetEvent Event = new ManualResetEvent(false);
+            public static FrameData fd = dh.GetFrameData(HandType.Right, Definition.MODEL_TYPE);
+            public static void Run()
             {
-                WriteDBThread t = new WriteDBThread();
+                WriteFileThread t = new WriteFileThread();
                 Thread parameterThread = new Thread(new ParameterizedThreadStart(t.InsertData));
-                parameterThread.Name = "Write Database";
-                parameterThread.Start(50);
+                parameterThread.IsBackground = true;
+                parameterThread.Name = "Write Score File";
+                parameterThread.Start(20);
+                for (int i = 0; i < fd.Nodes.Length; i++)
+                {
+                    WriteAFile.Run(i);
+                }
             }
 
             private void InsertData(object ms)
             {
-                int j = 10;
-                int.TryParse(ms.ToString(), out j); //这里采用了TryParse方法，避免不能转换时出现异常
+                int t = 10;
+                int.TryParse(ms.ToString(), out t); //这里采用了TryParse方法，避免不能转换时出现异常
                 // 结果先写入测试文件
-                using (System.IO.StreamWriter file =
-                    new System.IO.StreamWriter(@"./test.txt", true))
+                using (System.IO.StreamWriter scoreFile =
+                    new System.IO.StreamWriter(@"./score.txt", true))
                 {
                     while (CommandData.isRunning)
                     {
-                        file.WriteLine(new Random().Next(0, 101));
-                        Thread.Sleep(j); //让线程暂停  
+                        fd = dh.GetFrameData(HandType.Right, Definition.MODEL_TYPE);
+                        scoreFile.WriteLineAsync(String.Format("{0}\t{1}\t{2}", GetCurrentTime(), Login.UserName, rhb.GetScore()));
+                        Event.Set();
+                        Thread.Sleep(t); //让线程暂停  
+                    }
+                }
+            }
+        }
+        private class WriteAFile
+        {
+            public static void Run(int type)
+            {
+                WriteAFile t = new WriteAFile();
+                Thread parameterThread = new Thread(new ParameterizedThreadStart(t.Excute));
+                parameterThread.IsBackground = true;
+                parameterThread.Name = String.Format("WriteFileThread{0}", type);
+                parameterThread.Start(type);
+            }
+
+            private void Excute(object o)
+            {
+                int t = 1;
+                int.TryParse(o.ToString(), out t);
+                using (StreamWriter dataFile = new StreamWriter(String.Format(@"./node{0}.txt", t)))
+                {
+                    while (CommandData.isRunning)
+                    {
+                        WriteFileThread.Event.WaitOne();    // 阻塞子线程，并等待主线程通知
+                        dataFile.WriteLineAsync(WriteFileThread.fd.Nodes[t].ToString());
+                        WriteFileThread.Event.Reset();
                     }
                 }
             }
