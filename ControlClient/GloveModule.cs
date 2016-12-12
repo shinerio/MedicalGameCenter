@@ -76,7 +76,7 @@ namespace ControlClient
                 var s = sc.UpdateRaw(f_r);
                 if (s != null)
                 {
-                    //sm.Send(s.ToJson());
+                    sm.Send(s.ToJson());
                 }
                 var score = rhb.GetScore();
                 if (score!=-1)
