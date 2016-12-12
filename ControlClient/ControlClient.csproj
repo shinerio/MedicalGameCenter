@@ -47,7 +47,10 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>libs\GloveLibPC.dll</HintPath>
     </Reference>
-    <Reference Include="Newtonsoft.Json, Version=4.5.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL" />
+    <Reference Include="Newtonsoft.Json, Version=4.5.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\NET库\Json90r1\Bin\Net45\Newtonsoft.Json.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Configuration" />
     <Reference Include="System.Data" />
@@ -172,9 +175,12 @@
     <Resource Include="img\switchLogin_Leave.png" />
   </ItemGroup>
   <ItemGroup>
+    <Resource Include="刷新.png" />
     <Resource Include="icLauncher.ico" />
     <Resource Include="img\defaultGameICO.png" />
     <Resource Include="img\gamebar.png" />
+    <Resource Include="img\refresh.png" />
+    <Resource Include="img\closeBar.png" />
     <Content Include="model\HandArm.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>

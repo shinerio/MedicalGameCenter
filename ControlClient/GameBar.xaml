@@ -4,13 +4,19 @@
         AllowsTransparency="True"
         Background="{x:Null}"
         WindowStyle="None"
-        BorderBrush="#1b6093"
-        BorderThickness="2"
-        Width="50"
+        Width="70"
         Height="600">
-    <Grid Background="White">
-        <Grid HorizontalAlignment="Stretch" VerticalAlignment="Top" Height="30" Background="Blue"></Grid>
-        <Grid  HorizontalAlignment="Stretch" Name="gameContainer" VerticalAlignment="Stretch" Margin="0,30,0,0">
+    <Border BorderThickness ="5" BorderBrush ="Blue" CornerRadius ="10,10,10,10">
+        <Grid >
+            <Grid Background="White">
+                <Image Name="RefreshGame" Source="img/refresh.png" VerticalAlignment="Top" Width="30" Height="30" MouseLeftButtonUp="RefreshGame_MouseLeftButtonUp"/>
+                <ScrollViewer HorizontalAlignment="Stretch" Margin="0,35,0,35" VerticalAlignment="Stretch" >
+                    <StackPanel Name="gameContainer" Orientation="Vertical"  Margin="0,0,0,0" HorizontalAlignment="Left" Width="auto" Height="auto">
+                    </StackPanel>
+                </ScrollViewer>
+                <Image Name="CloseBar" Source="img/closeBar.png" VerticalAlignment="Bottom" Width="30" Height="30" MouseLeftButtonUp="CloseBar_MouseLeftButtonUp"/>
+            </Grid>
         </Grid>
-    </Grid>
+    </Border>
+
 </Window>
