@@ -24,6 +24,7 @@ namespace ControlClient
     /// </summary>
     public partial class MainWindow : Window
     {
+
         private ControlServerManage csm;   
         private static int rowNum = 4;    //the number of game gridlist's row and cloumn
         private static int columnNum = 4;
@@ -304,7 +305,7 @@ namespace ControlClient
             login.Owner = this;
             login.WindowStartupLocation = WindowStartupLocation.CenterOwner;
             login.ShowDialog();
-        }       
+        }
         //top navigation bar in_out_effect
         private void ServiceToolIcon_OnMouseEnter(object sender, MouseEventArgs e)
         {
@@ -365,7 +366,6 @@ namespace ControlClient
                     MessageBox.Show(ee.ToString(), "出错了");
                     ControlServerManage.DestoryInstance();  //手套未连接，控制器无效，置null
                 }
-
             }
             else
             {
