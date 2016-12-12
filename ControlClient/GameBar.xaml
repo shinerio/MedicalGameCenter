@@ -6,9 +6,11 @@
         WindowStyle="None"
         BorderBrush="#1b6093"
         BorderThickness="2"
-        Width="30"
-        Height="300">
+        Width="50"
+        Height="600">
     <Grid Background="White">
-        
+        <Grid HorizontalAlignment="Stretch" VerticalAlignment="Top" Height="30" Background="Blue"></Grid>
+        <Grid  HorizontalAlignment="Stretch" Name="gameContainer" VerticalAlignment="Stretch" Margin="0,30,0,0">
+        </Grid>
     </Grid>
 </Window>
