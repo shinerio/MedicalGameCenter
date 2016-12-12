@@ -42,6 +42,33 @@ namespace ControlClient
             config.Save(ConfigurationSaveMode.Modified);
             ConfigurationManager.RefreshSection("appSettings");
         }
+        public static void FormatConfig(int maxRow, int maxColumn)
+        {
+            string file = System.Windows.Forms.Application.ExecutablePath;
+            Configuration config = ConfigurationManager.OpenExeConfiguration(file);
+            int row = 0;
+            int column = 0;
+            foreach (string key in config.AppSettings.Settings.AllKeys)
+            {
+                if (key.Contains("gamepath"))
+                {
+                    String value = config.AppSettings.Settings[key].Value.ToString();
+                    config.AppSettings.Settings.Remove(key);
+                    config.AppSettings.Settings.Add("gamepath" + row + column, value);
+                    if (column == maxColumn - 1)
+                    {
+                        row++;
+                        column = 0;
+                    }
+                    else
+                    {
+                        column++;
+                    }
+                }
 
+            }
+            config.Save(ConfigurationSaveMode.Modified);
+            ConfigurationManager.RefreshSection("appSettings");
+        }
     }
 }

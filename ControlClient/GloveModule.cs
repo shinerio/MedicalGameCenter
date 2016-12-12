@@ -19,6 +19,10 @@ namespace ControlClient
             }
             return Instance;
         }
+        public static void DestoryInstance()
+        {
+            Instance = null;
+        }
         public static GloveModule GetSingleton()
         {
             return Instance;      

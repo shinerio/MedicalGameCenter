@@ -16,29 +16,44 @@ namespace ControlClient
 {
     public class ControlServerManage
     {
+        //fuyang all the class below are singleton pattern
+        //glove module for some init function
+        private static GloveModule gloveModule;
+        //glove controller class for all access to glove api
+        private GloveController gc;
         private static ControlServerManage instance;
         private  Socket server;  //游戏控制数据源
         private  WebSocketServer WSServer;    //WebSocket服务端 
         private  String GloveDataServerName = "/GloveData";   //标量数据在WebSocket上的服务名
         private  String CommandDataServerName = "/CommandData";   //评估命令在WebSocket上的服务名 
         private  bool isServe = false;  //是否在服务中
-        //glove controller class for all access to glove api
-        private GloveController gc;
         //port selector
         private static ComboBox cbb_port;
         //lable for glove connection
         private static Label lbl_gloveStatus;
         private ControlServerManage() { gc = GloveModule.GetSingleton().gc; }
 
-        public static ControlServerManage GetInstance(ComboBox pbb_port, Label gloveStatus)
+        public static ControlServerManage GetInstance(ComboBox pbb_port, Label gloveStatus,MainWindow mainwin)
         {
             if (instance == null)
-            {
+            {   
+                ConsoleManager.Show();
+                gloveModule = GloveModule.GetSingleton(mainwin);
                 lbl_gloveStatus = gloveStatus;
                 cbb_port = pbb_port;
-                instance = new ControlServerManage();
+                if (pbb_port.SelectedItem != null)
+                {
+                    instance = new ControlServerManage();
+                } else   //无效手套模块，置空
+                {
+                    GloveModule.DestoryInstance();
+                }
             }
             return instance;
+        }
+        public static void DestoryInstance()
+        {
+            instance = null;
         }
         public  bool getServerStatus()
         {

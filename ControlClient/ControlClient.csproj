@@ -81,6 +81,9 @@
     <Compile Include="CommandData.cs" />
     <Compile Include="ControlServerManage.cs" />
     <Compile Include="Doctor.cs" />
+    <Compile Include="GameBar.xaml.cs">
+      <DependentUpon>GameBar.xaml</DependentUpon>
+    </Compile>
     <Compile Include="GloveConfigView.xaml.cs">
       <DependentUpon>GloveConfigView.xaml</DependentUpon>
     </Compile>
@@ -92,6 +95,10 @@
     <Compile Include="Settings.cs" />
     <Compile Include="Utils.cs" />
     <Compile Include="WebSockData.cs" />
+    <Page Include="GameBar.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="GloveConfigView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -141,7 +148,7 @@
     <AppDesigner Include="Properties\" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="App.config" />
+    <None Include="model\App.config" />
   </ItemGroup>
   <ItemGroup>
     <Resource Include="img\error.png" />
@@ -167,6 +174,7 @@
   <ItemGroup>
     <Resource Include="icLauncher.ico" />
     <Resource Include="img\defaultGameICO.png" />
+    <Resource Include="img\gamebar.png" />
     <Content Include="model\HandArm.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>

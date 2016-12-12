@@ -59,7 +59,7 @@
                  Background="Black"
                  VerticalScrollBarVisibility="Auto" MaxLines="4"
                  HorizontalScrollBarVisibility="Auto" IsReadOnly="True" Margin="149,0,0,0"
-                 />           
+                 />
         </Grid>
 
 
@@ -89,6 +89,18 @@
                     </Button>
                     <Label Content="清空游戏" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="0,5,10,5" FontWeight="Bold" FontSize="15" Height="30"/>
                 </StackPanel>
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" MouseEnter="ServiceToolIcon_OnMouseEnter" MouseLeave="ServiceToolIcon_OnMouseLeave" MouseLeftButtonUp="gameBar_Click">
+                    <Button  x:Name="gameBar" HorizontalAlignment="Left"  Focusable="False" BorderBrush="Transparent"  Height="35" Width="30" Margin="10,0,0,5" VerticalAlignment="Center" Click="gameBar_Click">
+                        <Button.Template>
+                            <ControlTemplate x:Name="gameBarTemp">
+                                <ContentControl>
+                                    <Image x:Name="imgWork" Source=".\img\gamebar.png"/>
+                                </ContentControl>
+                            </ControlTemplate>
+                        </Button.Template>
+                    </Button>
+                    <Label Content="快速启动" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="0,5,10,5" FontWeight="Bold" FontSize="15" Height="30"/>
+                </StackPanel>
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" MouseEnter="ServiceToolIcon_OnMouseEnter" MouseLeave="ServiceToolIcon_OnMouseLeave">
                     <Button  Name="aboutUs" HorizontalAlignment="Left"  Focusable="False" BorderBrush="Transparent"  Height="30" Width="30" Margin="10,5,0,5" VerticalAlignment="Center">
                         <Button.Template>
@@ -112,7 +124,7 @@
             <Label HorizontalAlignment="Left" Name="showData" VerticalContentAlignment="Center" HorizontalContentAlignment="Center" FontSize="30" Height="40" Margin="10,391,0,0"  VerticalAlignment="Top" Width="120"/>
         </Grid>
         <Grid HorizontalAlignment="Stretch"  Name="MainContainer" Margin="150,95,0,60" VerticalAlignment="Stretch" Background="LightYellow">
-            <Grid Visibility="Visible" HorizontalAlignment="Stretch" Name="gameContainer" VerticalAlignment="Stretch" Background="LightYellow">
+            <Grid Visibility="Visible" HorizontalAlignment="Stretch" Name="gameContainer" VerticalAlignment="Stretch" Background="LightYellow" Margin="10,0,-10,0">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="25*"/>
                     <RowDefinition Height="25*" />
@@ -138,7 +150,6 @@
                 <Button VerticalAlignment="Bottom" Name="settingsDer" Background="DarkBlue" TextBlock.FontWeight="Bold" FontSize="14" Foreground="White"  Content="确定" HorizontalAlignment="Right" Width="80" Height="30" Margin="0,0,20,20" Click="settingsDer_Click"></Button>
             </Grid>
         </Grid>
-
     </Grid>
 </Window>
 

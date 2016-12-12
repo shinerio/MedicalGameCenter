@@ -29,24 +29,11 @@ namespace ControlClient
         private static int columnNum = 4;
         private string[,] gamePath = new string[rowNum, columnNum];//corresponding game's path
 
-        //fuyang all the class below are singleton pattern
-        //glove module for some init function
-        private GloveModule gloveModule;
-        //glove controller class for all access to glove api
-       // private GloveController gc;
         public MainWindow()
         {
             InitializeComponent();
-            InitModule();
             InitGame();
-            csm = ControlServerManage.GetInstance(cbb_port, lbl_gloveStatus);
-        }
-
-        private void InitModule()
-        {
-            ConsoleManager.Show();
-            gloveModule = GloveModule.GetSingleton(this);
-            // gc = gloveModule.gc;
+            csm = ControlServerManage.GetInstance(cbb_port, lbl_gloveStatus, this);
         }
 
         private void topTitle_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
@@ -282,7 +269,7 @@ namespace ControlClient
             }
             config.Save(ConfigurationSaveMode.Modified);
             ConfigurationManager.RefreshSection("appSettings");
-            FormatConfig();
+            Utils.FormatConfig(rowNum,columnNum);
             gameContainer.Children.Clear();
             gameContainer.Children.Add(addGame);
             Grid.SetColumn(addGame, 0);
@@ -352,6 +339,14 @@ namespace ControlClient
         //switch serve
         private void SwitchServe(object sender, RoutedEventArgs e)
         {
+            if (csm == null) {
+            csm = ControlServerManage.GetInstance(cbb_port, lbl_gloveStatus, this);
+            }
+            if (csm == null)
+            {
+                MessageBox.Show("手套未连接", "出错了");
+                return;
+            }
             if (csm.getServerStatus())
             {
                 try
@@ -368,6 +363,7 @@ namespace ControlClient
                 catch (Exception ee)
                 {
                     MessageBox.Show(ee.ToString(), "出错了");
+                    ControlServerManage.DestoryInstance();  //手套未连接，控制器无效，置null
                 }
 
             }
@@ -397,33 +393,10 @@ namespace ControlClient
             (new GloveConfigView()).Show();
         }
 
-        private void FormatConfig()
+        private void gameBar_Click(object sender, RoutedEventArgs e)
         {
-            string file = System.Windows.Forms.Application.ExecutablePath;
-            Configuration config = ConfigurationManager.OpenExeConfiguration(file);
-            int row = 0;
-            int column = 0;
-            foreach (string key in config.AppSettings.Settings.AllKeys)
-            {
-                if (key.Contains("gamepath"))
-                {
-                    String value = config.AppSettings.Settings[key].Value.ToString();
-                    config.AppSettings.Settings.Remove(key);
-                    config.AppSettings.Settings.Add("gamepath" + row + column, value);
-                    if (column == columnNum - 1)
-                    {
-                        row++;
-                        column = 0;
-                    }
-                    else
-                    {
-                        column++;
-                    }                   
-                }
-                   
-            }
-            config.Save(ConfigurationSaveMode.Modified);
-            ConfigurationManager.RefreshSection("appSettings");            
+            GameBar g = GameBar.getInstance();
+            g.Show();
         }
     }
 }
