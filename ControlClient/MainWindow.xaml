@@ -8,6 +8,7 @@
         BorderThickness="2"
         Width="800"
         Height="600"
+        ShowInTaskbar="False"
         Icon=".\img\logo.png"
         >
     <Grid Background="White">

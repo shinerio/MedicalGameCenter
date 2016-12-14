@@ -5,6 +5,7 @@
         Background="{x:Null}"
         WindowStyle="None"
         Width="70"
+        ShowInTaskbar="False"
         Height="600">
     <Border BorderThickness ="5" BorderBrush ="Blue" CornerRadius ="10,10,10,10">
         <Grid >

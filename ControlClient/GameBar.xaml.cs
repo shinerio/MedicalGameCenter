@@ -34,6 +34,7 @@ namespace ControlClient
             int SW = System.Windows.Forms.Screen.PrimaryScreen.WorkingArea.Right;
             this.Left = SW / scaleSize - this.Width;   //控件和屏幕分辨率值之间有差异
             this.Top = (SH / scaleSize - this.Height) / 2;
+            this.Topmost = true;
             InitGame();
         }
 
@@ -139,6 +140,7 @@ namespace ControlClient
         private void CloseBar_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
         {
             this.Close();
+            gameNum = 0;
             gameBar = null;
         }
     }
