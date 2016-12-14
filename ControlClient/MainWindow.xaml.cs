@@ -16,16 +16,18 @@ using System.Windows.Shapes;
 using System.Configuration;
 using System.Text.RegularExpressions;
 using GloveLib;
+using MahApps.Metro.Controls;
+
 namespace ControlClient
 {
     /// <summary>
     /// MainWindow.xaml 的交互逻辑
     /// Notice:Main只有页面交互逻辑，勿做后台业务逻辑工作
     /// </summary>
-    public partial class MainWindow : Window
+    public partial class MainWindow : MetroWindow
     {
 
-        private ControlServerManage csm;   
+        private ControlServerManage csm;
         private static int rowNum = 4;    //the number of game gridlist's row and cloumn
         private static int columnNum = 4;
         private string[,] gamePath = new string[rowNum, columnNum];//corresponding game's path
@@ -37,19 +39,26 @@ namespace ControlClient
             csm = ControlServerManage.GetInstance(cbb_port, lbl_gloveStatus, this);
         }
 
-        private void topTitle_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        //        private void topTitle_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        //        {
+        //            base.OnMouseLeftButtonDown(e);
+        //            // 获取鼠标相对标题栏位置  
+        //            Point position = e.GetPosition(topTitle);
+        //            // 如果鼠标位置在标题栏内，允许拖动  
+        //            if (e.LeftButton == MouseButtonState.Pressed)
+        //            {
+        //                if (position.X >= 0 && position.X < topTitle.ActualWidth && position.Y >= 0 && position.Y < topTitle.ActualHeight)
+        //                {
+        //                    this.DragMove();
+        //                }
+        //            }
+        //        }
+
+        protected override void OnClosed(EventArgs e)
         {
-            base.OnMouseLeftButtonDown(e);
-            // 获取鼠标相对标题栏位置  
-            Point position = e.GetPosition(topTitle);
-            // 如果鼠标位置在标题栏内，允许拖动  
-            if (e.LeftButton == MouseButtonState.Pressed)
-            {
-                if (position.X >= 0 && position.X < topTitle.ActualWidth && position.Y >= 0 && position.Y < topTitle.ActualHeight)
-                {
-                    this.DragMove();
-                }
-            }
+            base.OnClosed(e);
+            Application.Current.Shutdown(-1);
+            System.Environment.Exit(-1);
         }
 
         private void ShutdownAll(object sender, RoutedEventArgs e)
@@ -97,7 +106,7 @@ namespace ControlClient
             }
             else
             {
-                MessageBox.Show("不支持的文件格式","出错了");
+                MessageBox.Show("不支持的文件格式", "出错了");
             }
         }
         private void startGame(object sender, RoutedEventArgs e)
@@ -106,30 +115,34 @@ namespace ControlClient
             String str = img.Name;
             int row = -1;
             int column = -1;
-            int.TryParse(str.Substring(4,1),out row);
+            int.TryParse(str.Substring(4, 1), out row);
             int.TryParse(str.Substring(5, 1), out column);
-            try {
-                Process.Start(@gamePath[row, column]); 
-             }catch(System.ComponentModel.Win32Exception){
-                 MessageBox.Show("游戏已被修改或不存在\n请检查游戏路径，并重新添加", "出错了");
-                 DeleteGameByKey("gamepath"+row+column);
-             }
+            try
+            {
+                Process.Start(@gamePath[row, column]);
+            }
+            catch (System.ComponentModel.Win32Exception)
+            {
+                MessageBox.Show("游戏已被修改或不存在\n请检查游戏路径，并重新添加", "出错了");
+                DeleteGameByKey("gamepath" + row + column);
+            }
             catch (Exception)
             {
-                MessageBox.Show("不可解决的错误\n游戏可能已经损坏","出错了");
+                MessageBox.Show("不可解决的错误\n游戏可能已经损坏", "出错了");
             }
         }
         private void DeleteGame(object sender, RoutedEventArgs e)
         {
             MessageBoxResult confirmToDel = MessageBox.Show("是否删除游戏？", "提示", MessageBoxButton.YesNo, MessageBoxImage.Question);
-            if (confirmToDel == MessageBoxResult.Yes) {
+            if (confirmToDel == MessageBoxResult.Yes)
+            {
                 Image img = (Image)e.OriginalSource;
                 String str = img.Name;
                 int row = -1;
                 int column = -1;
                 int.TryParse(str.Substring(4, 1), out row);
-                int.TryParse(str.Substring(5, 1), out column);   
-                DeleteGameByKey("gamepath"+ row  + column);
+                int.TryParse(str.Substring(5, 1), out column);
+                DeleteGameByKey("gamepath" + row + column);
             }
         }
         public void InitGame()
@@ -147,7 +160,7 @@ namespace ControlClient
 
         }
         //更新游戏
-        public  void doUpdate(String fileName)
+        public void doUpdate(String fileName)
         {
             IntPtr[] largeIcons, smallIcons;  //存放大/小图标的指针数组  
             string appPath = @fileName;
@@ -167,12 +180,14 @@ namespace ControlClient
                 System.Drawing.Bitmap bmp = newIcon.ToBitmap();
                 returnSource = System.Windows.Interop.Imaging.CreateBitmapSourceFromHBitmap(bmp.GetHbitmap(), IntPtr.Zero, Int32Rect.Empty, BitmapSizeOptions.FromEmptyOptions());
             }
-            Image img = new Image();          
+            Image img = new Image();
             if (returnSource == null)
             {
                 img.Source = new BitmapImage(new Uri("./img/defaultGameICO.png",
                                                    UriKind.Relative));
-            }else {
+            }
+            else
+            {
                 img.Source = returnSource;
             }
             int nowColumn = Grid.GetColumn(addGame);
@@ -193,7 +208,7 @@ namespace ControlClient
                 int subStart = fileName.LastIndexOf("\\");
                 int subEnd = fileName.LastIndexOf(".exe");
                 String gameName = fileName.Substring(subStart + 1, subEnd - subStart - 1);
-                img.Name = "game" + nowRow+nowColumn;
+                img.Name = "game" + nowRow + nowColumn;
                 Label l = new Label();
                 l.Content = gameName;
                 l.HorizontalAlignment = HorizontalAlignment.Center;
@@ -210,7 +225,7 @@ namespace ControlClient
                 Grid.SetColumn(addGame, 0);
                 Grid.SetRow(addGame, nowRow + 1);
                 //  write the configuration file
-                Utils.UpdateAppConfig("gamepath"+nowRow+ nowColumn, fileName);
+                Utils.UpdateAppConfig("gamepath" + nowRow + nowColumn, fileName);
             }
             else
             {
@@ -270,7 +285,7 @@ namespace ControlClient
             }
             config.Save(ConfigurationSaveMode.Modified);
             ConfigurationManager.RefreshSection("appSettings");
-            Utils.FormatConfig(rowNum,columnNum);
+            Utils.FormatConfig(rowNum, columnNum);
             gameContainer.Children.Clear();
             gameContainer.Children.Add(addGame);
             Grid.SetColumn(addGame, 0);
@@ -301,6 +316,9 @@ namespace ControlClient
         //show login window
         private void Login(object sender, RoutedEventArgs e)
         {
+            String loginName = LoginTb.Text;
+            Label loginStatus = new Label();
+            loginStatus.Content = loginName;
             Login login = new Login(loginStatus);
             login.Owner = this;
             login.WindowStartupLocation = WindowStartupLocation.CenterOwner;
@@ -340,8 +358,9 @@ namespace ControlClient
         //switch serve
         private void SwitchServe(object sender, RoutedEventArgs e)
         {
-            if (csm == null) {
-            csm = ControlServerManage.GetInstance(cbb_port, lbl_gloveStatus, this);
+            if (csm == null)
+            {
+                csm = ControlServerManage.GetInstance(cbb_port, lbl_gloveStatus, this);
             }
             if (csm == null)
             {
@@ -395,7 +414,7 @@ namespace ControlClient
 
         private void gameBar_Click(object sender, RoutedEventArgs e)
         {
-            GameBar g = GameBar.getInstance();
+            GameBar g = GameBar.GetInstance();
             g.Show();
         }
     }

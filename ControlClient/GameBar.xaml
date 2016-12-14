@@ -1,14 +1,33 @@
-﻿<Window x:Class="ControlClient.GameBar"
+﻿<controls:MetroWindow x:Class="ControlClient.GameBar"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:controls="http://metro.mahapps.com/winfx/xaml/controls"
         AllowsTransparency="True"
-        Background="{x:Null}"
+        Topmost="True"
+        UseNoneWindowStyle="True"
+        Background="Transparent"
+        ShowInTaskbar="False"
         WindowStyle="None"
-        BorderBrush="#1b6093"
-        BorderThickness="2"
-        Width="30"
-        Height="300">
-    <Grid Background="White">
-        
-    </Grid>
-</Window>
+        Width="80"
+        Height="600">
+    <Border BorderThickness ="3" BorderBrush ="#1b6093" CornerRadius ="2,2,2,2">
+        <Grid Background="White">
+            <Rectangle Name="RefreshGame" Width="20" Height="20" VerticalAlignment="Top" MouseLeftButtonUp="RefreshGame_MouseLeftButtonUp" Margin="27,5,27,0">
+                <Rectangle.Fill>
+                    <VisualBrush Visual="{StaticResource appbar_refresh}" />
+                </Rectangle.Fill>
+            </Rectangle>
+            <ScrollViewer Style ="{StaticResource {x:Type ScrollViewer}}" HorizontalAlignment="Stretch" Margin="0,35,0,35" VerticalAlignment="Stretch" >
+                <StackPanel Name="GameContainer" Orientation="Vertical"  Margin="0,0,0,0" HorizontalAlignment="Left" Width="auto" Height="auto">
+                </StackPanel>
+            </ScrollViewer>
+            <Rectangle Name="CloseBar" Width="20" Height="20" VerticalAlignment="Bottom" MouseLeftButtonUp="CloseBar_MouseLeftButtonUp" Margin="27,0,27,5">
+                <Rectangle.Fill>
+                    <VisualBrush Visual="{StaticResource appbar_close}" />
+                </Rectangle.Fill>
+            </Rectangle>
+        </Grid>
+    </Border>
+
+</controls:MetroWindow>
+

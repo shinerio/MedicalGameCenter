@@ -55,7 +55,8 @@ namespace ControlClient
             WebSockData wsd = new WebSockData();
             wsd.nodes = f_r.Nodes;
             wsd.score = score;
-            Send(JsonConvert.SerializeObject(wsd));
+            // Send(JsonConvert.SerializeObject(wsd));
+            Send(wsd.score.ToString());
         }
     }
 }
