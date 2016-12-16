@@ -2,7 +2,9 @@
 using System.Collections.Generic;
 using System.Configuration;
 using System.Diagnostics;
+using System.Drawing;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
@@ -14,23 +16,26 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
+using MahApps.Metro.Controls;
+using Image = System.Windows.Controls.Image;
 
 namespace ControlClient
 {
     /// <summary>
     /// Game.xaml 的交互逻辑
     /// </summary>
-    public partial class GameBar : Window
+    public partial class GameBar : MetroWindow
     {
         private static GameBar gameBar;
-        private static float scaleSize = 1.25f;
-        public static   int gameNum = 0;
+        private static float scaleSize = 1f;
+        public static int gameNum = 0;
         public string[] gamepath;
         private GameBar()
         {
             InitializeComponent();
             this.WindowStartupLocation = WindowStartupLocation.Manual;
-            int SH = System.Windows.Forms.Screen.PrimaryScreen.Bounds.Height;  
+            this.Topmost = true;
+            int SH = System.Windows.Forms.Screen.PrimaryScreen.Bounds.Height;
             int SW = System.Windows.Forms.Screen.PrimaryScreen.WorkingArea.Right;
             this.Left = SW / scaleSize - this.Width;   //控件和屏幕分辨率值之间有差异
             this.Top = (SH / scaleSize - this.Height) / 2;
@@ -38,7 +43,7 @@ namespace ControlClient
             InitGame();
         }
 
-        public static GameBar getInstance()
+        public static GameBar GetInstance()
         {
             if (gameBar == null)
             {
@@ -46,9 +51,8 @@ namespace ControlClient
             }
             return gameBar;
         }
-
         public void InitGame()
-        {    
+        {
             string file = System.Windows.Forms.Application.ExecutablePath;
             Configuration config = ConfigurationManager.OpenExeConfiguration(file);
             gamepath = new string[config.AppSettings.Settings.AllKeys.Length];   //生成最大游戏数组
@@ -96,6 +100,7 @@ namespace ControlClient
                 img.Source = returnSource;
             }
             StackPanel sp = new StackPanel();
+
             sp.Children.Add(img);
             int subStart = fileName.LastIndexOf("\\");
             int subEnd = fileName.LastIndexOf(".exe");
@@ -104,7 +109,7 @@ namespace ControlClient
             System.Windows.Controls.Label l = new System.Windows.Controls.Label();
             l.Content = gameName;
             sp.Children.Add(l);
-            gameContainer.Children.Add(sp); 
+            GameContainer.Children.Add(sp); 
             gamepath[gameNum] = fileName;
             img.MouseLeftButtonUp += new MouseButtonEventHandler(this.startGame);  //add LeftMouseClick event  
             gameNum++;
@@ -114,7 +119,7 @@ namespace ControlClient
             Image img = (Image)e.OriginalSource;
             String str = img.Name;
             int row = -1;
-            int.TryParse(str.Substring(4,str.Length-4), out row);
+            int.TryParse(str.Substring(4, str.Length - 4), out row);
             try
             {
                 Process.Start(@gamepath[row]);
@@ -131,7 +136,7 @@ namespace ControlClient
 
         private void RefreshGame_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
         {
-            gameContainer.Children.Clear();
+            GameContainer.Children.Clear();
             gameNum = 0;
             gamepath = null;
             InitGame();

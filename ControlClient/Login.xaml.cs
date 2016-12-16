@@ -14,13 +14,14 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
+using MahApps.Metro.Controls;
 
 namespace ControlClient
 {
     /// <summary>
     /// Login.xaml 的交互逻辑
     /// </summary>
-    public partial class Login : Window
+    public partial class Login : MetroWindow
     {
         public static String UserName;
         private Label loginstatus;
@@ -84,7 +85,7 @@ namespace ControlClient
                 Console.Write(str);
                 count = readStream.Read(read, 0, 256);
             }
-            if (str != null || !str.Equals(""))
+            if (!str.Equals(""))
             {
                 str = str.Replace("\"", "'");  //java和c#的json格式转化
                 Patient patient = JsonConvert.DeserializeObject<Patient>(str);
