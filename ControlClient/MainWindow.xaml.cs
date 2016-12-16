@@ -17,7 +17,7 @@ using System.Configuration;
 using System.Text.RegularExpressions;
 using GloveLib;
 using MahApps.Metro.Controls;
-
+using System.IO;
 namespace ControlClient
 {
     /// <summary>
@@ -28,6 +28,8 @@ namespace ControlClient
     {
 
         private ControlServerManage csm;
+        private WindowState ws; //窗口状态
+        private System.Windows.Forms.NotifyIcon notifyIcon; //任务栏图标
         private static int rowNum = 4;    //the number of game gridlist's row and cloumn
         private static int columnNum = 4;
         private string[,] gamePath = new string[rowNum, columnNum];//corresponding game's path
@@ -37,6 +39,8 @@ namespace ControlClient
             InitializeComponent();
             InitGame();
             csm = ControlServerManage.GetInstance(cbb_port, lbl_gloveStatus, this);
+            icon();
+            contextMenu();
         }
 
         //        private void topTitle_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
@@ -63,6 +67,7 @@ namespace ControlClient
 
         private void ShutdownAll(object sender, RoutedEventArgs e)
         {
+            notifyIcon.Visible = false;
             Application.Current.Shutdown(-1);
             System.Environment.Exit(-1);
         }
@@ -81,6 +86,7 @@ namespace ControlClient
 
         private void MinimizeWindow(object sender, RoutedEventArgs e)
         {
+            ws = this.WindowState;
             this.WindowState = WindowState.Minimized;
         }
 
@@ -417,5 +423,65 @@ namespace ControlClient
             GameBar g = GameBar.GetInstance();
             g.Show();
         }
+
+        private void icon()
+        {
+            string path = System.IO.Path.GetFullPath("../../icLauncher.ico");
+            if (File.Exists(path))
+            {
+                this.notifyIcon = new System.Windows.Forms.NotifyIcon();
+                this.notifyIcon.BalloonTipText = "medical管理客户端"; //设置程序启动时显示的文本
+                this.notifyIcon.Text = "管理客户端";//最小化到托盘时，鼠标点击时显示的文本
+                System.Drawing.Icon icon = new System.Drawing.Icon(path);//程序图标 
+                this.notifyIcon.Icon = icon;
+                this.notifyIcon.Visible = true;
+                notifyIcon.MouseDoubleClick += OnNotifyIconDoubleClick;
+                this.notifyIcon.ShowBalloonTip(1000);
+            }
+
+        }
+        private void OnNotifyIconDoubleClick(object sender, EventArgs e)
+        {
+            this.WindowState = ws;
+        }
+        //任务栏动作捕捉
+        private void contextMenu()
+        {
+            System.Windows.Forms.ContextMenuStrip cms = new System.Windows.Forms.ContextMenuStrip();
+
+
+            //关联 NotifyIcon 和 ContextMenuStrip
+            notifyIcon.ContextMenuStrip = cms;
+            System.Windows.Forms.ToolStripMenuItem exitMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            exitMenuItem.Text = "退出";
+            exitMenuItem.Click += new EventHandler(exitMenuItem_Click);
+            System.Windows.Forms.ToolStripMenuItem hideMenumItem = new System.Windows.Forms.ToolStripMenuItem();
+            hideMenumItem.Text = "隐藏";
+            hideMenumItem.Click += new EventHandler(hideMenumItem_Click);
+            System.Windows.Forms.ToolStripMenuItem showMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            showMenuItem.Text = "显示";
+            showMenuItem.Click += new EventHandler(showMenuItem_Click);
+            cms.Items.Add(exitMenuItem);
+            cms.Items.Add(hideMenumItem);
+            cms.Items.Add(showMenuItem);
+        }
+
+        private void exitMenuItem_Click(object sender, EventArgs e)
+        {
+            notifyIcon.Visible = false;
+            Application.Current.Shutdown(-1);
+            System.Environment.Exit(-1);
+        }
+
+        private void hideMenumItem_Click(object sender, EventArgs e)
+        {
+            this.Hide();
+        }
+
+        private void showMenuItem_Click(object sender, EventArgs e)
+        {
+            this.Show();
+            this.Activate();
+        } 
     }
 }

@@ -9,6 +9,7 @@
         TitlebarHeight="30"
         Width="800"
         Height="600"
+        ShowInTaskbar="False"
         Icon=".\img\logo.png"
         >
     <Window.Resources>
