@@ -9,6 +9,7 @@
         ShowInTaskbar="False"
         WindowStyle="None"
         Width="80"
+        ShowInTaskbar="False"
         Height="600">
     <Border BorderThickness ="3" BorderBrush ="#1b6093" CornerRadius ="2,2,2,2">
         <Grid Background="White">

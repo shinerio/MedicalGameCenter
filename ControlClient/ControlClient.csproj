@@ -224,7 +224,9 @@
     <Resource Include="Resources\Entypo-license.txt" />
     <Resource Include="Resources\WindowsIcons-license.txt" />
     <Resource Include="刷新.png" />
-    <Resource Include="icLauncher.ico" />
+    <Resource Include="icLauncher.ico">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Resource>
     <Resource Include="img\defaultGameICO.png" />
     <Resource Include="img\gamebar.png" />
     <Resource Include="img\refresh.png" />
