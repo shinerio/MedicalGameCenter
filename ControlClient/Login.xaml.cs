@@ -23,7 +23,7 @@ namespace ControlClient
     /// </summary>
     public partial class Login : MetroWindow
     {
-        public static String UserName;
+        public static String UserName = "tom";
         private Label loginstatus;
         public Login(Label loginStatus)
         {
@@ -69,29 +69,56 @@ namespace ControlClient
             String username = userNameText.Text.ToString();
             UserName = username;
             String password = passwordText.Password.ToString();
+            if (username == "" || password == "")
+            {
+                MessageBox.Show("用户名或密码不能为空", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
             String url = "http://localhost:8080/patient/login";
             IDictionary<string, string> parameters = new Dictionary<string, string>();
             parameters.Add("username", username);
             parameters.Add("password", password);
-            HttpWebResponse response = HttpWebResponseUtility.CreatePostHttpResponse(url, parameters, null, null, Encoding.UTF8, null);
-            Encoding encode = System.Text.Encoding.GetEncoding("utf-8");
-            StreamReader readStream = new StreamReader(response.GetResponseStream(), encode);
-            Char[] read = new Char[256];
-            int count = readStream.Read(read, 0, 256);
-            String str = "";
-            while (count > 0)
+            HttpWebResponse response = null;
+            StreamReader readStream = null;
+            try
             {
-                str += new String(read, 0, count);
-                Console.Write(str);
-                count = readStream.Read(read, 0, 256);
+                response = HttpWebResponseUtility.CreatePostHttpResponse(url, parameters, null, null,
+                    Encoding.UTF8, null);
+                Encoding encode = System.Text.Encoding.GetEncoding("utf-8");
+                readStream = new StreamReader(response.GetResponseStream(), encode);
+                Char[] read = new Char[256];
+                int count = readStream.Read(read, 0, 256);
+                String str = "";
+                while (count > 0)
+                {
+                    str += new String(read, 0, count);
+                    Console.Write(str);
+                    count = readStream.Read(read, 0, 256);
+                }
+                if (!str.Equals(""))
+                {
+                    str = str.Replace("\"", "'"); //java和c#的json格式转化
+                    Patient.SetPatient(JsonConvert.DeserializeObject<Patient>(str));
+                    loginstatus.Content = "你好！" + Patient.GetInstance().realname;
+                    this.Close();
+                }
             }
-            if (!str.Equals(""))
+            catch (Exception exception)
             {
-                str = str.Replace("\"", "'");  //java和c#的json格式转化
-                Patient patient = JsonConvert.DeserializeObject<Patient>(str);
-                loginstatus.Content = "你好！" + patient.realname;
-                this.Close();
+                MessageBox.Show("登陆失败，请检查网络设置", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
             }
+            finally
+            {
+                if (response != null)
+                {
+                    response.Close();
+                }
+                if (readStream != null)
+                {
+                    readStream.Close();
+                }
+            }
+
         }
 
         //取消操作
