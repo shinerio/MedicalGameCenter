@@ -125,6 +125,9 @@
     <Compile Include="GloveModule.cs" />
     <Compile Include="HttpWebResponseUtility.cs" />
     <Compile Include="Logger.cs" />
+    <Compile Include="Setting.xaml.cs">
+      <DependentUpon>Setting.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Patient.cs" />
     <Compile Include="Settings.cs" />
     <Compile Include="Utils.cs" />
@@ -136,6 +139,10 @@
     <Page Include="GloveConfigView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Setting.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
     </Page>
     <Page Include="Login.xaml">
       <Generator>MSBuild:Compile</Generator>
@@ -231,6 +238,10 @@
     <Resource Include="img\gamebar.png" />
     <Resource Include="img\refresh.png" />
     <Resource Include="img\closeBar.png" />
+    <Resource Include="img\settings.png" />
+    <Resource Include="img\delete.png" />
+    <Resource Include="img\start_gamebar.png" />
+    <Resource Include="img\alignment.png" />
     <Content Include="model\HandArm.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>

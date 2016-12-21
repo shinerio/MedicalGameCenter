@@ -4,7 +4,8 @@
         xmlns:controls="http://metro.mahapps.com/winfx/xaml/controls"
         AllowsTransparency="True"
         Background="{x:Null}"
-        BorderBrush="Black"
+        BorderThickness="1"
+        BorderBrush="{StaticResource AccentBaseColorBrush}"
         UseNoneWindowStyle="True"
         ResizeMode="NoResize"
         Height="250"
@@ -26,7 +27,7 @@
             <PasswordBox Name="passwordText" ToolTip="请输入密码" HorizontalAlignment="Center" Height="38" VerticalContentAlignment="Center" FontSize="15"  VerticalAlignment="Top" Width="197" Margin="47,72,50,0"/>
             <Button Name="login" Content="登录"  HorizontalAlignment="Left" FontSize="17"  Margin="47,132,0,0" VerticalAlignment="Top" Width="90" Height="35" Click="Login_Click"/>
             <Button Name="cancel" Content="取消" HorizontalAlignment="Right" Margin="0,132,50,0" VerticalAlignment="Top" FontSize="16" Width="90" Height="35" Click="Cancel"/>
-            <Image HorizontalAlignment="Right" Name="switchBtn" Source=".\img\switchLogin_enter.png" Height="40" Margin="0,46,5,95" VerticalAlignment="Center" Width="40" MouseEnter="Image_MouseEnter" MouseLeave="Image_MouseLeave" MouseLeftButtonUp="Image_MouseLeftButtonUp"/>
+            <Image HorizontalAlignment="Right" Name="switchBtn" Source=".\img\switchLogin_enter.png" Height="40" Margin="0,46,5,95" VerticalAlignment="Center" Width="40" MouseEnter="Image_MouseEnter" MouseLeave="Image_MouseLeave" MouseLeftButtonUp="Image_MouseLeftButtonUp" RenderTransformOrigin="0.525,-0.175"/>
         </Grid>
     </Grid>
 </controls:MetroWindow>

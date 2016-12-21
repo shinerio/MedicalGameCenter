@@ -7,6 +7,8 @@
         Background="{x:Null}"
         WindowStyle="ThreeDBorderWindow"
         ResizeMode="CanMinimize"
+        BorderThickness="1"
+        BorderBrush="{StaticResource AccentBaseColorBrush}"
         TitlebarHeight="30"
         Width="800"
 
@@ -28,6 +30,10 @@
                            Foreground="{DynamicResource AccentColorBrush}"
                            FontSize="15"
                            Text="{Binding Artists[0].Name}" />
+            </dialogs:CustomDialog>
+            <dialogs:CustomDialog x:Key="SettingDialog"
+                                 x:Name="SettingDialog"
+                                 Title="手套校准已完成">
             </dialogs:CustomDialog>
         </ResourceDictionary>
     </Window.Resources>
@@ -53,15 +59,15 @@
         </Controls:WindowCommands>
     </Controls:MetroWindow.RightWindowCommands>
     <Grid Background="White">
-        <Grid HorizontalAlignment="Stretch" Background="Gray" Height="60" VerticalAlignment="Bottom">
+        <Grid HorizontalAlignment="Stretch" Background="Gray" Height="30" VerticalAlignment="Bottom">
             <Image HorizontalAlignment="Left" VerticalAlignment="Center" Margin="9,0,0,0"   Source=".\img\error.png" Width="26"/>
             <Label x:Name="lbl_gloveStatus" Content="手套未接入" TextBlock.FontWeight="Bold" FontSize="16" Foreground="White"  HorizontalAlignment="Left" VerticalAlignment="Center" Margin="49,0,0,0"/>
-            <TextBox Name="txt_log" AcceptsReturn="True" 
-                 Foreground="White"
-                 Background="Black"
-                 VerticalScrollBarVisibility="Auto" MaxLines="4"
-                 HorizontalScrollBarVisibility="Auto" IsReadOnly="True" Margin="149,0,0,0"
-                 />
+<!--            <TextBox Name="txt_log" AcceptsReturn="True" -->
+<!--                 Foreground="White"-->
+<!--                 Background="Black"-->
+<!--                 VerticalScrollBarVisibility="Auto" MaxLines="4"-->
+<!--                 HorizontalScrollBarVisibility="Auto" IsReadOnly="True" Margin="149,0,0,0"-->
+<!--                 />-->
         </Grid>
 
 
@@ -84,7 +90,7 @@
                         <Button.Template>
                             <ControlTemplate x:Name="clearGameTemp">
                                 <ContentControl>
-                                    <Image Name="imgWork" Source=".\img\clearGame.png"></Image>
+                                    <Image Name="imgWork" Source=".\img\delete.png"></Image>
                                 </ContentControl>
                             </ControlTemplate>
                         </Button.Template>
@@ -92,41 +98,52 @@
                     <Label Content="清空游戏" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="0,5,10,5" FontWeight="Bold" FontSize="15" Height="30"/>
                 </StackPanel>
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" MouseEnter="ServiceToolIcon_OnMouseEnter" MouseLeave="ServiceToolIcon_OnMouseLeave" MouseLeftButtonUp="gameBar_Click">
-                    <Button  x:Name="gameBar" HorizontalAlignment="Left"  Focusable="False" BorderBrush="Transparent"  Height="35" Width="30" Margin="10,0,0,5" VerticalAlignment="Center" Click="gameBar_Click">
+                    <Button  x:Name="gameBar" HorizontalAlignment="Left"  Focusable="False" BorderBrush="Transparent"  Height="30" Width="30" Margin="10,5,0,5" VerticalAlignment="Center" Click="gameBar_Click">
                         <Button.Template>
                             <ControlTemplate x:Name="gameBarTemp">
                                 <ContentControl>
-                                    <Image x:Name="imgWork" Source=".\img\gamebar.png"/>
+                                    <Image x:Name="imgWork" Source=".\img\start_gamebar.png"/>
                                 </ContentControl>
                             </ControlTemplate>
                         </Button.Template>
                     </Button>
                     <Label Content="快速启动" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="0,5,10,5" FontWeight="Bold" FontSize="15" Height="30"/>
                 </StackPanel>
-                <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" MouseEnter="ServiceToolIcon_OnMouseEnter" MouseLeave="ServiceToolIcon_OnMouseLeave">
-                    <Button  Name="aboutUs" HorizontalAlignment="Left"  Focusable="False" BorderBrush="Transparent"  Height="30" Width="30" Margin="10,5,0,5" VerticalAlignment="Center">
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" MouseEnter="ServiceToolIcon_OnMouseEnter" MouseLeave="ServiceToolIcon_OnMouseLeave" MouseLeftButtonUp="setting_Click">
+                    <Button  Name="setting" HorizontalAlignment="Left"  Focusable="False" BorderBrush="Transparent"  Height="30" Width="30" Margin="10,5,0,5" VerticalAlignment="Center" Click="setting_Click" Content="c">
                         <Button.Template>
-                            <ControlTemplate x:Name="aboutUsTemp">
+                            <ControlTemplate x:Name="settingTemp">
                                 <ContentControl>
-                                    <Image Name="imgWork" Source=".\img\aboutus.png"></Image>
+                                    <Image Name="imgWork" Source=".\img\settings.png" SnapsToDevicePixels="False" Height="Auto"/>
                                 </ContentControl>
                             </ControlTemplate>
                         </Button.Template>
                     </Button>
-                    <Label Content="关于我们" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="0,5,10,5" FontWeight="Bold" FontSize="15" Height="30"/>
+                    <Label Content="设置" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="0,5,10,5" FontWeight="Bold" FontSize="15" Height="30"/>
+                </StackPanel>
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" MouseEnter="ServiceToolIcon_OnMouseEnter" MouseLeave="ServiceToolIcon_OnMouseLeave" MouseLeftButtonUp="alignment_Click">
+                    <Button  Name="alignment" HorizontalAlignment="Left"  Focusable="False" BorderBrush="Transparent"  Height="30" Width="30" Margin="10,5,0,5" VerticalAlignment="Center" Click="alignment_Click">
+                        <Button.Template>
+                            <ControlTemplate x:Name="alignmentTemp">
+                                <ContentControl>
+                                    <Image Name="imgWork" Source=".\img\alignment.png" SnapsToDevicePixels="False" Height="Auto"/>
+                                </ContentControl>
+                            </ControlTemplate>
+                        </Button.Template>
+                    </Button>
+                    <Label Content="校准" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="0,5,10,5" FontWeight="Bold" FontSize="15" Height="30"/>
                 </StackPanel>
             </StackPanel>
         </Grid>
 
 
-        <Grid HorizontalAlignment="Left" Margin="0,40,0,60"  Background="#f2f2f2" VerticalAlignment="Stretch" Width="150">
-            <Button Name ="Game_Menu" HorizontalAlignment="Center" Margin="0,20,0,0" Content="游戏菜单" TextBlock.FontWeight="Bold" FontSize="14" VerticalAlignment="Top" Width="110"  Click="GameMenu">
-            </Button>
-            <Button  HorizontalAlignment="Left" Focusable="False" Content="设备帮助" TextBlock.FontWeight="Bold" FontSize="14" Height="30" Margin="20,60,0,0" VerticalAlignment="Top" Width="110" Click="DeviceHelp"/>
-            <Label HorizontalAlignment="Left" Name="showData" VerticalContentAlignment="Center" HorizontalContentAlignment="Center" FontSize="30" Height="40" Margin="10,391,0,0"  VerticalAlignment="Top" Width="120"/>
-        </Grid>
-        <Grid HorizontalAlignment="Stretch"  Name="MainContainer" Margin="150,40,0,60" VerticalAlignment="Stretch" Background="#f2f2f2">
-            <Grid Visibility="Visible" HorizontalAlignment="Stretch" Name="gameContainer" VerticalAlignment="Stretch" Background="#f2f2f2" Margin="10,0,-10,0">
+<!--        <Grid HorizontalAlignment="Left" Margin="0,40,0,60"  Background="#f2f2f2" VerticalAlignment="Stretch" Width="150">-->
+<!--            <Button Name ="Game_Menu" HorizontalAlignment="Center" Margin="0,20,0,0" Content="游戏菜单" TextBlock.FontWeight="Bold" FontSize="14" VerticalAlignment="Top" Width="110"  Click="GameMenu">-->
+<!--            </Button>-->
+<!---->
+<!--        </Grid>-->
+        <Grid HorizontalAlignment="Stretch"  Name="MainContainer" Margin="0,40,0,30" VerticalAlignment="Stretch" Background="#f2f2f2">
+            <Grid Visibility="Visible" HorizontalAlignment="Stretch" Name="gameContainer" VerticalAlignment="Stretch" Background="#f2f2f2" Margin="0,0,0,0">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="25*"/>
                     <RowDefinition Height="25*" />
@@ -145,16 +162,6 @@
                     </Rectangle.Fill>
                 </Rectangle>
 <!--                <Image HorizontalAlignment="Stretch" Margin="3,3,3,3"  Name="addGame" Source=".\img\addGame.png" VerticalAlignment="Stretch" MouseLeftButtonUp="AddGame"/>-->
-            </Grid>
-            <Grid Visibility="Hidden" HorizontalAlignment="Stretch" Name="DeviceHelpContainer" Margin="0,0,0,0" VerticalAlignment="Stretch" Background="#f2f2f2">
-                <Label Content="控制端IP" FontSize="20" VerticalAlignment="Top" Height="40" Margin="0,10,350,0" HorizontalAlignment="Center"></Label>
-                <TextBox Style="{StaticResource {x:Type TextBox}}" Name="localIP" FontSize="15" BorderThickness="2" VerticalContentAlignment="Center" Width="250" Height="40" VerticalAlignment="Top" Margin="0,10,0,0" HorizontalAlignment="Center"></TextBox>
-                <Label Content="游戏端IP" FontSize="20" VerticalAlignment="Top" Height="40" Margin="0,70,350,0" HorizontalAlignment="Center"></Label>
-                <TextBox Name="targetIP"  FontSize="15" BorderThickness="2" VerticalContentAlignment="Center" Width="250" Height="40" VerticalAlignment="Top" Margin="0,70,0,0" HorizontalAlignment="Center"></TextBox>
-                <Button x:Name="btn_Config" Content="校准设备" HorizontalAlignment="Center" Margin="0,130,0,0" VerticalAlignment="Top" Width="250" Height="40" FontWeight="Bold" FontSize="15" Click="btn_Config_Click" />
-                <Label Content="端口选择" FontSize="20" VerticalAlignment="Top" Height="40" Margin="0,190,350,0" HorizontalAlignment="Center"></Label>
-                <ComboBox x:Name="cbb_port" FontSize="15" BorderThickness="2" HorizontalAlignment="Center" Margin="0,190,0,0" VerticalAlignment="Top" Height="40" Width="250"/>
-                <Button VerticalAlignment="Bottom" Name="settingsDer"  TextBlock.FontWeight="Bold" FontSize="14" Content="确定" HorizontalAlignment="Right" Width="80" Height="30" Margin="0,0,20,20" Click="settingsDer_Click"></Button>
             </Grid>
         </Grid>
     </Grid>
