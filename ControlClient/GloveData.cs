@@ -47,7 +47,13 @@ namespace ControlClient
                     break;
             }
         }
-       
+
+        protected override void OnClose(CloseEventArgs e)
+        {
+            _timer.Stop();
+            base.OnClose(e);
+        }
+
         private void SendMsg(object source, ElapsedEventArgs e)
         {
             int score = rhb.GetScore();          
@@ -55,8 +61,11 @@ namespace ControlClient
             WebSockData wsd = new WebSockData();
             wsd.nodes = f_r.Nodes;
             wsd.score = score;
-            // Send(JsonConvert.SerializeObject(wsd));
-            Send(wsd.score.ToString());
+            if (State == WebSocketState.Open)
+            {
+                Send(JsonConvert.SerializeObject(wsd));
+                // Send(wsd.score.ToString());
+            }
         }
     }
 }

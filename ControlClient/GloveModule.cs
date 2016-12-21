@@ -81,7 +81,7 @@ namespace ControlClient
                 var score = rhb.GetScore();
                 if (score!=-1)
                 {
-                    Console.WriteLine("得分:{0}",score);
+                    // Console.WriteLine("得分:{0}",score);
                 }
                 ////send left
                 //var f_l = dh.GetFrameData(HandType.Left, Definition.MODEL_TYPE);
