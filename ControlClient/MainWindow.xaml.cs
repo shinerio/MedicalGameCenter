@@ -15,9 +15,20 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.Configuration;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
+using System.Windows.Forms;
 using GloveLib;
 using MahApps.Metro.Controls;
+
+using MahApps.Metro.Controls.Dialogs;
+using Application = System.Windows.Application;
+using HorizontalAlignment = System.Windows.HorizontalAlignment;
+using Label = System.Windows.Controls.Label;
+using MessageBox = System.Windows.MessageBox;
+using MouseEventArgs = System.Windows.Input.MouseEventArgs;
+
 using System.IO;
+
 namespace ControlClient
 {
     /// <summary>
@@ -26,10 +37,15 @@ namespace ControlClient
     /// </summary>
     public partial class MainWindow : MetroWindow
     {
-
+        private SensorCalibrator sc;
         private ControlServerManage csm;
+
+        private Rehabilitation rhb;
+        private bool isMagneticAlignSuccess = false;
+
         private WindowState ws; //窗口状态
         private System.Windows.Forms.NotifyIcon notifyIcon; //任务栏图标
+
         private static int rowNum = 4;    //the number of game gridlist's row and cloumn
         private static int columnNum = 4;
         private string[,] gamePath = new string[rowNum, columnNum];//corresponding game's path
@@ -39,8 +55,13 @@ namespace ControlClient
             InitializeComponent();
             InitGame();
             csm = ControlServerManage.GetInstance(cbb_port, lbl_gloveStatus, this);
+
+            sc = SensorCalibrator.GetSingleton();
+            rhb = Rehabilitation.GetSingleton();
+
             icon();
             contextMenu();
+
         }
 
         //        private void topTitle_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
@@ -415,7 +436,118 @@ namespace ControlClient
         //glove config
         private void btn_Config_Click(object sender, RoutedEventArgs e)
         {
-            (new GloveConfigView()).Show();
+            // new GloveConfigView().Show();
+            ShowAlignmentDialog(sender, e);
+            // ShowCustomDialog(sender, e);
+        }
+
+        private async void ShowCustomDialog(object sender, RoutedEventArgs e)
+        {
+            var dialog = (BaseMetroDialog)this.Resources["AlignmentDialog"];
+
+            await this.ShowMetroDialogAsync(dialog);
+
+            dialog.Title = "手套校准已完成";
+            var textBlock = dialog.FindChild<TextBlock>("MessageTextBlock");
+            textBlock.Text = "对话框将在3秒后关闭......";
+
+            await Task.Delay(3000);
+
+            await this.ShowMessageAsync("Secondary dialog", "This message is shown on top of another.");
+
+            textBlock.Text = "The dialog will close in 2 seconds.";
+            await Task.Delay(2000);
+
+            await this.HideMetroDialogAsync(dialog);
+        }
+
+        private async void ShowAlignmentDialog(object sender, RoutedEventArgs e)
+        {
+            if (!ControlServerManage.GetInstance(cbb_port, lbl_gloveStatus, this).getServerStatus())
+            {
+                var errorDialog = (BaseMetroDialog)this.Resources["AlignmentDialog"];
+
+                await this.ShowMetroDialogAsync(errorDialog);
+
+                errorDialog.Title = "请先启动服务";
+                var textBlock = errorDialog.FindChild<TextBlock>("MessageTextBlock");
+                textBlock.Text = "此窗口将在2秒后关闭......";
+
+                await Task.Delay(2000);
+                await this.HideMetroDialogAsync(errorDialog);
+                return;
+            }
+            var magneticAlignment = new MetroDialogSettings()
+            {
+                AffirmativeButtonText = "好的",
+                NegativeButtonText = "跳过",
+                FirstAuxiliaryButtonText = "关闭",
+                MaximumBodyHeight = 100,
+                ColorScheme = MetroDialogOptions.ColorScheme
+            };
+
+            MessageDialogResult doingMagneticAlignment = await this.ShowMessageAsync("是否进行磁场校准？", "提示：手套移动位置后需要重新进行磁场校准，一般只需要进行一次",
+                MessageDialogStyle.AffirmativeAndNegativeAndSingleAuxiliary, magneticAlignment);
+            // 进行磁场校准
+            if (doingMagneticAlignment == MessageDialogResult.Affirmative)
+            {
+                isMagneticAlignSuccess = false;
+                HostCommander.EraseFlash();
+                sc.StartCalibrate();
+                MessageDialogResult result = await this.ShowMessageAsync("开始进行磁场校准", "请在各个方向上旋转手套10秒钟以上，完成后请点击下一步",
+                    MessageDialogStyle.Affirmative, new MetroDialogSettings() { AffirmativeButtonText = "下一步" });
+                if (result == MessageDialogResult.Affirmative)
+                {
+                    sc.EndCalibrate(ShowData, FinishCallback);
+                    await Task.Delay(2000);
+                    await this.ShowMessageAsync("磁场校准成功", "请点击按钮进行姿态校准",
+                        MessageDialogStyle.Affirmative, new MetroDialogSettings() { AffirmativeButtonText = "好的" });
+                }
+            }
+            if (isMagneticAlignSuccess && doingMagneticAlignment!=MessageDialogResult.FirstAuxiliary)
+            {
+                await this.ShowMessageAsync("正在进行姿态校准", "提示：请将手掌尽可能张开，保持该姿势并点击下一步",
+                    MessageDialogStyle.Affirmative, new MetroDialogSettings() { AffirmativeButtonText = "下一步" });
+                rhb.ResetWorst();
+                await this.ShowMessageAsync("正在进行姿态校准", "提示：请将手掌尽可能捏合，保持该姿势并点击下一步",
+                    MessageDialogStyle.Affirmative, new MetroDialogSettings() { AffirmativeButtonText = "下一步" });
+                rhb.ResetBest();
+                var dialog = (BaseMetroDialog)this.Resources["AlignmentDialog"];
+
+                await this.ShowMetroDialogAsync(dialog);
+
+                dialog.Title = "手套校准已完成";
+                var textBlock = dialog.FindChild<TextBlock>("MessageTextBlock");
+                textBlock.Text = "对话框将在3秒后关闭......";
+
+                await Task.Delay(3000);
+                await this.HideMetroDialogAsync(dialog);
+            }
+            if (!isMagneticAlignSuccess && doingMagneticAlignment == MessageDialogResult.Negative)
+            {
+                await this.ShowMessageAsync("还未进行磁场校准", "提示：请返回上一步重新进行磁场校准",
+                    MessageDialogStyle.Affirmative, new MetroDialogSettings() { AffirmativeButtonText = "上一步" });
+                ShowAlignmentDialog(sender, e);
+            }
+        }
+
+        private void ShowData()
+        {
+            Application.Current.Dispatcher.Invoke(() =>
+            {
+                Console.WriteLine("已收到数据个数：" + sc.Count + "  计算完成，开始发送。请稍等10秒钟");
+            });
+
+        }
+
+        private void FinishCallback()
+        {
+            Application.Current.Dispatcher.Invoke(async () =>
+            {
+                isMagneticAlignSuccess = true;
+                Console.WriteLine("已完成磁力计校准，请继续姿态校准");
+            });
+
         }
 
         private void gameBar_Click(object sender, RoutedEventArgs e)
