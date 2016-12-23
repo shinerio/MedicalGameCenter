@@ -350,10 +350,7 @@ namespace ControlClient
         //show login window
         private void Login(object sender, RoutedEventArgs e)
         {
-            String loginName = LoginTb.Text;
-            Label loginStatus = new Label();
-            loginStatus.Content = loginName;
-            Login login = new Login(loginStatus);
+            Login login = new Login(LoginTb);
             login.Owner = this;
             login.WindowStartupLocation = WindowStartupLocation.CenterOwner;
             login.ShowDialog();

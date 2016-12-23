@@ -23,7 +23,6 @@ namespace ControlClient
         {
             _patient = p;
         }
-        public Doctor doctor { get; set; }
         public int id{get;set;}
         public String realname { get; set; }
     }

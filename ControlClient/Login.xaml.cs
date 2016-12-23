@@ -24,8 +24,8 @@ namespace ControlClient
     public partial class Login : MetroWindow
     {
         public static String UserName = "tom";
-        private Label loginstatus;
-        public Login(Label loginStatus)
+        private TextBlock loginstatus;
+        public Login(TextBlock loginStatus)
         {
             InitializeComponent();
             this.loginstatus = loginStatus;
@@ -99,7 +99,7 @@ namespace ControlClient
                 {
                     str = str.Replace("\"", "'"); //java和c#的json格式转化
                     Patient.SetPatient(JsonConvert.DeserializeObject<Patient>(str));
-                    loginstatus.Content = "你好！" + Patient.GetInstance().realname;
+                    loginstatus.Text = "你好！" + Patient.GetInstance().realname;
                     this.Close();
                 }
             }
