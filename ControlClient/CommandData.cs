@@ -12,6 +12,8 @@ using GloveLib;
 using WebSocketSharp;
 using WebSocketSharp.Server;
 using System.Data;
+using System.Net;
+using System.Net.Sockets;
 using MySql.Data.MySqlClient;
 
 namespace ControlClient
@@ -31,6 +33,8 @@ namespace ControlClient
         private const String EvaluateStart = "evaluate_start";
         private const String EvaluateRequestAccepted = "evaluate_request_accepted";
         private const String EvaluateStop = "evaluate_stop";
+        private const String EvaluatePlayback = "evaluate_playback";
+        private const String EvaluatePlaybackAck = "evaluate_playback_ack";
 
         static readonly Regex DigitRegex = new Regex(@"\d+");
         private static int _evaluateTime = 0;
@@ -38,6 +42,10 @@ namespace ControlClient
         private static long _startTime = GetCurrentTimeLong();
         private static long _endTime = GetCurrentTimeLong();
         private static int _evaluationId = -1;  // 当前评估id
+        private static int _evalustionSuccess = 0;  // 评估成功次数
+        private static int _evaluationTestSpeed = 10;   // 评估时单位时间开合次数
+        private static SocketManager sm = SocketManager.GetInstance();    // 评估再现数据发送socket
+        private static Socket server = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
         // 数据库配置
         private static string _connectionString = "server=10.103.238.28;" +
                                          "user id=root; " +
@@ -52,6 +60,7 @@ namespace ControlClient
         public static DataWarehouse dh = DataWarehouse.GetSingleton();
         private static EvaluateStatus status = EvaluateStatus.Idle;
         public static bool isRunning = false;
+        private static bool waitingPlaybackParam = false;    //等待传递评估参数
         Random random = new Random();
 
         private static System.Timers.Timer _timer = new System.Timers.Timer
@@ -69,9 +78,16 @@ namespace ControlClient
         protected override void OnMessage(MessageEventArgs e)
         {
             String data = e.Data;
+            Console.WriteLine(data);
             if (status == EvaluateStatus.Ready && DigitRegex.IsMatch(data))
             {
                 _evaluateTime = String2Int(data);
+            }
+            if (waitingPlaybackParam && DigitRegex.IsMatch(data))
+            {
+                Console.WriteLine(data);
+                EvaluationPlaybackThread.Run(String2Int(data));
+                waitingPlaybackParam = false;
             }
             switch (data)
             {
@@ -88,11 +104,17 @@ namespace ControlClient
                         Console.WriteLine(String.Format("evaluate_started time:{0}", _evaluateTime));
                         status = EvaluateStatus.Running;
                         isRunning = true;
-                        _timer.Interval = _evaluateTime * 1000;
+                        _timer.Interval = _evaluateTime * 60000; // 更改时长
                         _timer.Start();
                         //TODO: 开始评估操作
                         WriteFileThread.Run(); //Test
                     }
+                    break;
+                case EvaluatePlayback:
+                    waitingPlaybackParam = true;
+                    Console.WriteLine("准备评估再现");
+                    Send(EvaluatePlaybackAck);
+                    Console.WriteLine(EvaluatePlaybackAck);
                     break;
                 default:
                     break;
@@ -132,17 +154,18 @@ namespace ControlClient
                 (long)DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)).TotalMilliseconds;
         }
         // 向数据库插入评估信息
-        private static void InsertEvaluationInfo(int userId, long startTime, long endTime)
+        private static void InsertEvaluationInfo(int userId, long startTime, long endTime, int successRatio)
         {
             using (MySqlConnection conn = new MySqlConnection(_connectionString))
             {
                 conn.Open();
                 using (MySqlCommand cmd = conn.CreateCommand())
                 {
-                    cmd.CommandText = "insert into EVALUATION_INFO(uid, start_time, end_time) values (@uid, @start_time, @end_time)";
+                    cmd.CommandText = "insert into EVALUATION_INFO(uid, start_time, end_time, success_ratio) values (@uid, @start_time, @end_time, @success_ratio)";
                     cmd.Parameters.AddWithValue("@uid", userId);
                     cmd.Parameters.AddWithValue("@start_time", startTime);
                     cmd.Parameters.AddWithValue("@end_time", endTime);
+                    cmd.Parameters.AddWithValue("@success_ratio", successRatio);
                     try
                     {
                         cmd.ExecuteNonQuery();
@@ -150,6 +173,10 @@ namespace ControlClient
                     catch (MySqlException ex)
                     {
                         // Console.WriteLine(ex.Message);
+                    }
+                    finally
+                    {
+                        _evalustionSuccess = 0;
                     }
                 }
             }
@@ -185,13 +212,14 @@ namespace ControlClient
         }
         // 插入原始数据
         private static void InsertRawData(MySqlConnection connection, MySqlCommand cmd, int evaluationId,
-            long timeStamp, String jsonString)
+            long timeStamp, String jsonString, int score)
         {
-            cmd.CommandText = "insert into RAWDATA(evaluation_id, time_stamp, json_string) values (@evaluation_id, @time_stamp, @json_string);";
+            cmd.CommandText = "insert into RAWDATA(evaluation_id, time_stamp, json_string, score) values (@evaluation_id, @time_stamp, @json_string, @score);";
             cmd.Parameters.Clear();
             cmd.Parameters.AddWithValue("@evaluation_id", evaluationId);
             cmd.Parameters.AddWithValue("@time_stamp", timeStamp);
             cmd.Parameters.AddWithValue("@json_string", jsonString);
+            cmd.Parameters.AddWithValue("@score", score);
             try
             {
                 cmd.ExecuteNonQuery();
@@ -201,6 +229,7 @@ namespace ControlClient
                 // Console.WriteLine(ex.Message);
             }
         }
+        
         // 写文件进程
         private class WriteFileThread
         {
@@ -235,6 +264,8 @@ namespace ControlClient
 
             private void InsertData(object ms)
             {
+                bool waitingBest = false;   // 等待手掌闭合
+                int score = rhb.GetScore();
                 int t = 10;
                 int.TryParse(ms.ToString(), out t); //这里采用了TryParse方法，避免不能转换时出现异常
                 filePath = String.Format(@"{0}/nodes{1}.txt", dir, GetCurrentTimeLong());
@@ -243,10 +274,20 @@ namespace ControlClient
                 {
                     while (CommandData.isRunning)
                     {
+                        score = rhb.GetScore();
+                        if (score > 97 && waitingBest == false)
+                        {
+                            waitingBest = true;
+                        }
+                        if (score < 3 && waitingBest == true)
+                        {
+                            _evalustionSuccess++;   // 统计成功一次
+                            waitingBest = false;
+                        }
                         fd = dh.GetFrameData(HandType.Right, Definition.MODEL_TYPE);
                         _timeStamp = GetCurrentTimeLong();
                         // scoreFile.WriteLine(String.Format("{0}\t{1}\t{2}", TimeStamp, Patient.GetInstance().id, rhb.GetScore()));
-                        nodesFile.WriteLine(String.Format("{0}\t{1}", _timeStamp, sc.UpdateRaw(fd).ToJson()));
+                        nodesFile.WriteLine(String.Format("{0}\t{1}\t{2}", _timeStamp, rhb.GetScore(), sc.UpdateRaw(fd).ToJson()));
                         // Event.Set();
                         Thread.Sleep(t); //让线程暂停 
                     }
@@ -271,8 +312,11 @@ namespace ControlClient
 
             private void Excute()
             {
-                InsertEvaluationInfo(Patient.GetInstance().id, _startTime, _endTime);
-                _evaluationId = GetEvaluationId(Patient.GetInstance().id, _startTime);
+                int evaluationSuccessRatio = (_evalustionSuccess > 100 ? 100 : _evalustionSuccess) * 100 / (_evaluationTestSpeed * _evaluateTime);
+                // InsertEvaluationInfo(Patient.GetInstance().id, _startTime, _endTime, evaluationSuccessRatio);
+                InsertEvaluationInfo(1, _startTime, _endTime, evaluationSuccessRatio);
+                // _evaluationId = GetEvaluationId(Patient.GetInstance().id, _startTime);
+                _evaluationId = GetEvaluationId(1, _startTime);
                 using (MySqlConnection conn = new MySqlConnection(_connectionString))
                 {
                     conn.Open();
@@ -282,22 +326,73 @@ namespace ControlClient
                         {
                             string line;
                             long timeStamp = _timeStamp;
+                            int score;
                             while ((line = file.ReadLine()) != null)
                             {
-                                
+
                                 String[] tokens = line.Split('\t');
-                                
-                                if (tokens.Length == 2)
+
+                                if (tokens.Length == 3)
                                 {
+                                    int.TryParse(tokens[1], out score);
                                     long.TryParse(tokens[0], out timeStamp);
-                                    InsertRawData(conn, cmd, _evaluationId, timeStamp, tokens[1]);
+                                    InsertRawData(conn, cmd, _evaluationId, timeStamp, tokens[2], score);
                                 }
-                            }  
+                            }
                         }
                     }
                 }
                 Console.WriteLine("Write DB Done!");
             }
+        }
+
+        private class EvaluationPlaybackThread
+        {
+            private static int EvaluationId;
+            public static void Run(int id)
+            {
+                // sm.Start(10201);    // 开启socket
+                String localIP = Utils.getConfig("localIP");
+                server.Bind(new IPEndPoint(IPAddress.Parse(localIP), 10201));//绑定IP和端口号
+                EvaluationId = id;
+                EvaluationPlaybackThread t = new EvaluationPlaybackThread();
+                Thread parameterThread = new Thread(new ThreadStart(t.Excute));
+                parameterThread.IsBackground = true;
+                parameterThread.Name = String.Format("EvaluationPlaybackThread");
+                parameterThread.Start();
+            }
+
+            private void Excute()
+            {
+                using (MySqlConnection conn = new MySqlConnection(_connectionString))
+                {
+                    conn.Open();
+                    using (MySqlCommand cmd = conn.CreateCommand())
+                    {
+                        SendRawdataToSocket(conn, cmd, EvaluationId);
+                    }
+                }
+            }
+        }
+        // 将原始数据通过socket发送出去
+        private static void SendRawdataToSocket(MySqlConnection connection, MySqlCommand cmd, int evaluationId)
+        {
+            cmd.CommandText = "select json_string from RAWDATA where evaluation_id=@evaluation_id order by time_stamp asc;";
+            cmd.Parameters.Clear();
+            cmd.Parameters.AddWithValue("@evaluation_id", evaluationId);
+            using (MySqlDataReader reader = cmd.ExecuteReader())
+            {
+                while (reader.Read())
+                {
+                    Thread.Sleep(10);
+                    if (reader.HasRows)
+                    {
+                        server.Send(Encoding.UTF8.GetBytes(reader.GetString(0)));
+                        //Console.WriteLine(reader.GetString(0));
+                    }
+                }
+            }
+            //server.Disconnect();
         }
 
         private class WriteAFile

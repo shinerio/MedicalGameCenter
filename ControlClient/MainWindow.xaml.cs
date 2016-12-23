@@ -38,9 +38,11 @@ namespace ControlClient
     public partial class MainWindow : MetroWindow
     {
         private SensorCalibrator sc;
+        private SkeletonCalculator skc;
         private ControlServerManage csm;
 
         private Rehabilitation rhb;
+        private DataWarehouse dh;
         private bool isMagneticAlignSuccess = false;
 
         private WindowState ws; //窗口状态
@@ -54,10 +56,15 @@ namespace ControlClient
         {
             InitializeComponent();
             InitGame();
-            csm = ControlServerManage.GetInstance(cbb_port, lbl_gloveStatus, this);
+            csm = ControlServerManage.GetInstance(lbl_gloveStatus);
 
             sc = SensorCalibrator.GetSingleton();
+            skc = SkeletonCalculator.GetSingleton("");
             rhb = Rehabilitation.GetSingleton();
+            dh = DataWarehouse.GetSingleton();
+
+            //settingWindow = new Setting();
+            
 
             icon();
             contextMenu();
@@ -285,21 +292,21 @@ namespace ControlClient
                 Utils.UpdateAppConfig("gamepath" + nowRow + nowColumn, fileName);
             }
         }
-        //open game gridlist page
-        private void GameMenu(object sender, RoutedEventArgs e)
-        {
-            DeviceHelpContainer.Visibility = Visibility.Hidden;
-            gameContainer.Visibility = Visibility.Visible;
-        }
+//        //open game gridlist page
+//        private void GameMenu(object sender, RoutedEventArgs e)
+//        {
+//            DeviceHelpContainer.Visibility = Visibility.Hidden;
+//            gameContainer.Visibility = Visibility.Visible;
+//        }
 
-        //opne device help page
-        private void DeviceHelp(object sender, RoutedEventArgs e)
-        {
-            gameContainer.Visibility = Visibility.Hidden;
-            DeviceHelpContainer.Visibility = Visibility.Visible;
-            localIP.Text = Utils.getConfig("localIP");
-            targetIP.Text = Utils.getConfig("targetIP");
-        }
+//        //opne device help page
+//        private void DeviceHelp(object sender, RoutedEventArgs e)
+//        {
+//            gameContainer.Visibility = Visibility.Hidden;
+//            DeviceHelpContainer.Visibility = Visibility.Visible;
+//            localIP.Text = Utils.getConfig("localIP");
+//            targetIP.Text = Utils.getConfig("targetIP");
+//        }
         //delete selected game
         private void DeleteGameByKey(String selectkey)
         {
@@ -366,28 +373,28 @@ namespace ControlClient
 
 
         //confirm modify in device help
-        private void settingsDer_Click(object sender, RoutedEventArgs e)
-        {
-            String slocalIP = localIP.Text.ToString();
-            String stargetIP = targetIP.Text.ToString();
-            Utils.UpdateAppConfig("localIP", slocalIP);
-            Utils.UpdateAppConfig("targetIP", stargetIP);
-            csm.endServer();
-            ControlTemplate template = serverBtn.FindName("serverBtnTemp") as ControlTemplate;
-            if (template != null)
-            {
-                Image img = template.FindName("imgWork", serverBtn) as Image;
-                img.Source = new BitmapImage(new Uri("./img/service_off.png",
-                                                   UriKind.Relative));
-            }
-            MessageBox.Show("修改成功,请重启服务", "success");
-        }
+//        private void settingsDer_Click(object sender, RoutedEventArgs e)
+//        {
+//            String slocalIP = localIP.Text.ToString();
+//            String stargetIP = targetIP.Text.ToString();
+//            Utils.UpdateAppConfig("localIP", slocalIP);
+//            Utils.UpdateAppConfig("targetIP", stargetIP);
+//            csm.endServer();
+//            ControlTemplate template = serverBtn.FindName("serverBtnTemp") as ControlTemplate;
+//            if (template != null)
+//            {
+//                Image img = template.FindName("imgWork", serverBtn) as Image;
+//                img.Source = new BitmapImage(new Uri("./img/service_off.png",
+//                                                   UriKind.Relative));
+//            }
+//            MessageBox.Show("修改成功,请重启服务", "success");
+//        }
         //switch serve
         private void SwitchServe(object sender, RoutedEventArgs e)
         {
             if (csm == null)
             {
-                csm = ControlServerManage.GetInstance(cbb_port, lbl_gloveStatus, this);
+                csm = ControlServerManage.GetInstance(lbl_gloveStatus);
             }
             if (csm == null)
             {
@@ -463,7 +470,7 @@ namespace ControlClient
 
         private async void ShowAlignmentDialog(object sender, RoutedEventArgs e)
         {
-            if (!ControlServerManage.GetInstance(cbb_port, lbl_gloveStatus, this).getServerStatus())
+            if (!ControlServerManage.GetInstance(lbl_gloveStatus).getServerStatus())
             {
                 var errorDialog = (BaseMetroDialog)this.Resources["AlignmentDialog"];
 
@@ -504,8 +511,12 @@ namespace ControlClient
                         MessageDialogStyle.Affirmative, new MetroDialogSettings() { AffirmativeButtonText = "好的" });
                 }
             }
-            if (isMagneticAlignSuccess && doingMagneticAlignment!=MessageDialogResult.FirstAuxiliary)
+            if (doingMagneticAlignment!=MessageDialogResult.FirstAuxiliary)
             {
+                var f_r = dh.GetFrameData(HandType.Right, Definition.MODEL_TYPE);
+                var f_l = dh.GetFrameData(HandType.Left, Definition.MODEL_TYPE);
+                skc.ResetHandShape(f_r, f_l);
+
                 await this.ShowMessageAsync("正在进行姿态校准", "提示：请将手掌尽可能张开，保持该姿势并点击下一步",
                     MessageDialogStyle.Affirmative, new MetroDialogSettings() { AffirmativeButtonText = "下一步" });
                 rhb.ResetWorst();
@@ -542,7 +553,7 @@ namespace ControlClient
 
         private void FinishCallback()
         {
-            Application.Current.Dispatcher.Invoke(async () =>
+            Application.Current.Dispatcher.Invoke(() =>
             {
                 isMagneticAlignSuccess = true;
                 Console.WriteLine("已完成磁力计校准，请继续姿态校准");
@@ -614,6 +625,33 @@ namespace ControlClient
         {
             this.Show();
             this.Activate();
-        } 
+        }
+        // 点击设置按钮
+        private void setting_Click(object sender, RoutedEventArgs e)
+        {
+            Setting settingWindow = new Setting();
+            settingWindow.Owner = this;
+            settingWindow.WindowStartupLocation = WindowStartupLocation.CenterOwner;
+            settingWindow.ShowDialog();
+        }
+
+        private void alignment_Click(object sender, RoutedEventArgs e)
+        {
+            ShowAlignmentDialog(sender, e);
+        }
+
+        private void reset_Click(object sender, RoutedEventArgs e)
+        {
+            ResetPosture(sender, e);
+        }
+
+        private async void ResetPosture(object sender, RoutedEventArgs e)
+        {
+            await this.ShowMessageAsync("正在重置姿态", "提示：请将手掌置于前方，将五指自然张开，保持该姿势并点击确定按钮",
+                    MessageDialogStyle.Affirmative, new MetroDialogSettings() { AffirmativeButtonText = "确定" });
+            var f_r = dh.GetFrameData(HandType.Right, Definition.MODEL_TYPE);
+            var f_l = dh.GetFrameData(HandType.Left, Definition.MODEL_TYPE);
+            skc.ResetHandShape(f_r, f_l);
+        }
     }
 }
