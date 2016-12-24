@@ -161,7 +161,7 @@ namespace ControlClient
                 conn.Open();
                 using (MySqlCommand cmd = conn.CreateCommand())
                 {
-                    cmd.CommandText = "insert into EVALUATION_INFO(uid, start_time, end_time, success_ratio) values (@uid, @start_time, @end_time, @success_ratio)";
+                    cmd.CommandText = "insert into evaluation_info(uid, start_time, end_time, success_ratio) values (@uid, @start_time, @end_time, @success_ratio)";
                     cmd.Parameters.AddWithValue("@uid", userId);
                     cmd.Parameters.AddWithValue("@start_time", startTime);
                     cmd.Parameters.AddWithValue("@end_time", endTime);
@@ -191,7 +191,7 @@ namespace ControlClient
                 using (MySqlCommand cmd = conn.CreateCommand())
                 {
                     cmd.CommandType = CommandType.Text;
-                    cmd.CommandText = "select id from EVALUATION_INFO where uid=@uid and start_time=@start_time;";
+                    cmd.CommandText = "select id from evaluation_info where uid=@uid and start_time=@start_time;";
                     cmd.Parameters.AddWithValue("@uid", userId);
                     cmd.Parameters.AddWithValue("@start_time", startTime);
                     using (MySqlDataReader reader = cmd.ExecuteReader())
@@ -214,7 +214,7 @@ namespace ControlClient
         private static void InsertRawData(MySqlConnection connection, MySqlCommand cmd, int evaluationId,
             long timeStamp, String jsonString, int score)
         {
-            cmd.CommandText = "insert into RAWDATA(evaluation_id, time_stamp, json_string, score) values (@evaluation_id, @time_stamp, @json_string, @score);";
+            cmd.CommandText = "insert into rawdata(evaluation_id, time_stamp, json_string, score) values (@evaluation_id, @time_stamp, @json_string, @score);";
             cmd.Parameters.Clear();
             cmd.Parameters.AddWithValue("@evaluation_id", evaluationId);
             cmd.Parameters.AddWithValue("@time_stamp", timeStamp);
@@ -235,10 +235,14 @@ namespace ControlClient
         {
             public static ManualResetEvent Event = new ManualResetEvent(false);
             private static SkeletonCalculator sc = SkeletonCalculator.GetSingleton("");
+            private static SkeletonCalculator skc = SkeletonCalculator.GetSingleton("");
             public static FrameData fd = dh.GetFrameData(HandType.Right, Definition.MODEL_TYPE);
 
             public static void Run()
             {
+                var f_r = dh.GetFrameData(HandType.Right, Definition.MODEL_TYPE);
+                var f_l = dh.GetFrameData(HandType.Left, Definition.MODEL_TYPE);
+                skc.ResetHandShape(f_r, f_l);
                 WriteFileThread t = new WriteFileThread();
                 Thread parameterThread = new Thread(new ParameterizedThreadStart(t.InsertData));
                 parameterThread.IsBackground = true;
@@ -316,7 +320,7 @@ namespace ControlClient
                 // InsertEvaluationInfo(Patient.GetInstance().id, _startTime, _endTime, evaluationSuccessRatio);
                 InsertEvaluationInfo(1, _startTime, _endTime, evaluationSuccessRatio);
                 // _evaluationId = GetEvaluationId(Patient.GetInstance().id, _startTime);
-                _evaluationId = GetEvaluationId(1, _startTime);
+                _evaluationId = GetEvaluationId(1, _startTime); // TODO 测试用
                 using (MySqlConnection conn = new MySqlConnection(_connectionString))
                 {
                     conn.Open();
@@ -377,7 +381,7 @@ namespace ControlClient
         // 将原始数据通过socket发送出去
         private static void SendRawdataToSocket(MySqlConnection connection, MySqlCommand cmd, int evaluationId)
         {
-            cmd.CommandText = "select json_string from RAWDATA where evaluation_id=@evaluation_id order by time_stamp asc;";
+            cmd.CommandText = "select json_string from rawdata where evaluation_id=@evaluation_id order by time_stamp asc;";
             cmd.Parameters.Clear();
             cmd.Parameters.AddWithValue("@evaluation_id", evaluationId);
             using (MySqlDataReader reader = cmd.ExecuteReader())
@@ -387,7 +391,7 @@ namespace ControlClient
                     Thread.Sleep(10);
                     if (reader.HasRows)
                     {
-                        server.Send(Encoding.UTF8.GetBytes(reader.GetString(0)));
+                        server.Send(Encoding.ASCII.GetBytes(reader.GetString(0)));
                         //Console.WriteLine(reader.GetString(0));
                     }
                 }
