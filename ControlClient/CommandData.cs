@@ -45,7 +45,8 @@ namespace ControlClient
         private static int _evalustionSuccess = 0;  // 评估成功次数
         private static int _evaluationTestSpeed = 10;   // 评估时单位时间开合次数
         private static SocketManager sm = SocketManager.GetInstance();    // 评估再现数据发送socket
-        private static Socket server = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
+        private static Socket server = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+        private static Socket bindedSocket;
         // 数据库配置
         private static string _connectionString = "server=10.103.238.28;" +
                                          "user id=root; " +
@@ -78,14 +79,12 @@ namespace ControlClient
         protected override void OnMessage(MessageEventArgs e)
         {
             String data = e.Data;
-            Console.WriteLine(data);
             if (status == EvaluateStatus.Ready && DigitRegex.IsMatch(data))
             {
                 _evaluateTime = String2Int(data);
             }
             if (waitingPlaybackParam && DigitRegex.IsMatch(data))
             {
-                Console.WriteLine(data);
                 EvaluationPlaybackThread.Run(String2Int(data));
                 waitingPlaybackParam = false;
             }
@@ -106,7 +105,7 @@ namespace ControlClient
                         isRunning = true;
                         _timer.Interval = _evaluateTime * 60000; // 更改时长
                         _timer.Start();
-                        //TODO: 开始评估操作
+                        // 开始评估操作
                         WriteFileThread.Run(); //Test
                     }
                     break;
@@ -114,7 +113,7 @@ namespace ControlClient
                     waitingPlaybackParam = true;
                     Console.WriteLine("准备评估再现");
                     Send(EvaluatePlaybackAck);
-                    Console.WriteLine(EvaluatePlaybackAck);
+                    //Console.WriteLine(EvaluatePlaybackAck);
                     break;
                 default:
                     break;
@@ -161,8 +160,8 @@ namespace ControlClient
                 conn.Open();
                 using (MySqlCommand cmd = conn.CreateCommand())
                 {
-                    cmd.CommandText = "insert into evaluation_info(uid, start_time, end_time, success_ratio) values (@uid, @start_time, @end_time, @success_ratio)";
-                    cmd.Parameters.AddWithValue("@uid", userId);
+                    cmd.CommandText = "insert into evaluation_info(patient_id, start_time, end_time, success_ratio) values (@patient_id, @start_time, @end_time, @success_ratio)";
+                    cmd.Parameters.AddWithValue("@patient_id", userId);
                     cmd.Parameters.AddWithValue("@start_time", startTime);
                     cmd.Parameters.AddWithValue("@end_time", endTime);
                     cmd.Parameters.AddWithValue("@success_ratio", successRatio);
@@ -191,8 +190,8 @@ namespace ControlClient
                 using (MySqlCommand cmd = conn.CreateCommand())
                 {
                     cmd.CommandType = CommandType.Text;
-                    cmd.CommandText = "select id from evaluation_info where uid=@uid and start_time=@start_time;";
-                    cmd.Parameters.AddWithValue("@uid", userId);
+                    cmd.CommandText = "select id from evaluation_info where patient_id=@patient_id and start_time=@start_time;";
+                    cmd.Parameters.AddWithValue("@patient_id", userId);
                     cmd.Parameters.AddWithValue("@start_time", startTime);
                     using (MySqlDataReader reader = cmd.ExecuteReader())
                     {
@@ -229,7 +228,7 @@ namespace ControlClient
                 // Console.WriteLine(ex.Message);
             }
         }
-        
+
         // 写文件进程
         private class WriteFileThread
         {
@@ -240,9 +239,6 @@ namespace ControlClient
 
             public static void Run()
             {
-                var f_r = dh.GetFrameData(HandType.Right, Definition.MODEL_TYPE);
-                var f_l = dh.GetFrameData(HandType.Left, Definition.MODEL_TYPE);
-                skc.ResetHandShape(f_r, f_l);
                 WriteFileThread t = new WriteFileThread();
                 Thread parameterThread = new Thread(new ParameterizedThreadStart(t.InsertData));
                 parameterThread.IsBackground = true;
@@ -353,28 +349,65 @@ namespace ControlClient
         private class EvaluationPlaybackThread
         {
             private static int EvaluationId;
+            private static bool isAccepted = false; // 客户端是否接入
+            
             public static void Run(int id)
             {
-                // sm.Start(10201);    // 开启socket
-                String localIP = Utils.getConfig("localIP");
-                server.Bind(new IPEndPoint(IPAddress.Parse(localIP), 10201));//绑定IP和端口号
+                
                 EvaluationId = id;
                 EvaluationPlaybackThread t = new EvaluationPlaybackThread();
-                Thread parameterThread = new Thread(new ThreadStart(t.Excute));
-                parameterThread.IsBackground = true;
-                parameterThread.Name = String.Format("EvaluationPlaybackThread");
-                parameterThread.Start();
+                Thread thread = new Thread(new ThreadStart(t.Excute));
+                thread.IsBackground = true;
+                thread.Name = "EvaluationPlaybackThread";
+                thread.Start();
+                Thread timingThread = new Thread(new ThreadStart(t.connectTiming));
+                timingThread.IsBackground = true;
+                timingThread.Name = "Timing Thread";
+                timingThread.Start();
             }
 
             private void Excute()
             {
-                using (MySqlConnection conn = new MySqlConnection(_connectionString))
+                try
                 {
-                    conn.Open();
-                    using (MySqlCommand cmd = conn.CreateCommand())
+                    // sm.Start(10201);    // 开启socket
+                    String localIP = Utils.getConfig("localIP");
+                    server = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+                    server.Bind(new IPEndPoint(IPAddress.Parse(localIP), 10201)); //绑定IP和端口号
+                    server.Listen(1);
+                    Console.WriteLine("等待客户端连接");
+                    bindedSocket = server.Accept();
+                    if (bindedSocket != null)
                     {
-                        SendRawdataToSocket(conn, cmd, EvaluationId);
+                        isAccepted = true;
+                        Console.WriteLine("客户端已连接");
                     }
+                    using (MySqlConnection conn = new MySqlConnection(_connectionString))
+                    {
+                        conn.Open();
+                        using (MySqlCommand cmd = conn.CreateCommand())
+                        {
+                            //Console.WriteLine(EvaluationId);
+                            SendRawdataToSocket(conn, cmd, EvaluationId);
+                        }
+                    }
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine(e);
+                    Console.WriteLine("客户端连接超时");
+                }
+                finally
+                {
+                    isAccepted = false;
+                }
+            }
+            private void connectTiming()
+            {
+                Thread.Sleep(20000);
+                if (!isAccepted)
+                {
+                    server.Close(); // 超时后关闭连接
                 }
             }
         }
@@ -388,14 +421,19 @@ namespace ControlClient
             {
                 while (reader.Read())
                 {
-                    Thread.Sleep(10);
                     if (reader.HasRows)
                     {
-                        server.Send(Encoding.ASCII.GetBytes(reader.GetString(0)));
-                        //Console.WriteLine(reader.GetString(0));
+                        Thread.Sleep(10);
+                        if (bindedSocket != null)
+                        {
+                            bindedSocket.Send(Encoding.ASCII.GetBytes(reader.GetString(0) + "<EOF>"));
+                            // Console.WriteLine("SendRawdataToSocket:" + evaluationId);
+                        }
                     }
                 }
             }
+            Console.WriteLine("评估再现完成！");
+            server.Close();
             //server.Disconnect();
         }
 
