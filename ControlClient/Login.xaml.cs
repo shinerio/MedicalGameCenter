@@ -102,6 +102,10 @@ namespace ControlClient
                     loginstatus.Text = "你好！" + Patient.GetInstance().realname;
                     this.Close();
                 }
+                else
+                {
+                    MessageBox.Show("错误","用户名或密码错误");
+                }
             }
             catch (Exception exception)
             {
