@@ -355,6 +355,7 @@ namespace ControlClient
             {
                 
                 EvaluationId = id;
+                Console.WriteLine(id);
                 EvaluationPlaybackThread t = new EvaluationPlaybackThread();
                 Thread thread = new Thread(new ThreadStart(t.Excute));
                 thread.IsBackground = true;
@@ -432,6 +433,7 @@ namespace ControlClient
                     }
                 }
             }
+            bindedSocket.Send(Encoding.ASCII.GetBytes("<AFK><EOF>"));
             Console.WriteLine("评估再现完成！");
             server.Close();
             //server.Disconnect();
