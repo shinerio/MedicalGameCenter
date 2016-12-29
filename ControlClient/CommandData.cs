@@ -12,6 +12,7 @@ using GloveLib;
 using WebSocketSharp;
 using WebSocketSharp.Server;
 using System.Data;
+using System.Diagnostics;
 using System.Net;
 using System.Net.Sockets;
 using MySql.Data.MySqlClient;
@@ -405,6 +406,11 @@ namespace ControlClient
             }
             private void connectTiming()
             {
+                Thread.Sleep(100);
+                Thread startHand = new Thread(new ThreadStart(StartHandModel));
+                startHand.IsBackground = true;
+                startHand.Name = String.Format("Starting Hand Model");
+                // startHand.Start();
                 Thread.Sleep(20000);
                 if (!isAccepted)
                 {
@@ -437,6 +443,26 @@ namespace ControlClient
             Console.WriteLine("评估再现完成！");
             server.Close();
             //server.Disconnect();
+        }
+
+        private static void StartHandModel()
+        {
+            String path = Utils.getConfig("modelPath");
+            try
+            {
+                if (path!=null && !"exe".Equals(Path.GetExtension(path)))
+                {
+                    Process.Start(path);
+                }
+            }
+            catch (System.ComponentModel.Win32Exception)
+            {
+                MessageBox.Show("手模已被修改或不存在\n请点击设置，并重新添加路径", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+            catch (Exception)
+            {
+                MessageBox.Show("发生了未知的错误，请重试", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
         }
 
         private class WriteAFile

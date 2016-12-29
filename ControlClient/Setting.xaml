@@ -20,11 +20,22 @@
         <Grid HorizontalAlignment="Stretch" Name="DeviceHelpContainer" Margin="0,0,0,0" VerticalAlignment="Stretch" Background="#f2f2f2">
             <Label Content="控制端IP" FontSize="20" VerticalAlignment="Top" Height="35" Margin="10,10,0,0" HorizontalAlignment="Left"></Label>
             <TextBox Style="{StaticResource {x:Type TextBox}}" Name="localIP" FontSize="15" BorderThickness="2" VerticalContentAlignment="Center" Width="248" Height="35" VerticalAlignment="Top" Margin="111,10,33,0" HorizontalAlignment="Center"></TextBox>
-            <Label Content="游戏端IP" FontSize="20" VerticalAlignment="Top" Height="35" Margin="10,70,0,0" HorizontalAlignment="Left"></Label>
-            <TextBox Name="targetIP"  FontSize="15" BorderThickness="2" VerticalContentAlignment="Center" Width="248" Height="35" VerticalAlignment="Top" Margin="111,70,33,0" HorizontalAlignment="Center"></TextBox>
-            <Label Content="端口选择" FontSize="20" VerticalAlignment="Top" Height="35" Margin="10,130,0,0" HorizontalAlignment="Left" RenderTransformOrigin="0.789,0.4"></Label>
-            <ComboBox x:Name="cbb_port" FontSize="15" BorderThickness="2" HorizontalAlignment="Center" Margin="111,130,33,0" VerticalAlignment="Top" Height="35" Width="248"/>
+            <Label Content="游戏端IP" FontSize="20" VerticalAlignment="Top" Height="35" Margin="10,60,0,0" HorizontalAlignment="Left"></Label>
+            <TextBox Name="targetIP"  FontSize="15" BorderThickness="2" VerticalContentAlignment="Center" Width="248" Height="35" VerticalAlignment="Top" Margin="111,60,33,0" HorizontalAlignment="Center"></TextBox>
+            <Label Content="端口选择" FontSize="20" VerticalAlignment="Top" Height="35" Margin="10,110,0,0" HorizontalAlignment="Left" RenderTransformOrigin="0.789,0.4"></Label>
+            <ComboBox x:Name="cbb_port" FontSize="15" BorderThickness="2" HorizontalAlignment="Center" Margin="111,110,33,0" VerticalAlignment="Top" Height="35" Width="248"/>
             <Button VerticalAlignment="Bottom" Name="settingsDer"  TextBlock.FontWeight="Bold" FontSize="14" Content="确定" HorizontalAlignment="Right" Width="90" Height="30" Margin="0,0,33,28" Click="settingsDer_Click"></Button>
+            <Label Content="手模路径" FontSize="20" VerticalAlignment="Top" Height="35" Margin="10,159,0,0" HorizontalAlignment="Left" RenderTransformOrigin="0.789,0.4"/>
+            <TextBox x:Name="modelPath" FontSize="15" BorderThickness="2" HorizontalAlignment="Center" Margin="111,159,33,0" VerticalAlignment="Top" Height="35" Width="248"/>
+            <Button Background="White" HorizontalAlignment="Left" Focusable="False"  Margin="331,159,0,75" VerticalAlignment="Center" Width="25" Click="SelectModelPath" Height="35" RenderTransformOrigin="1.033,0.457">
+                <Button.Template>
+                    <ControlTemplate>
+                        <ContentControl Background="White">
+                            <Image Name="imgWork" Source=".\img\open_file.png"></Image>
+                        </ContentControl>
+                    </ControlTemplate>
+                </Button.Template>
+            </Button>
         </Grid>
     </Grid>
 </controls:MetroWindow>

@@ -104,7 +104,7 @@ namespace ControlClient
                 }
                 else
                 {
-                    MessageBox.Show("错误","用户名或密码错误");
+                    MessageBox.Show("用户名或密码错误", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
                 }
             }
             catch (Exception exception)
