@@ -47,17 +47,17 @@ namespace ControlClient
 
         private WindowState ws; //窗口状态
         private System.Windows.Forms.NotifyIcon notifyIcon; //任务栏图标
-
+        private float scaleSize = 1.25f;
         private static int rowNum = 4;    //the number of game gridlist's row and cloumn
         private static int columnNum = 4;
         private string[,] gamePath = new string[rowNum, columnNum];//corresponding game's path
-
+        private int gameHwd;
         public MainWindow()
         {
             InitializeComponent();
             InitGame();
             csm = ControlServerManage.GetInstance(lbl_gloveStatus);
-
+            this.WindowState = WindowState.Maximized;
             sc = SensorCalibrator.GetSingleton();
             skc = SkeletonCalculator.GetSingleton("");
             rhb = Rehabilitation.GetSingleton();
@@ -88,6 +88,7 @@ namespace ControlClient
 
         protected override void OnClosed(EventArgs e)
         {
+            Utils.FinishGame(gameHwd);
             base.OnClosed(e);
             Application.Current.Shutdown(-1);
             System.Environment.Exit(-1);
@@ -153,7 +154,8 @@ namespace ControlClient
             int.TryParse(str.Substring(5, 1), out column);
             try
             {
-                Process.Start(@gamePath[row, column]);
+                //Process.Start(@gamePath[row, column]);
+                gameHwd = Utils.StartGame(GameArea, @gamePath[row, column], gameHwd,scaleSize);
             }
             catch (System.ComponentModel.Win32Exception)
             {
@@ -608,6 +610,7 @@ namespace ControlClient
 
         private void exitMenuItem_Click(object sender, EventArgs e)
         {
+            Utils.FinishGame(gameHwd);
             notifyIcon.Visible = false;
             Application.Current.Shutdown(-1);
             System.Environment.Exit(-1);

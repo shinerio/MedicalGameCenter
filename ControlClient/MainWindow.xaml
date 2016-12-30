@@ -10,11 +10,8 @@
         BorderThickness="1"
         BorderBrush="{StaticResource AccentBaseColorBrush}"
         TitlebarHeight="30"
-        Width="800"
-
-        Height="600"
+        WindowState="Maximized"
         ShowInTaskbar="True"
-
         Icon=".\img\logo.png"
         >
     <Window.Resources>
@@ -153,9 +150,10 @@
 <!--            <Button Name ="Game_Menu" HorizontalAlignment="Center" Margin="0,20,0,0" Content="游戏菜单" TextBlock.FontWeight="Bold" FontSize="14" VerticalAlignment="Top" Width="110"  Click="GameMenu">-->
 <!--            </Button>-->
 <!---->
-<!--        </Grid>-->
+<!--        </Grid>-->     
         <Grid HorizontalAlignment="Stretch"  Name="MainContainer" Margin="0,40,0,30" VerticalAlignment="Stretch" Background="#f2f2f2">
-            <Grid Visibility="Visible" HorizontalAlignment="Stretch" Name="gameContainer" VerticalAlignment="Stretch" Background="#f2f2f2" Margin="0,0,0,0">
+            <Grid HorizontalAlignment="Stretch" Margin="400,0,0,0" VerticalAlignment="Stretch" Name="GameArea"></Grid>
+            <Grid Visibility="Visible" HorizontalAlignment="Left" Width="400" Name="gameContainer" VerticalAlignment="Stretch" Background="#f2f2f2" >
                 <Grid.RowDefinitions>
                     <RowDefinition Height="25*"/>
                     <RowDefinition Height="25*" />
