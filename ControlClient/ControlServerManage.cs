@@ -24,8 +24,9 @@ namespace ControlClient
         private static ControlServerManage instance;
         private Socket server;  //游戏控制数据源
         private WebSocketServer WSServer;    //WebSocket服务端 
-        private String GloveDataServerName = "/GloveData";   //标量数据在WebSocket上的服务名
-        private String CommandDataServerName = "/CommandData";   //评估命令在WebSocket上的服务名 
+        private String GloveDataServerName = "/GloveData";   //四元数据在WebSocket上的服务名
+        private String ScoreDataServerName = "/ScoreData";   //四元数据在WebSocket上的服务名
+        private String CommandDataServerName = "/CommandData";   //评估命令在WebSocket上的服务名
         private bool isServe = false;  //是否在服务中
         //lable for glove connection
         private static Label lbl_gloveStatus;
@@ -82,6 +83,7 @@ namespace ControlClient
                         t.Start();
                         WSServer = new WebSocketServer(String.Format("ws://{0}", localIP));//new WebSocket
                         WSServer.AddWebSocketService<GloveData>(GloveDataServerName);
+                        WSServer.AddWebSocketService<ScoreData>(ScoreDataServerName);
                         WSServer.AddWebSocketService<CommandData>(CommandDataServerName);
                         WSServer.Start();
                     }

@@ -159,12 +159,12 @@ namespace ControlClient
             }
             catch (System.ComponentModel.Win32Exception)
             {
-                MessageBox.Show("游戏已被修改或不存在\n请检查游戏路径，并重新添加", "出错了");
+                MessageBox.Show("游戏已被修改或不存在\n请检查游戏路径，并重新添加", "错误",MessageBoxButton.OK, MessageBoxImage.Error);
                 DeleteGameByKey("gamepath" + row + column);
             }
             catch (Exception)
             {
-                MessageBox.Show("不可解决的错误\n游戏可能已经损坏", "出错了");
+                MessageBox.Show("不可解决的错误\n游戏可能已经损坏", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
         private void DeleteGame(object sender, RoutedEventArgs e)

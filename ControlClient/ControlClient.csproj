@@ -115,6 +115,7 @@
     <Compile Include="GloveConfigView.xaml.cs">
       <DependentUpon>GloveConfigView.xaml</DependentUpon>
     </Compile>
+    <Compile Include="ScoreData.cs" />
     <Compile Include="GloveData.cs" />
     <Compile Include="GloveModule.cs" />
     <Compile Include="HttpWebResponseUtility.cs" />
@@ -236,6 +237,7 @@
     <Resource Include="img\start_gamebar.png" />
     <Resource Include="img\alignment.png" />
     <Resource Include="img\reset.png" />
+    <Resource Include="img\open_file.png" />
     <Content Include="model\HandArm.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
