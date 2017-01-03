@@ -1,0 +1,32 @@
+﻿<Controls:MetroWindow  x:Class="ControlClient.EvaluationWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:Controls="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
+        xmlns:dialogs="clr-namespace:MahApps.Metro.Controls.Dialogs;assembly=MahApps.Metro"
+        xmlns:local="clr-namespace:ControlClient"
+        AllowsTransparency="True"
+        Background="White"
+        WindowStyle="ThreeDBorderWindow"
+        ResizeMode="CanResize"
+        BorderThickness="1"
+        BorderBrush="{StaticResource AccentBaseColorBrush}"
+        TitlebarHeight="0"
+        ShowInTaskbar="False"
+        Width="300"
+        Height="300">
+    <Window.Resources>
+        <local:ValueToProcessConverter x:Key="ValueToProcessConverter"/>
+    </Window.Resources>
+    <Grid Width="200" Height="200" VerticalAlignment="Top" Margin="0,0,0,0">
+        <ProgressBar Minimum="0"
+                     Maximum="100"
+                     Value="{Binding SuccessRate, Mode=OneWay}" Height="180" Margin="0,10" Grid.ColumnSpan="2">
+            <ProgressBar.Template>
+                <ControlTemplate TargetType="ProgressBar">
+                    <Border Background="{TemplateBinding Value, Converter={StaticResource ValueToProcessConverter}, ConverterParameter=200}"/>
+                </ControlTemplate>
+            </ProgressBar.Template>
+        </ProgressBar>
+        <TextBlock HorizontalAlignment="Center" Foreground="Black" FontWeight="Bold" FontSize="20" Margin="-17,222,-20,-48" TextWrapping="Wrap" Text="请按照圆环指示张合手掌" VerticalAlignment="Top" Height="26" Width="237"/>
+    </Grid>
+</Controls:MetroWindow>

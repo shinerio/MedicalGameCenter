@@ -6,7 +6,7 @@
         AllowsTransparency="True"
         Background="{x:Null}"
         WindowStyle="ThreeDBorderWindow"
-        ResizeMode="CanMinimize"
+        ResizeMode="CanResize"
         BorderThickness="1"
         BorderBrush="{StaticResource AccentBaseColorBrush}"
         TitlebarHeight="30"

@@ -125,6 +125,7 @@
     <Compile Include="CommandData.cs" />
     <Compile Include="ControlServerManage.cs" />
     <Compile Include="DetectedFaceMessage.cs" />
+    <Compile Include="EvaluationWindow.cs" />
     <Compile Include="FaceRecognition.cs" />
     <Compile Include="GameBar.xaml.cs">
       <DependentUpon>GameBar.xaml</DependentUpon>
@@ -147,7 +148,12 @@
     <Compile Include="Patient.cs" />
     <Compile Include="Settings.cs" />
     <Compile Include="Utils.cs" />
+    <Compile Include="ValueToProcessConverter.cs" />
     <Compile Include="WebSockData.cs" />
+    <Page Include="EvaluationWindow.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
     <Page Include="GameBar.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
