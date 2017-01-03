@@ -15,6 +15,8 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 using MahApps.Metro.Controls;
+using AForge.Video.DirectShow;
+using System.Threading;
 
 namespace ControlClient
 {
@@ -66,6 +68,7 @@ namespace ControlClient
         //登录操作
         private void Login_Click(object sender, RoutedEventArgs e)
         {
+            if (loginMethod) { 
             String username = userNameText.Text.ToString();
             UserName = username;
             String password = passwordText.Password.ToString();
@@ -122,7 +125,11 @@ namespace ControlClient
                     readStream.Close();
                 }
             }
+            }
+            else      //face to login
+            {
 
+            }
         }
 
         //取消操作
@@ -149,21 +156,16 @@ namespace ControlClient
             if (loginMethod)
             {
                 faceLogin.Visibility = Visibility.Visible;
-                content.Children.Clear();
-                content.Children.Add(switchBtn);
-                faceLogin.Source = new BitmapImage(new Uri("./img/face.png", UriKind.Relative));
+                content.Visibility = Visibility.Hidden;
                 loginMethod = false;
+                Camera_Init();
             }
             else
             {
                 faceLogin.Visibility = Visibility.Hidden;
-                content.Children.Clear();
-                content.Children.Add(switchBtn);
-                content.Children.Add(passwordText);
-                content.Children.Add(userNameText);
-                content.Children.Add(login);
-                content.Children.Add(cancel);
+                content.Visibility = Visibility.Visible;
                 loginMethod = true;
+                sourcePlayer.Stop();
             }
         }
 
@@ -179,6 +181,49 @@ namespace ControlClient
             if (userNameText.Text.ToString() == null || userNameText.Text.ToString().Equals(""))
             {
                 userNameText.Text = "请输入用户名";
+            }
+        }
+
+        private void Camera_Init()
+        {
+            // 设定初始视频设备  
+            FilterInfoCollection videoDevices = new FilterInfoCollection(FilterCategory.VideoInputDevice);
+            if (videoDevices.Count > 0)
+            {   // 默认设备  
+                sourcePlayer.VideoSource = new VideoCaptureDevice(videoDevices[0].MonikerString);
+                sourcePlayer.Start();
+                Thread.Sleep(3000);
+                Capture_Photo();
+                Boolean faceloginRes = FaceRecognition.Search();
+                if(faceloginRes){
+                    MessageBox.Show("认证成功");
+                }else{
+                    MessageBox.Show("认证失败");
+                }
+            }
+            else
+            {
+                MessageBox.Show("未检测到摄像头！");
+            }
+        }
+
+        private void Capture_Photo()
+        {
+            // 判断视频设备是否开启  
+            if (sourcePlayer.IsRunning)
+            {   // 进行拍照  
+                BitmapSource b = System.Windows.Interop.Imaging.CreateBitmapSourceFromHBitmap(
+                                 sourcePlayer.GetCurrentVideoFrame().GetHbitmap(),
+                                 IntPtr.Zero,
+                                 Int32Rect.Empty,
+                                 BitmapSizeOptions.FromEmptyOptions());
+                string ProImgPath = "H:/test.png";//要保存的图片的地址，包含文件名
+                PngBitmapEncoder PBE = new PngBitmapEncoder();
+                PBE.Frames.Add(BitmapFrame.Create(b));
+                using (Stream stream = File.Create(ProImgPath))
+                {
+                    PBE.Save(stream);
+                }
             }
         }
     }

@@ -58,6 +58,21 @@
     <ApplicationIcon>icLauncher.ico</ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="AForge">
+      <HintPath>..\..\NET库\AForge.NET Framework-2.2.5-(libs only)\Release\AForge.dll</HintPath>
+    </Reference>
+    <Reference Include="AForge.Controls">
+      <HintPath>..\..\NET库\AForge.NET Framework-2.2.5-(libs only)\Release\AForge.Controls.dll</HintPath>
+    </Reference>
+    <Reference Include="AForge.Imaging">
+      <HintPath>..\..\NET库\AForge.NET Framework-2.2.5-(libs only)\Release\AForge.Imaging.dll</HintPath>
+    </Reference>
+    <Reference Include="AForge.Video">
+      <HintPath>..\..\NET库\AForge.NET Framework-2.2.5-(libs only)\Release\AForge.Video.dll</HintPath>
+    </Reference>
+    <Reference Include="AForge.Video.DirectShow">
+      <HintPath>..\..\NET库\AForge.NET Framework-2.2.5-(libs only)\Release\AForge.Video.DirectShow.dll</HintPath>
+    </Reference>
     <Reference Include="GloveLibPC, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>libs\GloveLibPC.dll</HintPath>
@@ -109,12 +124,15 @@
     </ApplicationDefinition>
     <Compile Include="CommandData.cs" />
     <Compile Include="ControlServerManage.cs" />
+    <Compile Include="DetectedFaceMessage.cs" />
+    <Compile Include="FaceRecognition.cs" />
     <Compile Include="GameBar.xaml.cs">
       <DependentUpon>GameBar.xaml</DependentUpon>
     </Compile>
     <Compile Include="GloveConfigView.xaml.cs">
       <DependentUpon>GloveConfigView.xaml</DependentUpon>
     </Compile>
+    <Compile Include="HttpHelper.cs" />
     <Compile Include="ScoreData.cs" />
     <Compile Include="GloveData.cs" />
     <Compile Include="GloveModule.cs" />
