@@ -68,7 +68,8 @@ namespace ControlClient
 
             icon();
             contextMenu();
-
+            LightIndicator.GetInstance(5000).Show();
+            LightIndicator.GetInstance().Start();
         }
 
         //        private void topTitle_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)

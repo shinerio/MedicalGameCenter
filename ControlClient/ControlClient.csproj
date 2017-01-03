@@ -133,6 +133,9 @@
       <DependentUpon>GloveConfigView.xaml</DependentUpon>
     </Compile>
     <Compile Include="HttpHelper.cs" />
+    <Compile Include="LightIndicator.xaml.cs">
+      <DependentUpon>LightIndicator.xaml</DependentUpon>
+    </Compile>
     <Compile Include="ScoreData.cs" />
     <Compile Include="GloveData.cs" />
     <Compile Include="GloveModule.cs" />
@@ -150,6 +153,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="GloveConfigView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="LightIndicator.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -256,6 +263,8 @@
     <Resource Include="img\alignment.png" />
     <Resource Include="img\reset.png" />
     <Resource Include="img\open_file.png" />
+    <Resource Include="img\light_off.png" />
+    <Resource Include="img\light_on.png" />
     <Content Include="model\HandArm.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
