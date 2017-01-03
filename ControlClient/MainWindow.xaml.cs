@@ -28,6 +28,8 @@ using MessageBox = System.Windows.MessageBox;
 using MouseEventArgs = System.Windows.Input.MouseEventArgs;
 
 using System.IO;
+using System.Runtime.CompilerServices;
+using System.Threading;
 
 namespace ControlClient
 {
@@ -46,6 +48,7 @@ namespace ControlClient
         private bool isMagneticAlignSuccess = false;
 
         private WindowState ws; //窗口状态
+        private static EvaluationWindow ew;
         private System.Windows.Forms.NotifyIcon notifyIcon; //任务栏图标
         private float scaleSize = 1.25f;
         private static int rowNum = 4;    //the number of game gridlist's row and cloumn
@@ -64,9 +67,6 @@ namespace ControlClient
             dh = DataWarehouse.GetSingleton();
 
             //settingWindow = new Setting();
-            EvaluationWindow ew = new EvaluationWindow(1000);
-            ew.Start();
-            ew.Show();
         }
 
         //        private void topTitle_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
@@ -584,10 +584,12 @@ namespace ControlClient
         // 点击设置按钮
         private void setting_Click(object sender, RoutedEventArgs e)
         {
-            Setting settingWindow = new Setting();
-            settingWindow.Owner = this;
-            settingWindow.WindowStartupLocation = WindowStartupLocation.CenterOwner;
-            settingWindow.ShowDialog();
+//            Setting settingWindow = new Setting();
+//            settingWindow.Owner = this;
+//            settingWindow.WindowStartupLocation = WindowStartupLocation.CenterOwner;
+//            settingWindow.ShowDialog();
+              EvaluationWindowThread.Run();
+      
         }
 
         private void alignment_Click(object sender, RoutedEventArgs e)
@@ -597,7 +599,8 @@ namespace ControlClient
 
         private void reset_Click(object sender, RoutedEventArgs e)
         {
-            ResetPosture(sender, e);
+//            ResetPosture(sender, e);
+           EvaluationWindowThread.Stop();
         }
 
         private async void ResetPosture(object sender, RoutedEventArgs e)
@@ -607,6 +610,54 @@ namespace ControlClient
             var f_r = dh.GetFrameData(HandType.Right, Definition.MODEL_TYPE);
             var f_l = dh.GetFrameData(HandType.Left, Definition.MODEL_TYPE);
             skc.ResetHandShape(f_r, f_l);
+        }
+        private class EvaluationWindowThread
+        {
+            private static Thread threadRun;
+            private static Thread threadStop;
+            public static void Run()
+            {
+                if (threadRun != null) {
+                    threadRun.Abort();
+                    threadRun = null;
+                }
+                if (threadStop != null) {
+                threadStop.Abort();
+                threadStop = null;
+                }
+                threadRun = new Thread(delegate()
+                {
+                    ew =EvaluationWindow.GetInstance(1000);
+                    ew.Start();
+                    System.Windows.Threading.Dispatcher.Run();
+                });
+                threadRun.Name = "EvaluationWindowThread Run";
+                threadRun.IsBackground = false;
+                threadRun.SetApartmentState(ApartmentState.STA);
+                threadRun.Start();
+            }
+            public static void Stop()
+            {
+                if (threadRun != null)
+                {
+                    threadRun.Abort();
+                    threadRun = null;
+                }
+                if (threadStop != null)
+                {
+                    threadStop.Abort();
+                    threadStop = null;
+                }
+                threadStop = new Thread(delegate()
+                {
+                    ew.Stop();
+                    System.Windows.Threading.Dispatcher.Run();
+                });
+                threadStop.Name = "EvaluationWindowThread Stop";
+                threadStop.IsBackground = false;
+                threadStop.SetApartmentState(ApartmentState.STA);
+                threadStop.Start();
+            }
         }
     }
 }

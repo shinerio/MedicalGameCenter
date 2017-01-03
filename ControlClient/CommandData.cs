@@ -15,6 +15,7 @@ using System.Data;
 using System.Diagnostics;
 using System.Net;
 using System.Net.Sockets;
+using System.Windows.Threading;
 using MySql.Data.MySqlClient;
 
 namespace ControlClient
@@ -44,7 +45,7 @@ namespace ControlClient
         private static long _endTime = GetCurrentTimeLong();
         private static int _evaluationId = -1;  // 当前评估id
         private static int _evalustionSuccess = 0;  // 评估成功次数
-        private static int _evaluationTestSpeed = 10;   // 评估时单位时间开合次数
+        private static int _evaluationTestSpeed = 10;   // 评估时每分钟开合次数
         private static SocketManager sm = SocketManager.GetInstance();    // 评估再现数据发送socket
         private static Socket server = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
         private static Socket bindedSocket;
@@ -61,6 +62,7 @@ namespace ControlClient
         private static Rehabilitation rhb = Rehabilitation.GetSingleton();
         public static DataWarehouse dh = DataWarehouse.GetSingleton();
         private static EvaluateStatus status = EvaluateStatus.Idle;
+        private static EvaluationWindow ew;
         public static bool isRunning = false;
         private static bool waitingPlaybackParam = false;    //等待传递评估参数
         Random random = new Random();
@@ -82,7 +84,9 @@ namespace ControlClient
             String data = e.Data;
             if (status == EvaluateStatus.Ready && DigitRegex.IsMatch(data))
             {
-                _evaluateTime = String2Int(data);
+                int d = String2Int(data);
+                _evaluateTime = d / 100;
+                _evaluationTestSpeed = d % 100;
             }
             if (waitingPlaybackParam && DigitRegex.IsMatch(data))
             {
@@ -106,6 +110,8 @@ namespace ControlClient
                         isRunning = true;
                         _timer.Interval = _evaluateTime * 60000; // 更改时长
                         _timer.Start();
+                        // 弹出评估窗
+                        EvaluationWindowThread.Run();
                         // 开始评估操作
                         WriteFileThread.Run(); //Test
                     }
@@ -139,7 +145,7 @@ namespace ControlClient
             int i;
             if (!Int32.TryParse(s, out i))
             {
-                i = 1;
+                i = 110;
             }
             return i;
         }
@@ -295,6 +301,7 @@ namespace ControlClient
                 }
                 _endTime = GetCurrentTimeLong();
                 Console.WriteLine("Write File Done!");
+                EvaluationWindowThread.Stop();
                 WriteFileToDatabase.Run();
             }
         }
@@ -410,7 +417,7 @@ namespace ControlClient
                 Thread startHand = new Thread(new ThreadStart(StartHandModel));
                 startHand.IsBackground = true;
                 startHand.Name = String.Format("Starting Hand Model");
-                // startHand.Start();
+                startHand.Start();
                 Thread.Sleep(20000);
                 if (!isAccepted)
                 {
@@ -448,6 +455,7 @@ namespace ControlClient
         private static void StartHandModel()
         {
             String path = Utils.getConfig("modelPath");
+            Console.WriteLine(path);
             try
             {
                 if (path!=null && !"exe".Equals(Path.GetExtension(path)))
@@ -465,30 +473,36 @@ namespace ControlClient
             }
         }
 
-        private class WriteAFile
+        private class EvaluationWindowThread
         {
-            public static void Run(int type)
+            private static EvaluationWindow ew;
+            public static void Run()
             {
-                WriteAFile t = new WriteAFile();
-                Thread parameterThread = new Thread(new ParameterizedThreadStart(t.Excute));
-                parameterThread.IsBackground = true;
-                parameterThread.Name = String.Format("WriteFileThread{0}", type);
-                parameterThread.Start(type);
-            }
-
-            private void Excute(object o)
-            {
-                int t = 1;
-                int.TryParse(o.ToString(), out t);
-                using (StreamWriter dataFile = new StreamWriter(String.Format(@"{0}/node{1}.txt", dir, t)))
+                Thread thread = new Thread(delegate()
                 {
-                    while (CommandData.isRunning)
-                    {
-                        WriteFileThread.Event.WaitOne(); // 阻塞子线程，并等待主线程通知
-                        dataFile.WriteLineAsync(String.Format("{0}\t{1}", _timeStamp, WriteFileThread.fd.Nodes[t]));
-                        WriteFileThread.Event.Reset();
-                    }
-                }
+                    int time = 60000 / _evaluationTestSpeed;
+                    // 弹出评估窗
+                    Console.WriteLine(time);
+                    EvaluationWindow ew =EvaluationWindow.GetInstance(1000);
+                    ew.Start();
+                    System.Windows.Threading.Dispatcher.Run();
+                });
+                thread.Name = "EvaluationWindowThread Run";
+                thread.IsBackground = true;
+                thread.SetApartmentState(ApartmentState.STA);
+                thread.Start();
+            }
+            public static void Stop()
+            {
+                Thread thread = new Thread(delegate()
+                {
+                    ew.Stop();
+                    //System.Windows.Threading.Dispatcher.Run();
+                });
+                thread.Name = "EvaluationWindowThread Stop";
+                thread.IsBackground = true;
+                thread.SetApartmentState(ApartmentState.STA);
+                thread.Start();
             }
         }
     }
