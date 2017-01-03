@@ -95,7 +95,7 @@ namespace ControlClient
             String fileName = openFile.FileName;
             if (fileName.Contains(".exe"))
             {
-                modelPath.Text = ".../" + Path.GetFileName(fileName);
+                modelPath.Text = fileName;
                 Utils.UpdateAppConfig("modelPath", fileName);
             }
             else

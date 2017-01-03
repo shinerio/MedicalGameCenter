@@ -6,6 +6,7 @@ using System.Text;
 using System.Windows;
 using System.Windows.Data;
 using System.Windows.Media;
+using System.Windows.Threading;
 
 namespace ControlClient
 {
@@ -37,14 +38,17 @@ namespace ControlClient
 
         public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
         {
-            if (value is double && !string.IsNullOrEmpty((string)parameter)) {
+            if (value is double && !string.IsNullOrEmpty((string)parameter))
+            {
                 double arg = (double)value;
                 double width = double.Parse((string)parameter);
                 radius = width / 2;
                 centerPoint = new Point(radius, radius);
 
                 return DrawBrush(arg, 100, radius, radius, Thickness, Padding);
-            } else {
+            }
+            else
+            {
                 throw new ArgumentException();
             }
         }
@@ -86,7 +90,8 @@ namespace ControlClient
             PathFigure pathFigure = new PathFigure { IsClosed = true };
             pathFigure.StartPoint = bigFirstPoint;
             pathFigure.Segments.Add(
-              new ArcSegment {
+              new ArcSegment
+              {
                   Point = bigSecondPoint,
                   IsLargeArc = isLargeArc,
                   Size = new Size(bigRadius, bigRadius),
@@ -94,7 +99,8 @@ namespace ControlClient
               });
             pathFigure.Segments.Add(new LineSegment { Point = smallSecondPoint });
             pathFigure.Segments.Add(
-             new ArcSegment {
+             new ArcSegment
+             {
                  Point = smallFirstPoint,
                  IsLargeArc = isLargeArc,
                  Size = new Size(smallRadius, smallRadius),
@@ -130,15 +136,20 @@ namespace ControlClient
 
         private void DrawingGeometry(DrawingContext drawingContext, double value, double maxValue, double radiusX, double radiusY, double thickness, double padding)
         {
-            if (value != maxValue) {
+            if (value != maxValue)
+            {
                 SolidColorBrush brush;
-                if (value < WarnValue) {
+                if (value < WarnValue)
+                {
                     brush = WarnBrush;
-                } else {
+                }
+                else
+                {
                     brush = NormalBrush;
                 }
                 drawingContext.DrawEllipse(null, new Pen(new SolidColorBrush(Color.FromRgb(0xdd, 0xdf, 0xe1)), thickness), centerPoint, radiusX, radiusY);
                 drawingContext.DrawGeometry(brush, new Pen(), GetGeometry(value, maxValue, radiusX, radiusY, thickness, padding));
+                //drawingContext.DrawGeometry(brush, new Pen(), GetGeometry(value, maxValue, radiusX, radiusY, thickness, padding));
                 FormattedText formatWords = new FormattedText(percentString,
                     CultureInfo.CurrentCulture,
                     FlowDirection.LeftToRight,
@@ -147,7 +158,9 @@ namespace ControlClient
                     brush);
                 Point startPoint = new Point(centerPoint.X - formatWords.Width / 2, centerPoint.Y - formatWords.Height / 2);
                 drawingContext.DrawText(formatWords, startPoint);
-            } else {
+            }
+            else
+            {
                 drawingContext.DrawEllipse(null, new Pen(NormalBrush, thickness), centerPoint, radiusX, radiusY);
                 FormattedText formatWords = new FormattedText("100%",
                     CultureInfo.CurrentCulture,
@@ -188,9 +201,7 @@ namespace ControlClient
         {
             DrawingGroup drawingGroup = new DrawingGroup();
             DrawingContext drawingContext = drawingGroup.Open();
-
             DrawingGeometry(drawingContext, value, maxValue, radiusX, radiusY, thickness, padding);
-
             DrawingBrush brush = new DrawingBrush(drawingGroup);
 
             return brush;

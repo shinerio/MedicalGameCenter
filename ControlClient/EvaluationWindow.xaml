@@ -7,11 +7,11 @@
         AllowsTransparency="True"
         Background="White"
         WindowStyle="ThreeDBorderWindow"
-        ResizeMode="CanResize"
+        ResizeMode="NoResize"
         BorderThickness="1"
         BorderBrush="{StaticResource AccentBaseColorBrush}"
-        TitlebarHeight="0"
         ShowInTaskbar="False"
+        Title="正在评估"
         Width="300"
         Height="300">
     <Window.Resources>
@@ -20,7 +20,7 @@
     <Grid Width="200" Height="200" VerticalAlignment="Top" Margin="0,0,0,0">
         <ProgressBar Minimum="0"
                      Maximum="100"
-                     Value="{Binding SuccessRate, Mode=OneWay}" Height="180" Margin="0,10" Grid.ColumnSpan="2">
+                     Value="{Binding SuccessRate, Mode=OneWay}" Height="180" Width="180" Margin="0,10" Grid.ColumnSpan="2">
             <ProgressBar.Template>
                 <ControlTemplate TargetType="ProgressBar">
                     <Border Background="{TemplateBinding Value, Converter={StaticResource ValueToProcessConverter}, ConverterParameter=200}"/>

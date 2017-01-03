@@ -28,6 +28,8 @@ using MessageBox = System.Windows.MessageBox;
 using MouseEventArgs = System.Windows.Input.MouseEventArgs;
 
 using System.IO;
+using System.Runtime.CompilerServices;
+using System.Threading;
 
 namespace ControlClient
 {
@@ -46,6 +48,7 @@ namespace ControlClient
         private bool isMagneticAlignSuccess = false;
 
         private WindowState ws; //窗口状态
+        private static EvaluationWindow ew;
         private System.Windows.Forms.NotifyIcon notifyIcon; //任务栏图标
         private float scaleSize = 1.25f;
         private static int rowNum = 4;    //the number of game gridlist's row and cloumn
@@ -64,13 +67,6 @@ namespace ControlClient
             dh = DataWarehouse.GetSingleton();
 
             //settingWindow = new Setting();
-            
-
-            icon();
-            contextMenu();
-            EvaluationWindow ew = new EvaluationWindow(1000);
-            ew.Start();
-            ew.Show();
         }
 
         //        private void topTitle_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
@@ -567,49 +563,6 @@ namespace ControlClient
             GameBar g = GameBar.GetInstance();
             g.Show();
         }
-
-        private void icon()
-        {
-            string path = System.IO.Path.GetFullPath("../../icLauncher.ico");
-            if (File.Exists(path))
-            {
-                this.notifyIcon = new System.Windows.Forms.NotifyIcon();
-                this.notifyIcon.BalloonTipText = "medical管理客户端"; //设置程序启动时显示的文本
-                this.notifyIcon.Text = "管理客户端";//最小化到托盘时，鼠标点击时显示的文本
-                System.Drawing.Icon icon = new System.Drawing.Icon(path);//程序图标 
-                this.notifyIcon.Icon = icon;
-                this.notifyIcon.Visible = true;
-                notifyIcon.MouseDoubleClick += OnNotifyIconDoubleClick;
-                this.notifyIcon.ShowBalloonTip(1000);
-            }
-
-        }
-        private void OnNotifyIconDoubleClick(object sender, EventArgs e)
-        {
-            this.WindowState = ws;
-        }
-        //任务栏动作捕捉
-        private void contextMenu()
-        {
-            System.Windows.Forms.ContextMenuStrip cms = new System.Windows.Forms.ContextMenuStrip();
-
-
-            //关联 NotifyIcon 和 ContextMenuStrip
-            notifyIcon.ContextMenuStrip = cms;
-            System.Windows.Forms.ToolStripMenuItem exitMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            exitMenuItem.Text = "退出";
-            exitMenuItem.Click += new EventHandler(exitMenuItem_Click);
-            System.Windows.Forms.ToolStripMenuItem hideMenumItem = new System.Windows.Forms.ToolStripMenuItem();
-            hideMenumItem.Text = "隐藏";
-            hideMenumItem.Click += new EventHandler(hideMenumItem_Click);
-            System.Windows.Forms.ToolStripMenuItem showMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            showMenuItem.Text = "显示";
-            showMenuItem.Click += new EventHandler(showMenuItem_Click);
-            cms.Items.Add(exitMenuItem);
-            cms.Items.Add(hideMenumItem);
-            cms.Items.Add(showMenuItem);
-        }
-
         private void exitMenuItem_Click(object sender, EventArgs e)
         {
             Utils.FinishGame(gameHwd);
@@ -631,10 +584,11 @@ namespace ControlClient
         // 点击设置按钮
         private void setting_Click(object sender, RoutedEventArgs e)
         {
-            Setting settingWindow = new Setting();
-            settingWindow.Owner = this;
-            settingWindow.WindowStartupLocation = WindowStartupLocation.CenterOwner;
-            settingWindow.ShowDialog();
+//            Setting settingWindow = new Setting();
+//            settingWindow.Owner = this;
+//            settingWindow.WindowStartupLocation = WindowStartupLocation.CenterOwner;
+//            settingWindow.ShowDialog();
+            EvaluationWindowThread.Run();
         }
 
         private void alignment_Click(object sender, RoutedEventArgs e)
@@ -644,7 +598,8 @@ namespace ControlClient
 
         private void reset_Click(object sender, RoutedEventArgs e)
         {
-            ResetPosture(sender, e);
+//            ResetPosture(sender, e);
+            EvaluationWindowThread.Stop();
         }
 
         private async void ResetPosture(object sender, RoutedEventArgs e)
@@ -654,6 +609,37 @@ namespace ControlClient
             var f_r = dh.GetFrameData(HandType.Right, Definition.MODEL_TYPE);
             var f_l = dh.GetFrameData(HandType.Left, Definition.MODEL_TYPE);
             skc.ResetHandShape(f_r, f_l);
+        }
+        private class EvaluationWindowThread
+        {
+            private static Thread threadRun;
+            private static Thread threadStop;
+            public static void Run()
+            {
+                threadRun = new Thread(delegate()
+                {
+                    ew = new EvaluationWindow(1000);
+                    ew.Start();
+                    System.Windows.Threading.Dispatcher.Run();
+                });
+                threadRun.Name = "EvaluationWindowThread Run";
+                threadRun.IsBackground = false;
+                threadRun.SetApartmentState(ApartmentState.STA);
+                threadRun.Start();
+            }
+            public static void Stop()
+            {
+                threadRun.Abort();
+                threadStop = new Thread(delegate()
+                {
+                    ew.Stop();
+                    System.Windows.Threading.Dispatcher.Run();
+                });
+                threadStop.Name = "EvaluationWindowThread Stop";
+                threadStop.IsBackground = false;
+                threadStop.SetApartmentState(ApartmentState.STA);
+                threadStop.Start();
+            }
         }
     }
 }
