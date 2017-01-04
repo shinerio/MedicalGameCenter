@@ -475,34 +475,53 @@ namespace ControlClient
 
         private class EvaluationWindowThread
         {
-            private static EvaluationWindow ew;
+            private static Thread threadRun;
+            private static Thread threadStop;
             public static void Run()
             {
-                Thread thread = new Thread(delegate()
+                int time = 60000 / _evaluationTestSpeed;
+//                if (threadRun != null)
+//                {
+//                    threadRun.Abort();
+//                    threadRun = null;
+//                }
+//                if (threadStop != null)
+//                {
+//                    threadStop.Abort();
+//                    threadStop = null;
+//                }
+                threadRun = new Thread(delegate()
                 {
-                    int time = 60000 / _evaluationTestSpeed;
-                    // 弹出评估窗
-                    Console.WriteLine(time);
-                    EvaluationWindow ew =EvaluationWindow.GetInstance(1000);
+                    ew = new EvaluationWindow(time);
                     ew.Start();
                     System.Windows.Threading.Dispatcher.Run();
                 });
-                thread.Name = "EvaluationWindowThread Run";
-                thread.IsBackground = true;
-                thread.SetApartmentState(ApartmentState.STA);
-                thread.Start();
+                threadRun.Name = "EvaluationWindowThread Run";
+                threadRun.IsBackground = true;
+                threadRun.SetApartmentState(ApartmentState.STA);
+                threadRun.Start();
             }
             public static void Stop()
             {
-                Thread thread = new Thread(delegate()
+//                if (threadRun != null)
+//                {
+//                    threadRun.Abort();
+//                    threadRun = null;
+//                }
+//                if (threadStop != null)
+//                {
+//                    threadStop.Abort();
+//                    threadStop = null;
+//                }
+                threadStop = new Thread(delegate()
                 {
                     ew.Stop();
-                    //System.Windows.Threading.Dispatcher.Run();
+                    System.Windows.Threading.Dispatcher.Run();
                 });
-                thread.Name = "EvaluationWindowThread Stop";
-                thread.IsBackground = true;
-                thread.SetApartmentState(ApartmentState.STA);
-                thread.Start();
+                threadStop.Name = "EvaluationWindowThread Stop";
+                threadStop.IsBackground = true;
+                threadStop.SetApartmentState(ApartmentState.STA);
+                threadStop.Start();
             }
         }
     }

@@ -584,11 +584,11 @@ namespace ControlClient
         // 点击设置按钮
         private void setting_Click(object sender, RoutedEventArgs e)
         {
-//            Setting settingWindow = new Setting();
-//            settingWindow.Owner = this;
-//            settingWindow.WindowStartupLocation = WindowStartupLocation.CenterOwner;
-//            settingWindow.ShowDialog();
-              EvaluationWindowThread.Run();
+            Setting settingWindow = new Setting();
+            settingWindow.Owner = this;
+            settingWindow.WindowStartupLocation = WindowStartupLocation.CenterOwner;
+            settingWindow.ShowDialog();
+//              EvaluationWindowThread.Run();
       
         }
 
@@ -599,8 +599,8 @@ namespace ControlClient
 
         private void reset_Click(object sender, RoutedEventArgs e)
         {
-//            ResetPosture(sender, e);
-           EvaluationWindowThread.Stop();
+            ResetPosture(sender, e);
+//           EvaluationWindowThread.Stop();
         }
 
         private async void ResetPosture(object sender, RoutedEventArgs e)
@@ -611,23 +611,27 @@ namespace ControlClient
             var f_l = dh.GetFrameData(HandType.Left, Definition.MODEL_TYPE);
             skc.ResetHandShape(f_r, f_l);
         }
+
         private class EvaluationWindowThread
         {
             private static Thread threadRun;
             private static Thread threadStop;
             public static void Run()
             {
-                if (threadRun != null) {
-                    threadRun.Abort();
-                    threadRun = null;
-                }
-                if (threadStop != null) {
-                threadStop.Abort();
-                threadStop = null;
+                int time = 60000 / 10;
+                //                if (threadRun != null)
+                //                {
+                //                    threadRun.Abort();
+                //                    threadRun = null;
+                //                }
+                if (threadStop != null)
+                {
+                    threadStop.Abort();
+                    threadStop = null;
                 }
                 threadRun = new Thread(delegate()
                 {
-                    ew =EvaluationWindow.GetInstance(1000);
+                    ew = new EvaluationWindow(time);
                     ew.Start();
                     System.Windows.Threading.Dispatcher.Run();
                 });
@@ -638,11 +642,11 @@ namespace ControlClient
             }
             public static void Stop()
             {
-                if (threadRun != null)
-                {
-                    threadRun.Abort();
-                    threadRun = null;
-                }
+                //                if (threadRun != null)
+                //                {
+                //                    threadRun.Abort();
+                //                    threadRun = null;
+                //                }
                 if (threadStop != null)
                 {
                     threadStop.Abort();
