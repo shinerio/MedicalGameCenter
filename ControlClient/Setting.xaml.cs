@@ -29,29 +29,29 @@ namespace ControlClient
         private GloveController gc;
 
         public Setting()
-        {
+        {     
             InitializeComponent();
-            localIP.Text = Utils.getConfig("localIP");
-            targetIP.Text = Utils.getConfig("targetIP");
-            modelPath.Text = ".../" + Path.GetFileName(Utils.getConfig("modelPath"));
-            String port = Utils.getConfig("port");
-            gc = GloveController.GetSingleton(ModelType.HandOnly);
-            String[] ports = gc.GetPorts();
-            if (ports.Length > 0)
-            {
-                ports.ToList().ForEach(n => cbb_port.Items.Add(n));
-                if (ports.ToList().Contains(Utils.getConfig("port")))
+                localIP.Text = Utils.getConfig("localIP");
+                targetIP.Text = Utils.getConfig("targetIP");
+                modelPath.Text = ".../" + Path.GetFileName(Utils.getConfig("modelPath"));
+                String port = Utils.getConfig("port");
+                gc = GloveController.GetSingleton(ModelType.HandOnly);
+                String[] ports = gc.GetPorts();
+                if (ports.Length > 0)
                 {
-                    int i = ports.ToList().FindIndex(0, ports.ToList().Count, x => x == port);
-                    cbb_port.SelectedItem = cbb_port.Items[i];
+                    ports.ToList().ForEach(n => cbb_port.Items.Add(n));
+                    if (ports.ToList().Contains(Utils.getConfig("port")))
+                    {
+                        int i = ports.ToList().FindIndex(0, ports.ToList().Count, x => x == port);
+                        cbb_port.SelectedItem = cbb_port.Items[i];
+                    }
+                    else
+                    {
+                        cbb_port.SelectedItem = cbb_port.Items[cbb_port.Items.Count - 1];
+                    }
+           
                 }
-                else
-                {
-                    cbb_port.SelectedItem = cbb_port.Items[cbb_port.Items.Count - 1];
-                }
-
-            }
-
+          
         }
 
         private void settingsDer_Click(object sender, RoutedEventArgs e)
@@ -60,6 +60,11 @@ namespace ControlClient
             csm = ControlServerManage.GetInstance(mainWindow.lbl_gloveStatus);
             String slocalIP = localIP.Text.ToString();
             String stargetIP = targetIP.Text.ToString();
+            if (cbb_port.SelectedItem == null)
+            {
+                MessageBox.Show("未检测到端口", "提示", MessageBoxButton.OK, MessageBoxImage.Information);
+                return;
+            }
             String port = cbb_port.SelectedItem.ToString();
             String smodelPath = modelPath.Text.ToString();
             Utils.UpdateAppConfig("localIP", slocalIP);

@@ -55,6 +55,7 @@ namespace ControlClient
         private static int columnNum = 4;
         private string[,] gamePath = new string[rowNum, columnNum];//corresponding game's path
         private int gameHwd;
+        SynchronizationContext _syncContext = null;  
         public MainWindow()
         {
             InitializeComponent();
@@ -65,8 +66,8 @@ namespace ControlClient
             skc = SkeletonCalculator.GetSingleton("");
             rhb = Rehabilitation.GetSingleton();
             dh = DataWarehouse.GetSingleton();
-
             //settingWindow = new Setting();
+            _syncContext = SynchronizationContext.Current;  
         }
 
         //        private void topTitle_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
@@ -91,7 +92,7 @@ namespace ControlClient
             Application.Current.Shutdown(-1);
             System.Environment.Exit(-1);
         }
-
+       
         private void ShutdownAll(object sender, RoutedEventArgs e)
         {
             notifyIcon.Visible = false;
@@ -467,6 +468,20 @@ namespace ControlClient
 
         private async void ShowAlignmentDialog(object sender, RoutedEventArgs e)
         {
+            if (ControlServerManage.GetInstance(lbl_gloveStatus) == null)
+            {
+                var errorDialog = (BaseMetroDialog)this.Resources["AlignmentDialog"];
+
+                await this.ShowMetroDialogAsync(errorDialog);
+
+                errorDialog.Title = "手套未连接";
+                var textBlock = errorDialog.FindChild<TextBlock>("MessageTextBlock");
+                textBlock.Text = "此窗口将在2秒后关闭......";
+
+                await Task.Delay(2000);
+                await this.HideMetroDialogAsync(errorDialog);
+                return;
+            }
             if (!ControlServerManage.GetInstance(lbl_gloveStatus).getServerStatus())
             {
                 var errorDialog = (BaseMetroDialog)this.Resources["AlignmentDialog"];
@@ -560,8 +575,9 @@ namespace ControlClient
 
         private void gameBar_Click(object sender, RoutedEventArgs e)
         {
-            GameBar g = GameBar.GetInstance();
-            g.Show();
+            
+          //  GameBar g = GameBar.GetInstance();
+         //   g.Show();
         }
         private void exitMenuItem_Click(object sender, EventArgs e)
         {
@@ -587,9 +603,8 @@ namespace ControlClient
             Setting settingWindow = new Setting();
             settingWindow.Owner = this;
             settingWindow.WindowStartupLocation = WindowStartupLocation.CenterOwner;
-            settingWindow.ShowDialog();
-//              EvaluationWindowThread.Run();
-      
+            settingWindow.Show();
+        
         }
 
         private void alignment_Click(object sender, RoutedEventArgs e)
@@ -599,10 +614,22 @@ namespace ControlClient
 
         private void reset_Click(object sender, RoutedEventArgs e)
         {
-            ResetPosture(sender, e);
-//           EvaluationWindowThread.Stop();
+          //ResetPosture(sender, e);
+           // EvaluationWindowThread.Run();
+            Thread demoThread = new Thread(new ThreadStart(threadMethod));
+            demoThread.IsBackground = true;
+            demoThread.Start();//启动线程  
         }
-
+        private void threadMethod()
+        {
+            _syncContext.Post(ShowEvaWindow, "修改后的文本");//子线程中通过UI线程上下文更新UI  
+        }
+        public void ShowEvaWindow(Object text)
+        {
+            ew = EvaluationWindow.GetInstance(1000);
+            ew.Start();
+            ew.Show();
+        }
         private async void ResetPosture(object sender, RoutedEventArgs e)
         {
             await this.ShowMessageAsync("正在重置姿态", "提示：请将手掌置于前方，将五指自然张开，保持该姿势并点击确定按钮",
@@ -611,12 +638,12 @@ namespace ControlClient
             var f_l = dh.GetFrameData(HandType.Left, Definition.MODEL_TYPE);
             skc.ResetHandShape(f_r, f_l);
         }
-
-        private class EvaluationWindowThread
+   
+       private class EvaluationWindowThread
         {
-            private static Thread threadRun;
-            private static Thread threadStop;
-            public static void Run()
+           private static Thread threadRun;
+           private static Thread threadStop;
+           public static void Run()
             {
                 int time = 60000 / 10;
                 //                if (threadRun != null)
@@ -631,16 +658,17 @@ namespace ControlClient
                 }
                 threadRun = new Thread(delegate()
                 {
-                    ew = new EvaluationWindow(time);
-                    ew.Start();
-                    System.Windows.Threading.Dispatcher.Run();
+
+                  ew = EvaluationWindow.GetInstance(time);
+                  ew.Start();
+                  System.Windows.Threading.Dispatcher.Run();
                 });
                 threadRun.Name = "EvaluationWindowThread Run";
-                threadRun.IsBackground = false;
+                threadRun.IsBackground = true;
                 threadRun.SetApartmentState(ApartmentState.STA);
                 threadRun.Start();
             }
-            public static void Stop()
+           public static void Stop()
             {
                 //                if (threadRun != null)
                 //                {
@@ -654,11 +682,13 @@ namespace ControlClient
                 }
                 threadStop = new Thread(delegate()
                 {
+                    if (ew != null) {
                     ew.Stop();
                     System.Windows.Threading.Dispatcher.Run();
+                    }
                 });
                 threadStop.Name = "EvaluationWindowThread Stop";
-                threadStop.IsBackground = false;
+                threadStop.IsBackground = true;
                 threadStop.SetApartmentState(ApartmentState.STA);
                 threadStop.Start();
             }
