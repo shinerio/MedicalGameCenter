@@ -99,21 +99,13 @@ namespace ControlClient
         #endregion
         public void Start()
         {
-            this.Show();
+            if (timer != null)
             timer.Start();
         }
         public void Stop()
         {
-            timer.Stop();
-            this.Dispatcher.BeginInvoke(
-                new Action(
-                    delegate
-                    {
-                        this.Close();
-                    }
-                )
-            );
-            Destory();
+            if (timer != null)
+            timer.Stop();  
         }
 
         private void timer_Tick(object sender, EventArgs e)

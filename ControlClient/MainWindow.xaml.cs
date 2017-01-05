@@ -48,14 +48,13 @@ namespace ControlClient
         private bool isMagneticAlignSuccess = false;
 
         private WindowState ws; //窗口状态
-        private static EvaluationWindow ew;
         private System.Windows.Forms.NotifyIcon notifyIcon; //任务栏图标
         private float scaleSize = 1.25f;
         private static int rowNum = 4;    //the number of game gridlist's row and cloumn
         private static int columnNum = 4;
         private string[,] gamePath = new string[rowNum, columnNum];//corresponding game's path
         private int gameHwd;
-        SynchronizationContext _syncContext = null;  
+        private static SynchronizationContext _syncContext = null;  
         public MainWindow()
         {
             InitializeComponent();
@@ -574,10 +573,9 @@ namespace ControlClient
         }
 
         private void gameBar_Click(object sender, RoutedEventArgs e)
-        {
-            
-          //  GameBar g = GameBar.GetInstance();
-         //   g.Show();
+        {          
+           GameBar g = GameBar.GetInstance();
+           g.Show();
         }
         private void exitMenuItem_Click(object sender, EventArgs e)
         {
@@ -603,32 +601,51 @@ namespace ControlClient
             Setting settingWindow = new Setting();
             settingWindow.Owner = this;
             settingWindow.WindowStartupLocation = WindowStartupLocation.CenterOwner;
-            settingWindow.Show();
-        
+            settingWindow.Show();       
         }
 
         private void alignment_Click(object sender, RoutedEventArgs e)
         {
-            ShowAlignmentDialog(sender, e);
+           ShowAlignmentDialog(sender, e);
         }
 
         private void reset_Click(object sender, RoutedEventArgs e)
         {
-          //ResetPosture(sender, e);
-           // EvaluationWindowThread.Run();
-            Thread demoThread = new Thread(new ThreadStart(threadMethod));
+            ResetPosture(sender, e);
+        }
+        public static void StartEvaWindow()
+        {
+            Thread demoThread = new Thread(new ThreadStart(ThreadStart));
             demoThread.IsBackground = true;
             demoThread.Start();//启动线程  
         }
-        private void threadMethod()
+        public static void EndEvaWindow()
         {
-            _syncContext.Post(ShowEvaWindow, "修改后的文本");//子线程中通过UI线程上下文更新UI  
+            Thread demoThread = new Thread(new ThreadStart(ThreadEnd));
+            demoThread.IsBackground = true;
+            demoThread.Start();//启动线程  
+
         }
-        public void ShowEvaWindow(Object text)
+        private static void ThreadStart()
         {
-            ew = EvaluationWindow.GetInstance(1000);
+            _syncContext.Post(EvaWindow, "启动");//子线程中通过UI线程上下文更新UI  
+        }
+        private static void ThreadEnd()
+        {
+            _syncContext.Post(EvaWindow, "关闭");//子线程中通过UI线程上下文更新UI  
+        }
+        public static void EvaWindow(Object text)
+        {
+            if ("启动".Equals(text.ToString())) {
+            EvaluationWindow ew = EvaluationWindow.GetInstance(1000);
             ew.Start();
             ew.Show();
+            }
+            if ("关闭".Equals(text.ToString()))
+            {
+                EvaluationWindow ew = EvaluationWindow.GetInstance();
+                ew.Close();
+            }
         }
         private async void ResetPosture(object sender, RoutedEventArgs e)
         {
@@ -639,7 +656,7 @@ namespace ControlClient
             skc.ResetHandShape(f_r, f_l);
         }
    
-       private class EvaluationWindowThread
+ /*      private class EvaluationWindowThread
         {
            private static Thread threadRun;
            private static Thread threadStop;
@@ -692,6 +709,6 @@ namespace ControlClient
                 threadStop.SetApartmentState(ApartmentState.STA);
                 threadStop.Start();
             }
-        }
+        } */
     }
 }
