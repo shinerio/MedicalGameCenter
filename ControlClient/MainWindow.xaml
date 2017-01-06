@@ -3,6 +3,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:Controls="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
         xmlns:dialogs="clr-namespace:MahApps.Metro.Controls.Dialogs;assembly=MahApps.Metro"
+        xmlns:cefSharp="clr-namespace:CefSharp.Wpf;assembly=CefSharp.Wpf"
         AllowsTransparency="True"
         Background="{x:Null}"
         WindowStyle="ThreeDBorderWindow"
@@ -59,12 +60,12 @@
         <Grid HorizontalAlignment="Stretch" Background="Gray" Height="30" VerticalAlignment="Bottom">
             <Image HorizontalAlignment="Left" VerticalAlignment="Center" Margin="9,0,0,0"   Source=".\img\error.png" Width="26"/>
             <Label x:Name="lbl_gloveStatus" Content="手套未接入" TextBlock.FontWeight="Bold" FontSize="16" Foreground="White"  HorizontalAlignment="Left" VerticalAlignment="Center" Margin="49,0,0,0"/>
-<!--            <TextBox Name="txt_log" AcceptsReturn="True" -->
-<!--                 Foreground="White"-->
-<!--                 Background="Black"-->
-<!--                 VerticalScrollBarVisibility="Auto" MaxLines="4"-->
-<!--                 HorizontalScrollBarVisibility="Auto" IsReadOnly="True" Margin="149,0,0,0"-->
-<!--                 />-->
+            <!--            <TextBox Name="txt_log" AcceptsReturn="True" -->
+            <!--                 Foreground="White"-->
+            <!--                 Background="Black"-->
+            <!--                 VerticalScrollBarVisibility="Auto" MaxLines="4"-->
+            <!--                 HorizontalScrollBarVisibility="Auto" IsReadOnly="True" Margin="149,0,0,0"-->
+            <!--                 />-->
         </Grid>
 
 
@@ -146,14 +147,33 @@
         </Grid>
 
 
-<!--        <Grid HorizontalAlignment="Left" Margin="0,40,0,60"  Background="#f2f2f2" VerticalAlignment="Stretch" Width="150">-->
-<!--            <Button Name ="Game_Menu" HorizontalAlignment="Center" Margin="0,20,0,0" Content="游戏菜单" TextBlock.FontWeight="Bold" FontSize="14" VerticalAlignment="Top" Width="110"  Click="GameMenu">-->
-<!--            </Button>-->
-<!---->
-<!--        </Grid>-->     
+        <!--        <Grid HorizontalAlignment="Left" Margin="0,40,0,60"  Background="#f2f2f2" VerticalAlignment="Stretch" Width="150">-->
+        <!--            <Button Name ="Game_Menu" HorizontalAlignment="Center" Margin="0,20,0,0" Content="游戏菜单" TextBlock.FontWeight="Bold" FontSize="14" VerticalAlignment="Top" Width="110"  Click="GameMenu">-->
+        <!--            </Button>-->
+        <!---->
+<!--        </Grid>-->
         <Grid HorizontalAlignment="Stretch"  Name="MainContainer" Margin="0,40,0,30" VerticalAlignment="Stretch" Background="#f2f2f2">
-            <Grid HorizontalAlignment="Stretch" Margin="400,0,0,0" VerticalAlignment="Stretch" Name="GameArea"></Grid>
-            <Grid Visibility="Visible" HorizontalAlignment="Left" Width="400" Name="gameContainer" VerticalAlignment="Stretch" Background="#f2f2f2" >
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="75.0*" />
+                <ColumnDefinition Width="25.0*" />
+            </Grid.ColumnDefinitions>
+            <Grid HorizontalAlignment="Stretch" Grid.Column="0" Margin="0,0,0,0" VerticalAlignment="Stretch" Name="Browser">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="1*"/>
+                    <RowDefinition Height="20*" />
+                </Grid.RowDefinitions>
+                <Grid Grid.Row="0">
+                    <TextBox Name="URLAddress" Background="White" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="0,0,50,0" />
+                    <Button  Name="Goto" HorizontalAlignment="Right" FontSize="11" Content="Go" Width="50" Margin="0,0,0,0" VerticalAlignment="Stretch"/>
+                </Grid>
+                <Grid Grid.Row="1">
+                    <cefSharp:ChromiumWebBrowser
+                         x:Name="ChromiumWebBrowser"
+                         Address="http://www.baidu.com" />
+                </Grid>
+            </Grid>
+            <Grid HorizontalAlignment="Stretch" Grid.Column="1" Margin="0,0,0,0" VerticalAlignment="Stretch" Name="GameArea"></Grid>
+            <Grid Visibility="Hidden" HorizontalAlignment="Stretch" Name="gameContainer" VerticalAlignment="Stretch" Background="#f2f2f2" >
                 <Grid.RowDefinitions>
                     <RowDefinition Height="25*"/>
                     <RowDefinition Height="25*" />
@@ -171,7 +191,7 @@
                         <VisualBrush Visual="{StaticResource appbar_add}" />
                     </Rectangle.Fill>
                 </Rectangle>
-<!--                <Image HorizontalAlignment="Stretch" Margin="3,3,3,3"  Name="addGame" Source=".\img\addGame.png" VerticalAlignment="Stretch" MouseLeftButtonUp="AddGame"/>-->
+                <!--                <Image HorizontalAlignment="Stretch" Margin="3,3,3,3"  Name="addGame" Source=".\img\addGame.png" VerticalAlignment="Stretch" MouseLeftButtonUp="AddGame"/>-->
             </Grid>
         </Grid>
     </Grid>
