@@ -111,7 +111,8 @@ namespace ControlClient
                         _timer.Interval = _evaluateTime * 60000; // 更改时长
                         _timer.Start();
                         // 弹出评估窗
-                        EvaluationWindowThread.Run();
+                        int time = 60000 / _evaluationTestSpeed;
+                        MainWindow.StartEvaWindow(time);
                         // 开始评估操作
                         WriteFileThread.Run(); //Test
                     }
@@ -130,6 +131,7 @@ namespace ControlClient
         private void StopRunning(object source, ElapsedEventArgs e)
         {
             isRunning = false;
+            MainWindow.EndEvaWindow();
             Send(EvaluateStop);
             ResetStatus();
         }
@@ -301,7 +303,6 @@ namespace ControlClient
                 }
                 _endTime = GetCurrentTimeLong();
                 Console.WriteLine("Write File Done!");
-                EvaluationWindowThread.Stop();
                 WriteFileToDatabase.Run();
             }
         }

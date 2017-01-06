@@ -613,39 +613,42 @@ namespace ControlClient
         {
             ResetPosture(sender, e);
         }
-        public static void StartEvaWindow()
+        public static void StartEvaWindow(int time)
         {
-            Thread demoThread = new Thread(new ThreadStart(ThreadStart));
-            demoThread.IsBackground = true;
-            demoThread.Start();//启动线程  
+            Thread thread = new Thread(new ParameterizedThreadStart(ThreadStart));
+            thread.IsBackground = true;
+            thread.Start(time);//启动线程  
         }
         public static void EndEvaWindow()
         {
-            Thread demoThread = new Thread(new ThreadStart(ThreadEnd));
-            demoThread.IsBackground = true;
-            demoThread.Start();//启动线程  
+            Thread thread = new Thread(new ThreadStart(ThreadEnd));
+            thread.IsBackground = true;
+            thread.Start();//启动线程  
 
         }
-        private static void ThreadStart()
+        private static void ThreadStart(Object time)
         {
-            _syncContext.Post(EvaWindow, "启动");//子线程中通过UI线程上下文更新UI  
+            _syncContext.Post(StartEvaluationWindow, time);//子线程中通过UI线程上下文更新UI  
         }
         private static void ThreadEnd()
         {
-            _syncContext.Post(EvaWindow, "关闭");//子线程中通过UI线程上下文更新UI  
+            _syncContext.Post(EndEvaluationWindow, null);//子线程中通过UI线程上下文更新UI  
         }
-        public static void EvaWindow(Object text)
+        private static void StartEvaluationWindow(Object text)
         {
-            if ("启动".Equals(text.ToString())) {
-            EvaluationWindow ew = EvaluationWindow.GetInstance(1000);
+            int i;
+            if (!Int32.TryParse(text.ToString(), out i))
+            {
+                i = 6000;
+            }
+            EvaluationWindow ew = EvaluationWindow.GetInstance(i);
             ew.Start();
             ew.Show();
-            }
-            if ("关闭".Equals(text.ToString()))
-            {
-                EvaluationWindow ew = EvaluationWindow.GetInstance();
-                ew.Close();
-            }
+        }
+        private static void EndEvaluationWindow(Object text)
+        {
+            EvaluationWindow ew = EvaluationWindow.GetInstance();
+            ew.Close();
         }
         private async void ResetPosture(object sender, RoutedEventArgs e)
         {
