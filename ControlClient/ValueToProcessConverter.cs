@@ -16,15 +16,15 @@ namespace ControlClient
         private const double Padding = 1;
         private const double WarnValue = 60;
         private const int SuccessRateFontSize = 34;
-        private readonly SolidColorBrush NormalBrush;
-        private readonly SolidColorBrush WarnBrush;
+        private  readonly SolidColorBrush NormalBrush;
+        private  readonly SolidColorBrush WarnBrush;
         private  readonly Typeface SuccessRateTypeface;
 
         private string percentString;
         private Point centerPoint;
         private double radius;
 
-     /*   static ValueToProcessConverter()
+     /*  static ValueToProcessConverter()
         {
             NormalBrush = new SolidColorBrush(Colors.Green);
             WarnBrush = new SolidColorBrush(Colors.Red);

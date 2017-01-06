@@ -492,7 +492,7 @@ namespace ControlClient
 //                }
                 threadRun = new Thread(delegate()
                 {
-                    ew = new EvaluationWindow(time);
+                    ew = EvaluationWindow.GetInstance(time);
                     ew.Start();
                     System.Windows.Threading.Dispatcher.Run();
                 });

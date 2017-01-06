@@ -66,9 +66,11 @@ namespace ControlClient
                 server = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
                 String localIP = Utils.getConfig("localIP");
                 //Console.WriteLine(Utils.getConfig("port"));
-                if (localIP != null && !"".Equals(localIP))
+                if (localIP == null || "".Equals(localIP))
                 {
-                    try
+                    localIP = "127.0.0.1";         //默认本地地址
+                }
+                 try
                     {
                         isServe = true;
                         if (!gc.IsConnected(0))        //接入手套
@@ -105,12 +107,7 @@ namespace ControlClient
                     catch (Exception e)
                     {
                         MessageBox.Show(e.ToString(), "出错了");
-                    }
-                }
-                else
-                {
-                    MessageBox.Show("本机IP地址不能为空", "出错了");
-                }
+                    }           
             }
             else
             {
@@ -148,30 +145,27 @@ namespace ControlClient
         private void sendMsg()
         {
             String targetIP = Utils.getConfig("targetIP");
-            if (targetIP != null && !"".Equals(targetIP))
+            if (targetIP == null||"".Equals(targetIP))
             {
-                try
+                targetIP ="127.0.0.1"; //默认本地地址
+            }
+            try
+            {
+                EndPoint point = new IPEndPoint(IPAddress.Parse(targetIP), 6000);
+                Rehabilitation rhb = Rehabilitation.GetSingleton();
+                int now = 0;
+                while (isServe)
                 {
-                    EndPoint point = new IPEndPoint(IPAddress.Parse(targetIP), 6000);
-                    Rehabilitation rhb = Rehabilitation.GetSingleton();
-                    int now = 0;
-                    while (isServe)
+                    if (server != null && (now = rhb.GetScore()) != -1)
                     {
-                        if (server != null && (now = rhb.GetScore()) != -1)
-                        {
-                            server.SendTo(Encoding.UTF8.GetBytes(now.ToString()), point);
-                        }
+                        server.SendTo(Encoding.UTF8.GetBytes(now.ToString()), point);
                     }
                 }
-                catch (Exception e)
-                {
-                    MessageBox.Show(e.ToString(), "出错了");
-                    isServe = false;
-                }
             }
-            else
+            catch (Exception e)
             {
-                MessageBox.Show("目标IP地址不能为空", "出错了");
+                MessageBox.Show(e.ToString(), "出错了");
+                isServe = false;
             }
         }
     }

@@ -19,7 +19,7 @@
     <Grid Background="White">
         <Grid HorizontalAlignment="Stretch" Name="DeviceHelpContainer" Margin="0,0,0,0" VerticalAlignment="Stretch" Background="#f2f2f2">
             <Label Content="控制端IP" FontSize="20" VerticalAlignment="Top" Height="35" Margin="10,10,0,0" HorizontalAlignment="Left"></Label>
-            <TextBox Style="{StaticResource {x:Type TextBox}}" Name="localIP" FontSize="15" BorderThickness="2" VerticalContentAlignment="Center" Width="248" Height="35" VerticalAlignment="Top" Margin="111,10,33,0" HorizontalAlignment="Center"></TextBox>
+            <TextBox Name="localIP" FontSize="15" BorderThickness="2" VerticalContentAlignment="Center" Width="248" Height="35" VerticalAlignment="Top" Margin="111,10,33,0" HorizontalAlignment="Center"></TextBox>
             <Label Content="游戏端IP" FontSize="20" VerticalAlignment="Top" Height="35" Margin="10,60,0,0" HorizontalAlignment="Left"></Label>
             <TextBox Name="targetIP"  FontSize="15" BorderThickness="2" VerticalContentAlignment="Center" Width="248" Height="35" VerticalAlignment="Top" Margin="111,60,33,0" HorizontalAlignment="Center"></TextBox>
             <Label Content="端口选择" FontSize="20" VerticalAlignment="Top" Height="35" Margin="10,110,0,0" HorizontalAlignment="Left" RenderTransformOrigin="0.789,0.4"></Label>

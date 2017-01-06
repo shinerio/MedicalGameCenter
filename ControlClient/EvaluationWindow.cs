@@ -27,33 +27,33 @@ namespace ControlClient
         private int currentRate = 0;
         private bool UpOrDown = true;
         private static float scaleSize = 1f;
-//        private static EvaluationWindow instance;
-//        public static EvaluationWindow GetInstance(int period)
-//        {
-//            if (instance == null)
-//            {
-//                instance = new EvaluationWindow(period);
-//            }
-//            else
-//            {
-//                instance.Destory();
-//                instance = new EvaluationWindow(period);
-//            }
-//            return instance;
-//        }
-//        public static EvaluationWindow GetInstance()
-//        {
-//            if (instance == null)
-//            {
-//                instance = new EvaluationWindow(1000);//为指定peroid，默认1秒
-//            }
-//            return instance;
-//        }
+        private static EvaluationWindow instance;
+        public static EvaluationWindow GetInstance(int period)
+        {
+            if (instance == null)
+            {
+                instance = new EvaluationWindow(period);
+            }
+            else
+            {
+                instance.Destory();
+                instance = new EvaluationWindow(period);
+            }
+            return instance;
+        }
+        public static EvaluationWindow GetInstance()
+        {
+            if (instance == null)
+            {
+                instance = new EvaluationWindow(1000);//为指定peroid，默认1秒
+            }
+            return instance;
+        }
         /// <summary>
         /// 
         /// </summary>
         /// <param name="period">手张合周期，毫秒为单位</param>
-        public EvaluationWindow(int period)
+        private EvaluationWindow(int period)
         {
             period = period / 100;
             this.Topmost = true;
@@ -99,21 +99,13 @@ namespace ControlClient
         #endregion
         public void Start()
         {
-            this.Show();
+            if (timer != null)
             timer.Start();
         }
         public void Stop()
         {
-            timer.Stop();
-            this.Dispatcher.BeginInvoke(
-                new Action(
-                    delegate
-                    {
-                        this.Close();
-                    }
-                )
-            );
-            Destory();
+            if (timer != null)
+            timer.Stop();  
         }
 
         private void timer_Tick(object sender, EventArgs e)
