@@ -26,7 +26,7 @@ namespace ControlClient
     {
         private ControlServerManage csm;
         private MainWindow mainWindow;
-        private GloveController gc;
+        private static GloveController gc;
 
         public Setting()
         {
@@ -76,6 +76,8 @@ namespace ControlClient
             }
             MessageBox.Show("修改成功,请重启服务", "提示", MessageBoxButton.OK, MessageBoxImage.Information);
             //Console.WriteLine(Utils.getConfig("port"));
+            gc = null;
+            csm = null;
             this.Close();
         }
 
@@ -105,10 +107,11 @@ namespace ControlClient
         }
 
 
-        //        protected override void OnClosed(EventArgs e)
-        //        {
-        //            this.Hide();
-        //            //base.OnClosed(e);
-        //        }
+        protected override void OnClosed(EventArgs e)
+        {
+            base.OnClosed(e);
+            gc = null;
+            csm = null;
+        }
     }
 }
