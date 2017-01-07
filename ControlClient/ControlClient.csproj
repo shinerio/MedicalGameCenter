@@ -149,19 +149,10 @@
     <Compile Include="DetectedFaceMessage.cs" />
     <Compile Include="EvaluationWindow.cs" />
     <Compile Include="FaceRecognition.cs" />
-    <Compile Include="GameBar.xaml.cs">
-      <DependentUpon>GameBar.xaml</DependentUpon>
-    </Compile>
     <Compile Include="GameEdit.xaml.cs">
       <DependentUpon>GameEdit.xaml</DependentUpon>
     </Compile>
-    <Compile Include="GloveConfigView.xaml.cs">
-      <DependentUpon>GloveConfigView.xaml</DependentUpon>
-    </Compile>
     <Compile Include="HttpHelper.cs" />
-    <Compile Include="LightIndicator.xaml.cs">
-      <DependentUpon>LightIndicator.xaml</DependentUpon>
-    </Compile>
     <Compile Include="ScoreData.cs" />
     <Compile Include="GloveData.cs" />
     <Compile Include="GloveModule.cs" />
@@ -179,19 +170,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="GameBar.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
     <Page Include="GameEdit.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="GloveConfigView.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="LightIndicator.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

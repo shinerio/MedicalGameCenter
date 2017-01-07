@@ -5,10 +5,28 @@
         AllowsTransparency="True"
         Background="{x:Null}"
         BorderThickness="1"
+        Title="编辑游戏"
         ResizeMode="NoResize"
         Height="400"
         Width="400">
-    <Grid>
-
+    <Grid Visibility="Visible" HorizontalAlignment="Stretch" Name="gameContainer" VerticalAlignment="Stretch" Background="White" >
+        <Grid.RowDefinitions>
+            <RowDefinition Height="25*"/>
+            <RowDefinition Height="25*" />
+            <RowDefinition Height="25*" />
+            <RowDefinition Height="25*" />
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="25.0*" />
+            <ColumnDefinition Width="25.0*" />
+            <ColumnDefinition Width="25.0*" />
+            <ColumnDefinition Width="25.0*" />
+        </Grid.ColumnDefinitions>
+        <Rectangle Name="addGame" Width="80" Height="80" MouseLeftButtonUp="AddGame">
+            <Rectangle.Fill>
+                <VisualBrush Visual="{StaticResource appbar_add}" />
+            </Rectangle.Fill>
+        </Rectangle>
+        <!--                <Image HorizontalAlignment="Stretch" Margin="3,3,3,3"  Name="addGame" Source=".\img\addGame.png" VerticalAlignment="Stretch" MouseLeftButtonUp="AddGame"/>-->
     </Grid>
 </controls:MetroWindow>

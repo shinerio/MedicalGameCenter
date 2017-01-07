@@ -48,17 +48,12 @@ namespace ControlClient
         private bool isMagneticAlignSuccess = false;
 
         private WindowState ws; //窗口状态
-        private System.Windows.Forms.NotifyIcon notifyIcon; //任务栏图标
-        private float scaleSize = 1.25f;
-        private static int rowNum = 4;    //the number of game gridlist's row and cloumn
-        private static int columnNum = 4;
-        private string[,] gamePath = new string[rowNum, columnNum];//corresponding game's path
+        //private System.Windows.Forms.NotifyIcon notifyIcon; //任务栏图标
         private int gameHwd;
         private static SynchronizationContext _syncContext = null;  
         public MainWindow()
         {
             InitializeComponent();
-            InitGame();
             csm = ControlServerManage.GetInstance(lbl_gloveStatus);
             this.WindowState = WindowState.Maximized;
             sc = SensorCalibrator.GetSingleton();
@@ -66,7 +61,8 @@ namespace ControlClient
             rhb = Rehabilitation.GetSingleton();
             dh = DataWarehouse.GetSingleton();
             //settingWindow = new Setting();
-            _syncContext = SynchronizationContext.Current;         
+            _syncContext = SynchronizationContext.Current;
+            InitGame();
         }
 
         //        private void topTitle_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
@@ -96,7 +92,6 @@ namespace ControlClient
        
         private void ShutdownAll(object sender, RoutedEventArgs e)
         {
-            notifyIcon.Visible = false;
             Application.Current.Shutdown(-1);
             System.Environment.Exit(-1);
         }
@@ -112,225 +107,21 @@ namespace ControlClient
                 this.WindowState = WindowState.Maximized;
             }
         }
-        private void Goto_Click(object sender, RoutedEventArgs e)
-        {
-            ChromiumWebBrowser.Address = URLAddress.Text.ToString();
-        }
         private void MinimizeWindow(object sender, RoutedEventArgs e)
         {
             ws = this.WindowState;
             this.WindowState = WindowState.Minimized;
         }
 
-        [System.Runtime.InteropServices.DllImport("shell32.dll")]
-        private static extern int ExtractIconEx(string lpszFile, int niconIndex, IntPtr[] phiconLarge, IntPtr[] phiconSmall, int nIcons);
-        private void AddGame(object sender, MouseButtonEventArgs e)
-        {
-            System.Windows.Forms.OpenFileDialog openFile = new System.Windows.Forms.OpenFileDialog();
-            openFile.Title = "选择游戏";
-            openFile.Filter = "可执行文件|*.exe";
-            openFile.FilterIndex = 1;
-            openFile.RestoreDirectory = true;
-            openFile.DefaultExt = "exe";
-            System.Windows.Forms.DialogResult result = openFile.ShowDialog();
-            if (result == System.Windows.Forms.DialogResult.Cancel)
-            {
-                return;
-            }
-            String fileName = openFile.FileName;
-            if (fileName.Contains(".exe"))
-            {
-                doUpdate(fileName);
-            }
-            else
-            {
-                MessageBox.Show("不支持的文件格式", "出错了");
-            }
-        }
-        private void startGame(object sender, RoutedEventArgs e)
-        {
-            Image img = (Image)e.OriginalSource;
-            String str = img.Name;
-            int row = -1;
-            int column = -1;
-            int.TryParse(str.Substring(4, 1), out row);
-            int.TryParse(str.Substring(5, 1), out column);
-            try
-            {
-                //Process.Start(@gamePath[row, column]);
-                gameHwd = Utils.StartGame(GameArea, @gamePath[row, column], gameHwd,scaleSize);
-            }
-            catch (System.ComponentModel.Win32Exception)
-            {
-                MessageBox.Show("游戏已被修改或不存在\n请检查游戏路径，并重新添加", "错误",MessageBoxButton.OK, MessageBoxImage.Error);
-                DeleteGameByKey("gamepath" + row + column);
-            }
-            catch (Exception)
-            {
-                MessageBox.Show("不可解决的错误\n游戏可能已经损坏", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
-            }
-        }
-        private void DeleteGame(object sender, RoutedEventArgs e)
-        {
-            MessageBoxResult confirmToDel = MessageBox.Show("是否删除游戏？", "提示", MessageBoxButton.YesNo, MessageBoxImage.Question);
-            if (confirmToDel == MessageBoxResult.Yes)
-            {
-                Image img = (Image)e.OriginalSource;
-                String str = img.Name;
-                int row = -1;
-                int column = -1;
-                int.TryParse(str.Substring(4, 1), out row);
-                int.TryParse(str.Substring(5, 1), out column);
-                DeleteGameByKey("gamepath" + row + column);
-            }
-        }
-        public void InitGame()
-        {
-            string file = System.Windows.Forms.Application.ExecutablePath;
-            Configuration config = ConfigurationManager.OpenExeConfiguration(file);
-            foreach (string key in config.AppSettings.Settings.AllKeys)
-            {
-                if (key.Contains("gamepath"))
-                {
-                    String path = config.AppSettings.Settings[key].Value.ToString();
-                    doUpdate(path);
-                }
-            }
+        /*
+         *主窗口事件 
+         */
 
-        }
-        //更新游戏
-        public void doUpdate(String fileName)
+        private void Goto_Click(object sender, RoutedEventArgs e)
         {
-            IntPtr[] largeIcons, smallIcons;  //存放大/小图标的指针数组  
-            string appPath = @fileName;
-            //第一步：获取程序中的图标数         
-            int IconCount = ExtractIconEx(appPath, -1, null, null, 0);
-            //第二步：创建存放大/小图标的空间    
-            largeIcons = new IntPtr[IconCount];
-            smallIcons = new IntPtr[IconCount];
-            //第三步：抽取所有的大小图标保存到largeIcons和smallIcons中        
-            ExtractIconEx(appPath, 0, largeIcons, smallIcons, IconCount);
-            //  for (int i = 0; i < IconCount; i++)
-            //    {
-            BitmapSource returnSource = null;
-            if (IconCount > 0)
-            {
-                System.Drawing.Icon newIcon = System.Drawing.Icon.FromHandle(largeIcons[0]);
-                System.Drawing.Bitmap bmp = newIcon.ToBitmap();
-                returnSource = System.Windows.Interop.Imaging.CreateBitmapSourceFromHBitmap(bmp.GetHbitmap(), IntPtr.Zero, Int32Rect.Empty, BitmapSizeOptions.FromEmptyOptions());
-            }
-            Image img = new Image();
-            if (returnSource == null)
-            {
-                img.Source = new BitmapImage(new Uri("./img/defaultGameICO.png",
-                                                   UriKind.Relative));
-            }
-            else
-            {
-                img.Source = returnSource;
-            }
-            int nowColumn = Grid.GetColumn(addGame);
-            int nowRow = Grid.GetRow(addGame);
-            if (nowRow == columnNum - 1 && nowColumn == rowNum - 1)
-            {
-                MessageBox.Show("游戏数目已达上限", "出错了");
-            }
-            else if (nowColumn == columnNum - 1)  //换行
-            {
-                Grid g = new Grid();
-                RowDefinition rw1 = new RowDefinition();
-                RowDefinition rw2 = new RowDefinition();
-                g.RowDefinitions.Add(rw1);
-                g.RowDefinitions.Add(rw2);
-                g.Children.Add(img);
-                Grid.SetRow(img, 0);
-                int subStart = fileName.LastIndexOf("\\");
-                int subEnd = fileName.LastIndexOf(".exe");
-                String gameName = fileName.Substring(subStart + 1, subEnd - subStart - 1);
-                img.Name = "game" + nowRow + nowColumn;
-                Label l = new Label();
-                l.Content = gameName;
-                l.HorizontalAlignment = HorizontalAlignment.Center;
-                g.Children.Add(l);
-                Grid.SetRow(l, 1);
-                g.VerticalAlignment = VerticalAlignment.Center;
-                g.HorizontalAlignment = HorizontalAlignment.Center;
-                gameContainer.Children.Add(g);
-                Grid.SetColumn(g, nowColumn);
-                Grid.SetRow(g, nowRow);
-                gamePath[nowRow, nowColumn] = fileName;
-                img.MouseLeftButtonUp += new MouseButtonEventHandler(this.startGame);  //add LeftMouseClick event 
-                img.MouseRightButtonUp += new MouseButtonEventHandler(this.DeleteGame); //add rightMouseClick event 
-                Grid.SetColumn(addGame, 0);
-                Grid.SetRow(addGame, nowRow + 1);
-                //  write the configuration file
-                Utils.UpdateAppConfig("gamepath" + nowRow + nowColumn, fileName);
-            }
-            else
-            {
-                Grid g = new Grid();
-                RowDefinition rw1 = new RowDefinition();
-                RowDefinition rw2 = new RowDefinition();
-                g.RowDefinitions.Add(rw1);
-                g.RowDefinitions.Add(rw2);
-                g.Children.Add(img);
-                Grid.SetRow(img, 0);
-                int subStart = fileName.LastIndexOf("\\");
-                int subEnd = fileName.LastIndexOf(".exe");
-                String gameName = fileName.Substring(subStart + 1, subEnd - subStart - 1);
-                img.Name = "game" + nowRow + nowColumn;
-                Label l = new Label();
-                l.Content = gameName;
-                g.VerticalAlignment = VerticalAlignment.Center;
-                l.HorizontalAlignment = HorizontalAlignment.Center;
-                g.Children.Add(l);
-                Grid.SetRow(l, 1);
-                g.HorizontalAlignment = HorizontalAlignment.Center;
-                gameContainer.Children.Add(g);
-                Grid.SetColumn(g, nowColumn);
-                Grid.SetRow(g, nowRow);
-                gamePath[nowRow, nowColumn] = fileName;
-                img.MouseLeftButtonUp += new MouseButtonEventHandler(this.startGame);  //add LeftMouseClick event 
-                img.MouseRightButtonUp += new MouseButtonEventHandler(this.DeleteGame); //add rightMouseClick event    
-                Grid.SetColumn(addGame, nowColumn + 1);
-                //  write the configuration file
-                Utils.UpdateAppConfig("gamepath" + nowRow + nowColumn, fileName);
-            }
+            ChromiumWebBrowser.Address = URLAddress.Text.ToString();
         }
-//        //open game gridlist page
-//        private void GameMenu(object sender, RoutedEventArgs e)
-//        {
-//            DeviceHelpContainer.Visibility = Visibility.Hidden;
-//            gameContainer.Visibility = Visibility.Visible;
-//        }
-
-//        //opne device help page
-//        private void DeviceHelp(object sender, RoutedEventArgs e)
-//        {
-//            gameContainer.Visibility = Visibility.Hidden;
-//            DeviceHelpContainer.Visibility = Visibility.Visible;
-//            localIP.Text = Utils.getConfig("localIP");
-//            targetIP.Text = Utils.getConfig("targetIP");
-//        }
-        //delete selected game
-        private void DeleteGameByKey(String selectkey)
-        {
-            string file = System.Windows.Forms.Application.ExecutablePath;
-            Configuration config = ConfigurationManager.OpenExeConfiguration(file);
-            foreach (string key in config.AppSettings.Settings.AllKeys)
-            {
-                if (selectkey != null && selectkey.Equals(key))
-                    config.AppSettings.Settings.Remove(key);
-            }
-            config.Save(ConfigurationSaveMode.Modified);
-            ConfigurationManager.RefreshSection("appSettings");
-            Utils.FormatConfig(rowNum, columnNum);
-            gameContainer.Children.Clear();
-            gameContainer.Children.Add(addGame);
-            Grid.SetColumn(addGame, 0);
-            Grid.SetRow(addGame, 0);
-            InitGame();
-        }
+    
         //clear game list
         private void ClearGame(object sender, RoutedEventArgs e)
         {
@@ -345,11 +136,7 @@ namespace ControlClient
                         config.AppSettings.Settings.Remove(key);
                 }
                 config.Save(ConfigurationSaveMode.Modified);
-                ConfigurationManager.RefreshSection("appSettings");
-                gameContainer.Children.Clear();
-                gameContainer.Children.Add(addGame);
-                Grid.SetColumn(addGame, 0);
-                Grid.SetRow(addGame, 0);
+                ConfigurationManager.RefreshSection("appSettings");         ;
             }
         }
         //show login window
@@ -372,25 +159,6 @@ namespace ControlClient
             StackPanel stackPanel = (StackPanel)sender;
             stackPanel.Background = new SolidColorBrush(Color.FromRgb(242, 242, 242));
         }
-
-
-        //confirm modify in device help
-//        private void settingsDer_Click(object sender, RoutedEventArgs e)
-//        {
-//            String slocalIP = localIP.Text.ToString();
-//            String stargetIP = targetIP.Text.ToString();
-//            Utils.UpdateAppConfig("localIP", slocalIP);
-//            Utils.UpdateAppConfig("targetIP", stargetIP);
-//            csm.endServer();
-//            ControlTemplate template = serverBtn.FindName("serverBtnTemp") as ControlTemplate;
-//            if (template != null)
-//            {
-//                Image img = template.FindName("imgWork", serverBtn) as Image;
-//                img.Source = new BitmapImage(new Uri("./img/service_off.png",
-//                                                   UriKind.Relative));
-//            }
-//            MessageBox.Show("修改成功,请重启服务", "success");
-//        }
         //switch serve
         private void SwitchServe(object sender, RoutedEventArgs e)
         {
@@ -449,6 +217,44 @@ namespace ControlClient
             ShowAlignmentDialog(sender, e);
             // ShowCustomDialog(sender, e);
         }
+
+        private void gameBar_Click(object sender, RoutedEventArgs e)
+        {
+            GameEdit g = new GameEdit();
+            g.Owner = this;
+            g.WindowStartupLocation = WindowStartupLocation.CenterOwner;
+            g.ShowDialog();
+        }
+        // 点击设置按钮
+        private void setting_Click(object sender, RoutedEventArgs e)
+        {
+            Setting settingWindow = new Setting();
+            settingWindow.Owner = this;
+            settingWindow.WindowStartupLocation = WindowStartupLocation.CenterOwner;
+            settingWindow.Show();       
+        }
+
+        private void alignment_Click(object sender, RoutedEventArgs e)
+        {
+           ShowAlignmentDialog(sender, e);
+        }
+
+        private void reset_Click(object sender, RoutedEventArgs e)
+        {
+            ResetPosture(sender, e);
+        }
+        //手膜姿势重置
+        private async void ResetPosture(object sender, RoutedEventArgs e)
+        {
+            await this.ShowMessageAsync("正在重置姿态", "提示：请将手掌置于前方，将五指自然张开，保持该姿势并点击确定按钮",
+                    MessageDialogStyle.Affirmative, new MetroDialogSettings() { AffirmativeButtonText = "确定" });
+            var f_r = dh.GetFrameData(HandType.Right, Definition.MODEL_TYPE);
+            var f_l = dh.GetFrameData(HandType.Left, Definition.MODEL_TYPE);
+            skc.ResetHandShape(f_r, f_l);
+        }
+        /*
+         * 校准操作
+         */
 
         private async void ShowCustomDialog(object sender, RoutedEventArgs e)
         {
@@ -527,7 +333,7 @@ namespace ControlClient
                         MessageDialogStyle.Affirmative, new MetroDialogSettings() { AffirmativeButtonText = "好的" });
                 }
             }
-            if (doingMagneticAlignment!=MessageDialogResult.FirstAuxiliary)
+            if (doingMagneticAlignment != MessageDialogResult.FirstAuxiliary)
             {
                 var f_r = dh.GetFrameData(HandType.Right, Definition.MODEL_TYPE);
                 var f_l = dh.GetFrameData(HandType.Left, Definition.MODEL_TYPE);
@@ -577,47 +383,9 @@ namespace ControlClient
 
         }
 
-        private void gameBar_Click(object sender, RoutedEventArgs e)
-        {          
-           GameBar g = GameBar.GetInstance();
-           g.Show();
-        }
-        private void exitMenuItem_Click(object sender, EventArgs e)
-        {
-            Utils.FinishGame(gameHwd);
-            notifyIcon.Visible = false;
-            Application.Current.Shutdown(-1);
-            System.Environment.Exit(-1);
-        }
-
-        private void hideMenumItem_Click(object sender, EventArgs e)
-        {
-            this.Hide();
-        }
-
-        private void showMenuItem_Click(object sender, EventArgs e)
-        {
-            this.Show();
-            this.Activate();
-        }
-        // 点击设置按钮
-        private void setting_Click(object sender, RoutedEventArgs e)
-        {
-            Setting settingWindow = new Setting();
-            settingWindow.Owner = this;
-            settingWindow.WindowStartupLocation = WindowStartupLocation.CenterOwner;
-            settingWindow.Show();       
-        }
-
-        private void alignment_Click(object sender, RoutedEventArgs e)
-        {
-           ShowAlignmentDialog(sender, e);
-        }
-
-        private void reset_Click(object sender, RoutedEventArgs e)
-        {
-            ResetPosture(sender, e);
-        }
+        /*
+         * 评估指示窗口触发
+         */
         public static void StartEvaWindow(int time)
         {
             Thread thread = new Thread(new ParameterizedThreadStart(ThreadStart));
@@ -655,68 +423,101 @@ namespace ControlClient
             EvaluationWindow ew = EvaluationWindow.GetInstance();
             ew.Close();
         }
-        private async void ResetPosture(object sender, RoutedEventArgs e)
-        {
-            await this.ShowMessageAsync("正在重置姿态", "提示：请将手掌置于前方，将五指自然张开，保持该姿势并点击确定按钮",
-                    MessageDialogStyle.Affirmative, new MetroDialogSettings() { AffirmativeButtonText = "确定" });
-            var f_r = dh.GetFrameData(HandType.Right, Definition.MODEL_TYPE);
-            var f_l = dh.GetFrameData(HandType.Left, Definition.MODEL_TYPE);
-            skc.ResetHandShape(f_r, f_l);
-        }
-   
- /*      private class EvaluationWindowThread
-        {
-           private static Thread threadRun;
-           private static Thread threadStop;
-           public static void Run()
-            {
-                int time = 60000 / 10;
-                //                if (threadRun != null)
-                //                {
-                //                    threadRun.Abort();
-                //                    threadRun = null;
-                //                }
-                if (threadStop != null)
-                {
-                    threadStop.Abort();
-                    threadStop = null;
-                }
-                threadRun = new Thread(delegate()
-                {
 
-                  ew = EvaluationWindow.GetInstance(time);
-                  ew.Start();
-                  System.Windows.Threading.Dispatcher.Run();
-                });
-                threadRun.Name = "EvaluationWindowThread Run";
-                threadRun.IsBackground = true;
-                threadRun.SetApartmentState(ApartmentState.STA);
-                threadRun.Start();
-            }
-           public static void Stop()
+        /*
+         * 右侧游戏菜单栏控制
+         */
+        public static int gameNum = 0;
+        public string[] gamepath;
+        private float scaleSize = Utils.GetScaleSize();
+        public void InitGame()
+        {
+            string file = System.Windows.Forms.Application.ExecutablePath;
+            Configuration config = ConfigurationManager.OpenExeConfiguration(file);
+            gamepath = new string[config.AppSettings.Settings.AllKeys.Length];   //生成最大游戏数组
+            foreach (string key in config.AppSettings.Settings.AllKeys)
             {
-                //                if (threadRun != null)
-                //                {
-                //                    threadRun.Abort();
-                //                    threadRun = null;
-                //                }
-                if (threadStop != null)
+                if (key.Contains("gamepath"))
                 {
-                    threadStop.Abort();
-                    threadStop = null;
+                    String path = config.AppSettings.Settings[key].Value.ToString();
+                    doUpdate(path);
                 }
-                threadStop = new Thread(delegate()
-                {
-                    if (ew != null) {
-                    ew.Stop();
-                    System.Windows.Threading.Dispatcher.Run();
-                    }
-                });
-                threadStop.Name = "EvaluationWindowThread Stop";
-                threadStop.IsBackground = true;
-                threadStop.SetApartmentState(ApartmentState.STA);
-                threadStop.Start();
             }
-        } */
+
+        }
+        [System.Runtime.InteropServices.DllImport("shell32.dll")]
+        private static extern int ExtractIconEx(string lpszFile, int niconIndex, IntPtr[] phiconLarge, IntPtr[] phiconSmall, int nIcons);
+        //更新游戏
+        public void doUpdate(String fileName)
+        {
+            IntPtr[] largeIcons, smallIcons;  //存放大/小图标的指针数组  
+            string appPath = @fileName;
+            //第一步：获取程序中的图标数         
+            int IconCount = ExtractIconEx(appPath, -1, null, null, 0);
+            //第二步：创建存放大/小图标的空间    
+            largeIcons = new IntPtr[IconCount];
+            smallIcons = new IntPtr[IconCount];
+            //第三步：抽取所有的大小图标保存到largeIcons和smallIcons中        
+            ExtractIconEx(appPath, 0, largeIcons, smallIcons, IconCount);
+            //  for (int i = 0; i < IconCount; i++)
+            //    {
+            BitmapSource returnSource = null;
+            if (IconCount > 0)
+            {
+                System.Drawing.Icon newIcon = System.Drawing.Icon.FromHandle(largeIcons[0]);
+                System.Drawing.Bitmap bmp = newIcon.ToBitmap();
+                returnSource = System.Windows.Interop.Imaging.CreateBitmapSourceFromHBitmap(bmp.GetHbitmap(), IntPtr.Zero, Int32Rect.Empty, BitmapSizeOptions.FromEmptyOptions());
+            }
+            Image img = new Image();
+            if (returnSource == null)
+            {
+                img.Source = new BitmapImage(new Uri("./img/defaultGameICO.png",
+                                                   UriKind.Relative));
+            }
+            else
+            {
+                img.Source = returnSource;
+            }
+            StackPanel sp = new StackPanel();
+
+            sp.Children.Add(img);
+            int subStart = fileName.LastIndexOf("\\");
+            int subEnd = fileName.LastIndexOf(".exe");
+            String gameName = fileName.Substring(subStart + 1, subEnd - subStart - 1);
+            img.Name = "game" + gameNum;
+            System.Windows.Controls.Label l = new System.Windows.Controls.Label();
+            l.Content = gameName;
+            sp.Children.Add(l);
+            GameContainer.Children.Add(sp);
+            gamepath[gameNum] = fileName;
+            img.MouseLeftButtonUp += new MouseButtonEventHandler(this.startGame);  //add LeftMouseClick event  
+            gameNum++;
+        }
+        private void startGame(object sender, RoutedEventArgs e)
+        {
+            Image img = (Image)e.OriginalSource;
+            String str = img.Name;
+            int row = -1;
+            int.TryParse(str.Substring(4, str.Length - 4), out row);
+            try
+            {
+                gameHwd = Utils.StartGame(GameArea, @gamepath[row], gameHwd, scaleSize);
+            }
+            catch (System.ComponentModel.Win32Exception)
+            {
+                System.Windows.MessageBox.Show("游戏已被修改或不存在\n请检查游戏路径，并重新添加", "出错了");
+            }
+            catch (Exception)
+            {
+                System.Windows.MessageBox.Show("不可解决的错误\n游戏可能已经损坏", "出错了");
+            }
+        }
+        private void RefreshGame_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
+        {
+            GameContainer.Children.Clear();
+            gameNum = 0;
+            gamepath = null;
+            InitGame();
+        }
     }
 }
