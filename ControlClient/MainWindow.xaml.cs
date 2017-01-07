@@ -66,7 +66,7 @@ namespace ControlClient
             rhb = Rehabilitation.GetSingleton();
             dh = DataWarehouse.GetSingleton();
             //settingWindow = new Setting();
-            _syncContext = SynchronizationContext.Current;  
+            _syncContext = SynchronizationContext.Current;         
         }
 
         //        private void topTitle_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
@@ -86,9 +86,11 @@ namespace ControlClient
 
         protected override void OnClosed(EventArgs e)
         {
+            ChromiumWebBrowser.Dispose();
+            CefSharp.Cef.Shutdown();
             Utils.FinishGame(gameHwd);
             base.OnClosed(e);
-            Application.Current.Shutdown(-1);
+            Application.Current.Shutdown(-1);        
             System.Environment.Exit(-1);
         }
        
@@ -110,7 +112,10 @@ namespace ControlClient
                 this.WindowState = WindowState.Maximized;
             }
         }
-
+        private void Goto_Click(object sender, RoutedEventArgs e)
+        {
+            ChromiumWebBrowser.Address = URLAddress.Text.ToString();
+        }
         private void MinimizeWindow(object sender, RoutedEventArgs e)
         {
             ws = this.WindowState;

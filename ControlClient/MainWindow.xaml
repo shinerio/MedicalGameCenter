@@ -155,7 +155,7 @@
         <Grid HorizontalAlignment="Stretch"  Name="MainContainer" Margin="0,40,0,30" VerticalAlignment="Stretch" Background="#f2f2f2">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="75.0*" />
-                <ColumnDefinition Width="25.0*" />
+                <ColumnDefinition Width="50.0*" />
             </Grid.ColumnDefinitions>
             <Grid HorizontalAlignment="Stretch" Grid.Column="0" Margin="0,0,0,0" VerticalAlignment="Stretch" Name="Browser">
                 <Grid.RowDefinitions>
@@ -164,7 +164,7 @@
                 </Grid.RowDefinitions>
                 <Grid Grid.Row="0">
                     <TextBox Name="URLAddress" Background="White" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="0,0,50,0" />
-                    <Button  Name="Goto" HorizontalAlignment="Right" FontSize="11" Content="Go" Width="50" Margin="0,0,0,0" VerticalAlignment="Stretch"/>
+                    <Button  Name="Goto" HorizontalAlignment="Right" FontSize="11" Content="Go" Width="50" Margin="0,0,0,0" VerticalAlignment="Stretch" Click="Goto_Click"/>
                 </Grid>
                 <Grid Grid.Row="1">
                     <cefSharp:ChromiumWebBrowser
