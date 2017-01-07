@@ -30,12 +30,13 @@ namespace ControlClient
 
         public Setting()
         {     
-            InitializeComponent();
+                InitializeComponent();
                 localIP.Text = Utils.getConfig("localIP");
                 targetIP.Text = Utils.getConfig("targetIP");
                 modelPath.Text = ".../" + Path.GetFileName(Utils.getConfig("modelPath"));
                 String port = Utils.getConfig("port");
                 gc = GloveController.GetSingleton(ModelType.HandOnly);
+                 TScaleSize.Text = Utils.GetScaleSize().ToString();
                 String[] ports = gc.GetPorts();
                 if (ports.Length > 0)
                 {
@@ -71,6 +72,7 @@ namespace ControlClient
             Utils.UpdateAppConfig("targetIP", stargetIP);
             Utils.UpdateAppConfig("port", port);
             Utils.UpdateAppConfig("modelPath", smodelPath);
+            Utils.UpdateAppConfig("ScaleSize",TScaleSize.Text.ToString());
             csm.endServer();
             ControlTemplate template = mainWindow.serverBtn.FindName("serverBtnTemp") as ControlTemplate;
             if (template != null)

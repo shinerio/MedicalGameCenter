@@ -27,7 +27,7 @@ namespace ControlClient
     public partial class GameBar : MetroWindow
     {
         private static GameBar gameBar;
-        private static float scaleSize = 1f;
+        private static float scaleSize = Utils.GetScaleSize();
         public static int gameNum = 0;
         public string[] gamepath;
         private GameBar()

@@ -152,6 +152,9 @@
     <Compile Include="GameBar.xaml.cs">
       <DependentUpon>GameBar.xaml</DependentUpon>
     </Compile>
+    <Compile Include="GameEdit.xaml.cs">
+      <DependentUpon>GameEdit.xaml</DependentUpon>
+    </Compile>
     <Compile Include="GloveConfigView.xaml.cs">
       <DependentUpon>GloveConfigView.xaml</DependentUpon>
     </Compile>
@@ -177,6 +180,10 @@
       <SubType>Designer</SubType>
     </Page>
     <Page Include="GameBar.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="GameEdit.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

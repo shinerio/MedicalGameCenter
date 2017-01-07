@@ -14,6 +14,13 @@ namespace ControlClient
 {
     class Utils
     {
+        public static float ScaleSize = Utils.GetScaleSize();
+        public static float GetScaleSize()
+        {
+           float.TryParse(getConfig("ScaleSize"),out ScaleSize);
+           return ScaleSize;       
+        }
+       
         public static String getConfig(String newkey)
         {
             string file = System.Windows.Forms.Application.ExecutablePath;

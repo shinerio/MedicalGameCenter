@@ -1,0 +1,14 @@
+﻿<controls:MetroWindow x:Class="ControlClient.GameEdit"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:controls="http://metro.mahapps.com/winfx/xaml/controls"
+        AllowsTransparency="True"
+        Background="{x:Null}"
+        BorderThickness="1"
+        ResizeMode="NoResize"
+        Height="400"
+        Width="400">
+    <Grid>
+
+    </Grid>
+</controls:MetroWindow>

@@ -5,9 +5,8 @@
         AllowsTransparency="True"
         Background="{x:Null}"
         BorderThickness="1"
-        BorderBrush="{StaticResource AccentBaseColorBrush}"
         ResizeMode="NoResize"
-        Height="300"
+        Height="350"
         Width="400">
     <Window.Resources>
         <ResourceDictionary>
@@ -25,9 +24,11 @@
             <Label Content="端口选择" FontSize="20" VerticalAlignment="Top" Height="35" Margin="10,110,0,0" HorizontalAlignment="Left" RenderTransformOrigin="0.789,0.4"></Label>
             <ComboBox x:Name="cbb_port" FontSize="15" BorderThickness="2" HorizontalAlignment="Center" Margin="111,110,33,0" VerticalAlignment="Top" Height="35" Width="248"/>
             <Button VerticalAlignment="Bottom" Name="settingsDer"  TextBlock.FontWeight="Bold" FontSize="14" Content="确定" HorizontalAlignment="Right" Width="90" Height="30" Margin="0,0,33,28" Click="settingsDer_Click"></Button>
-            <Label Content="手模路径" FontSize="20" VerticalAlignment="Top" Height="35" Margin="10,159,0,0" HorizontalAlignment="Left" RenderTransformOrigin="0.789,0.4"/>
-            <TextBox x:Name="modelPath" FontSize="15" BorderThickness="2" HorizontalAlignment="Center" Margin="111,159,33,0" VerticalAlignment="Top" Height="35" Width="248"/>
-            <Button Background="White" HorizontalAlignment="Left" Focusable="False"  Margin="331,159,0,75" VerticalAlignment="Center" Width="25" Click="SelectModelPath" Height="35" RenderTransformOrigin="1.033,0.457">
+            <Label Content="手模路径" FontSize="20" VerticalAlignment="Top" Height="35" Margin="10,160,0,0" HorizontalAlignment="Left" RenderTransformOrigin="0.789,0.4"/>
+            <TextBox x:Name="modelPath" FontSize="15" BorderThickness="2" HorizontalAlignment="Center" Margin="111,160,33,0" VerticalAlignment="Top" Height="35" Width="248"/>
+            <Label Content="缩放比" FontSize="20" VerticalAlignment="Top" Height="35" Margin="10,210,0,0" HorizontalAlignment="Left" RenderTransformOrigin="0.789,0.4"/>
+            <TextBox x:Name="TScaleSize" FontSize="15" BorderThickness="2" HorizontalAlignment="Center" Margin="111,210,33,0" VerticalAlignment="Top" Height="35" Width="248"/>
+            <Button Background="White" HorizontalAlignment="Left" Focusable="False"  Margin="331,160,0,75" VerticalAlignment="Top" Width="25" Click="SelectModelPath" Height="35" RenderTransformOrigin="1.033,0.457">
                 <Button.Template>
                     <ControlTemplate>
                         <ContentControl Background="White">
