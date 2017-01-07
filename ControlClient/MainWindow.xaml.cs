@@ -278,6 +278,7 @@ namespace ControlClient
 
         private async void ShowAlignmentDialog(object sender, RoutedEventArgs e)
         {
+            GameArea.Visibility = Visibility.Hidden;
             if (ControlServerManage.GetInstance(lbl_gloveStatus) == null)
             {
                 var errorDialog = (BaseMetroDialog)this.Resources["AlignmentDialog"];
@@ -290,6 +291,7 @@ namespace ControlClient
 
                 await Task.Delay(2000);
                 await this.HideMetroDialogAsync(errorDialog);
+                GameArea.Visibility = Visibility.Visible;
                 return;
             }
             if (!ControlServerManage.GetInstance(lbl_gloveStatus).getServerStatus())
@@ -304,6 +306,7 @@ namespace ControlClient
 
                 await Task.Delay(2000);
                 await this.HideMetroDialogAsync(errorDialog);
+                GameArea.Visibility = Visibility.Visible;
                 return;
             }
             var magneticAlignment = new MetroDialogSettings()
@@ -362,6 +365,7 @@ namespace ControlClient
                     MessageDialogStyle.Affirmative, new MetroDialogSettings() { AffirmativeButtonText = "上一步" });
                 ShowAlignmentDialog(sender, e);
             }
+            GameArea.Visibility = Visibility.Visible;
         }
 
         private void ShowData()
