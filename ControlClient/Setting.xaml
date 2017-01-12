@@ -4,6 +4,7 @@
         xmlns:controls="http://metro.mahapps.com/winfx/xaml/controls"
         AllowsTransparency="True"
         Background="{x:Null}"
+        BorderBrush="{DynamicResource AccentColorBrush}"
         BorderThickness="1"
         ResizeMode="NoResize"
         Height="350"

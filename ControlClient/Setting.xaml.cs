@@ -29,30 +29,30 @@ namespace ControlClient
         private GloveController gc;
 
         public Setting()
-        {     
-                InitializeComponent();
-                localIP.Text = Utils.getConfig("localIP");
-                targetIP.Text = Utils.getConfig("targetIP");
-                modelPath.Text = ".../" + Path.GetFileName(Utils.getConfig("modelPath"));
-                String port = Utils.getConfig("port");
-                gc = GloveController.GetSingleton(ModelType.HandOnly);
-                 TScaleSize.Text = Utils.GetScaleSize().ToString();
-                String[] ports = gc.GetPorts();
-                if (ports.Length > 0)
+        {
+            InitializeComponent();
+            localIP.Text = Utils.getConfig("localIP");
+            targetIP.Text = Utils.getConfig("targetIP");
+            modelPath.Text = ".../" + Path.GetFileName(Utils.getConfig("modelPath"));
+            String port = Utils.getConfig("port");
+            gc = GloveController.GetSingleton(ModelType.HandOnly);
+            TScaleSize.Text = Utils.GetScaleSize().ToString();
+            String[] ports = gc.GetPorts();
+            if (ports.Length > 0)
+            {
+                ports.ToList().ForEach(n => cbb_port.Items.Add(n));
+                if (ports.ToList().Contains(Utils.getConfig("port")))
                 {
-                    ports.ToList().ForEach(n => cbb_port.Items.Add(n));
-                    if (ports.ToList().Contains(Utils.getConfig("port")))
-                    {
-                        int i = ports.ToList().FindIndex(0, ports.ToList().Count, x => x == port);
-                        cbb_port.SelectedItem = cbb_port.Items[i];
-                    }
-                    else
-                    {
-                        cbb_port.SelectedItem = cbb_port.Items[cbb_port.Items.Count - 1];
-                    }
-           
+                    int i = ports.ToList().FindIndex(0, ports.ToList().Count, x => x == port);
+                    cbb_port.SelectedItem = cbb_port.Items[i];
                 }
-          
+                else
+                {
+                    cbb_port.SelectedItem = cbb_port.Items[cbb_port.Items.Count - 1];
+                }
+
+            }
+
         }
 
         private void settingsDer_Click(object sender, RoutedEventArgs e)
@@ -72,8 +72,11 @@ namespace ControlClient
             Utils.UpdateAppConfig("targetIP", stargetIP);
             Utils.UpdateAppConfig("port", port);
             Utils.UpdateAppConfig("modelPath", smodelPath);
-            Utils.UpdateAppConfig("ScaleSize",TScaleSize.Text.ToString());
-            csm.endServer();
+            Utils.UpdateAppConfig("ScaleSize", TScaleSize.Text.ToString());
+            if (csm != null)
+            {
+                csm.endServer();
+            }
             ControlTemplate template = mainWindow.serverBtn.FindName("serverBtnTemp") as ControlTemplate;
             if (template != null)
             {

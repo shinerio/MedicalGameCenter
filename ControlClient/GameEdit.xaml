@@ -4,6 +4,8 @@
         xmlns:controls="http://metro.mahapps.com/winfx/xaml/controls"
         AllowsTransparency="True"
         Background="{x:Null}"
+        WindowStyle="ThreeDBorderWindow"
+        BorderBrush="{DynamicResource AccentColorBrush}"
         BorderThickness="1"
         Title="编辑游戏"
         ResizeMode="NoResize"
@@ -22,7 +24,7 @@
             <ColumnDefinition Width="25.0*" />
             <ColumnDefinition Width="25.0*" />
         </Grid.ColumnDefinitions>
-        <Rectangle Name="addGame" Width="80" Height="80" MouseLeftButtonUp="AddGame">
+        <Rectangle Name="addGame" MouseLeftButtonUp="AddGame" Margin="25,22">
             <Rectangle.Fill>
                 <VisualBrush Visual="{StaticResource appbar_add}" />
             </Rectangle.Fill>

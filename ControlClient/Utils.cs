@@ -12,7 +12,7 @@ using System.Windows.Forms.Integration;
 
 namespace ControlClient
 {
-    class Utils
+    public class Utils
     {
         public static float ScaleSize = Utils.GetScaleSize();
         public static float GetScaleSize()
