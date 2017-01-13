@@ -2,18 +2,12 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Net;
 using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
-using System.Windows.Media;
 using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
 using MahApps.Metro.Controls;
 using AForge.Video.DirectShow;
 using System.Threading;
@@ -193,21 +187,47 @@ namespace ControlClient
                 sourcePlayer.VideoSource = new VideoCaptureDevice(videoDevices[0].MonikerString);
                 sourcePlayer.Start();
                 Thread.Sleep(3000);
-                Capture_Photo();
-                Boolean faceloginRes = FaceRecognition.Search();
-                if(faceloginRes){
-                    MessageBox.Show("认证成功");
-                }else{
-                    MessageBox.Show("认证失败");
+                for (int i = 0; i < 5&& ContinueAuth; i++) {
+                Thread.Sleep(1000);
+                StartAuthenticate();
                 }
             }
             else
             {
                 MessageBox.Show("未检测到摄像头！");
             }
+            sourcePlayer.Stop();
+            this.Close();
         }
-
-        private void Capture_Photo()
+        public  bool ContinueAuth = true;  //成功验证后置false
+        public  int tryCount = 0;       //尝试次数
+        private void Authenticate()   //异步验证线程
+        {
+            tryCount++;
+            try {
+                Boolean faceloginRes = FaceRecognition.Search();
+                 if (faceloginRes)
+                 {
+                     tryCount = 0;               
+                     MessageBox.Show("认证成功");
+                     sourcePlayer.Stop();
+                     ContinueAuth = false;
+                  }
+                  else if(tryCount>4)
+                 {
+                     tryCount = 0;
+                     MessageBox.Show("认证失败");
+                }else
+                {
+                    MessageBox.Show("认证失败");
+                }
+                }
+            catch (Exception)
+            {
+                tryCount = 0;
+            }
+        }
+        public void StartAuthenticate()
         {
             // 判断视频设备是否开启  
             if (sourcePlayer.IsRunning)
@@ -225,6 +245,9 @@ namespace ControlClient
                     PBE.Save(stream);
                 }
             }
+            Thread thread = new Thread(new ThreadStart(Authenticate));
+            thread.IsBackground = true;
+            thread.Start();//启动线程  
         }
     }
 }

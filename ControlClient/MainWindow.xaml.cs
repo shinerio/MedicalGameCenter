@@ -38,7 +38,7 @@ namespace ControlClient
     /// Notice:Main只有页面交互逻辑，勿做后台业务逻辑工作
     /// </summary>
     public partial class MainWindow : MetroWindow
-    {
+    { 
         private SensorCalibrator sc;
         private SkeletonCalculator skc;
         private ControlServerManage csm;

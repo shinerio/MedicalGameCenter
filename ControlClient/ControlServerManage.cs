@@ -36,12 +36,16 @@ namespace ControlClient
         {
             if (instance == null)
             {
-                ConsoleManager.Show();
+                //ConsoleManager.Show();
                 gloveModule = GloveModule.GetSingleton();
                 lbl_gloveStatus = gloveStatus;
-                String selected_port = Utils.getConfig("port");
-                if (selected_port != null)
+                if (gloveModule.gc.GetPorts()!=null)
                 {
+                    String selected_port = Utils.getConfig("port");
+                    if(selected_port==null|| selected_port.Equals(""))
+                    {
+                        Utils.UpdateAppConfig("port", gloveModule.gc.GetPorts().Last());
+                    }
                     instance = new ControlServerManage();
                 }
                 else   //无效手套模块，置空
