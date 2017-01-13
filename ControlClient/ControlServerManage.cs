@@ -74,48 +74,55 @@ namespace ControlClient
                 {
                     localIP = "127.0.0.1";         //默认本地地址
                 }
-                 try
+                try
+                {
+                    if (!gc.IsConnected(0)) //接入手套
                     {
-                        isServe = true;
-                        if (!gc.IsConnected(0))        //接入手套
-                        {
-                            var PortName = Utils.getConfig("port").ToString();
-                            gc.Connect(PortName, 0);
-                            lbl_gloveStatus.Content = "手套已接入";
-                        }
-                        server.Bind(new IPEndPoint(IPAddress.Parse(localIP), 6001));//绑定端口号和IP
-                        Thread t = new Thread(sendMsg);//开启发送消息线程
-                        t.IsBackground = true;
-                        t.Start();
-                        WSServer = new WebSocketServer(String.Format("ws://{0}", localIP));//new WebSocket
-                        WSServer.AddWebSocketService<GloveData>(GloveDataServerName);
-                        WSServer.AddWebSocketService<ScoreData>(ScoreDataServerName);
-                        WSServer.AddWebSocketService<CommandData>(CommandDataServerName);
-                        WSServer.Start();
+                        var PortName = Utils.getConfig("port").ToString();
+                        gc.Connect(PortName, 0);
+                        lbl_gloveStatus.Content = "手套已接入";
                     }
-                    catch (NullReferenceException)
+                    server.Bind(new IPEndPoint(IPAddress.Parse(localIP), 6001)); //绑定端口号和IP
+                    Thread t = new Thread(sendMsg); //开启发送消息线程
+                    t.IsBackground = true;
+                    t.Start();
+                    WSServer = new WebSocketServer(String.Format("ws://{0}", localIP)); //new WebSocket
+                    WSServer.AddWebSocketService<GloveData>(GloveDataServerName);
+                    WSServer.AddWebSocketService<ScoreData>(ScoreDataServerName);
+                    WSServer.AddWebSocketService<CommandData>(CommandDataServerName);
+                    WSServer.Start();
+                    isServe = true;
+                }
+                catch (NullReferenceException)
+                {
+                    MessageBox.Show("请检查手套是否连接正常", "出错了", MessageBoxButton.OK, MessageBoxImage.Exclamation);
+                    throw new Exception("这是已处理错误");
+                }
+                catch (IOException)
+                {
+                    MessageBox.Show("请检查手套是否连接正常", "出错了", MessageBoxButton.OK, MessageBoxImage.Exclamation);
+                    throw new Exception("这是已处理错误");
+                }
+                catch (FormatException)
+                {
+                    MessageBox.Show("源IP地址无效", "出错了", MessageBoxButton.OK, MessageBoxImage.Exclamation);
+                    throw new Exception("这是已处理错误");
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine(e.ToString());
+                }
+                finally
+                {
+                    if (!isServe)
                     {
-                        MessageBox.Show("请检查手套是否连接正常", "出错了");
-                        throw new Exception("这是已处理错误");
-                    }
-                    catch (IOException)
-                    {
-                        MessageBox.Show("请检查手套是否连接正常", "出错了");
-                        throw new Exception("这是已处理错误");
-                    }
-                    catch (FormatException)
-                    {
-                        MessageBox.Show("源IP地址无效", "出错了");
-                        throw new Exception("这是已处理错误");
-                    }
-                    catch (Exception e)
-                    {
-                        MessageBox.Show(e.ToString(), "出错了");
-                    }           
+                        endServer();
+                    }  
+                }
             }
             else
             {
-                MessageBox.Show("服务启动失败，端口已被占用", "出错了");
+                MessageBox.Show("服务启动失败，端口已被占用", "出错了", MessageBoxButton.OK, MessageBoxImage.Exclamation);
             }
         }
         public void endServer()
@@ -131,7 +138,7 @@ namespace ControlClient
             }
             catch (Exception e)
             {
-                MessageBox.Show(e.ToString(), "出错了");
+                Console.WriteLine(e.ToString());
             }
             if (server != null)
             {
@@ -149,9 +156,9 @@ namespace ControlClient
         private void sendMsg()
         {
             String targetIP = Utils.getConfig("targetIP");
-            if (targetIP == null||"".Equals(targetIP))
+            if (targetIP == null || "".Equals(targetIP))
             {
-                targetIP ="127.0.0.1"; //默认本地地址
+                targetIP = "127.0.0.1"; //默认本地地址
             }
             try
             {
@@ -163,12 +170,14 @@ namespace ControlClient
                     if (server != null && (now = rhb.GetScore()) != -1)
                     {
                         server.SendTo(Encoding.UTF8.GetBytes(now.ToString()), point);
+                        Console.WriteLine(now.ToString());
                     }
+                    Thread.Sleep(10);
                 }
             }
             catch (Exception e)
             {
-                MessageBox.Show(e.ToString(), "出错了");
+                Console.WriteLine(e.ToString());
                 isServe = false;
             }
         }

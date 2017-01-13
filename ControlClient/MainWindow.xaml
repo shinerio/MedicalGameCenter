@@ -9,12 +9,14 @@
         WindowStyle="ThreeDBorderWindow"
         ResizeMode="CanResize"
         BorderThickness="1"
+        BorderBrush="{DynamicResource AccentColorBrush}"
         TitlebarHeight="30"
         WindowState="Maximized"
         ShowInTaskbar="True"
         Icon=".\img\logo.png"
         >
     <Window.Resources>
+
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/FlatButton.xaml"/>
@@ -32,8 +34,18 @@
                                  x:Name="SettingDialog"
                                  Title="手套校准已完成">
             </dialogs:CustomDialog>
+            <RoutedUICommand x:Key="RefreshWebpage" Text="Increase Font Size" />
         </ResourceDictionary>
+
     </Window.Resources>
+    <Window.InputBindings>
+        <KeyBinding Gesture="Ctrl+F5" Command="{StaticResource RefreshWebpage}"/>
+    </Window.InputBindings>
+    <Window.CommandBindings>
+        <CommandBinding Command="{StaticResource RefreshWebpage}"
+                    CanExecute="CommandBinding_RefreshWebpage_CanExecute"
+                    Executed="CommandBinding_RefreshWebpage_Executed"/>
+    </Window.CommandBindings>
     <Controls:MetroWindow.WindowButtonCommands>
         <Controls:WindowButtonCommands Template="{DynamicResource MahApps.Metro.Templates.WindowButtonCommands.Win10}"/>
     </Controls:MetroWindow.WindowButtonCommands>
@@ -143,18 +155,10 @@
                 <ColumnDefinition Width="80"/>
             </Grid.ColumnDefinitions>
             <Grid HorizontalAlignment="Stretch" Grid.Column="0" Margin="0,0,0,0" VerticalAlignment="Stretch" Name="Browser">
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="1*"/>
-                    <RowDefinition Height="20*" />
-                </Grid.RowDefinitions>
-                <Grid Grid.Row="0">
-                    <TextBox Name="URLAddress" Background="White" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="0,0,50,0" />
-                    <Button  Name="Goto" HorizontalAlignment="Right" FontSize="11" Content="前往" Width="50" Margin="0,0,0,0" VerticalAlignment="Stretch" Click="Goto_Click"/>
-                </Grid>
                 <Grid Grid.Row="1">
                     <cefSharp:ChromiumWebBrowser
                          x:Name="ChromiumWebBrowser"
-                         Address="http://www.baidu.com" />
+                         Address="http://localhost:8080" />
                 </Grid>
             </Grid>
             <Grid HorizontalAlignment="Stretch" Grid.Column="1" Margin="0,0,0,0" VerticalAlignment="Stretch" Name="GameArea"></Grid>

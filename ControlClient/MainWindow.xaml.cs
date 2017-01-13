@@ -50,7 +50,7 @@ namespace ControlClient
         private WindowState ws; //窗口状态
         //private System.Windows.Forms.NotifyIcon notifyIcon; //任务栏图标
         private int gameHwd;
-        private static SynchronizationContext _syncContext = null;  
+        private static SynchronizationContext _syncContext = null;
         public MainWindow()
         {
             InitializeComponent();
@@ -86,10 +86,10 @@ namespace ControlClient
             CefSharp.Cef.Shutdown();
             Utils.FinishGame(gameHwd);
             base.OnClosed(e);
-            Application.Current.Shutdown(-1);        
+            Application.Current.Shutdown(-1);
             System.Environment.Exit(-1);
         }
-       
+
         private void ShutdownAll(object sender, RoutedEventArgs e)
         {
             Application.Current.Shutdown(-1);
@@ -117,11 +117,11 @@ namespace ControlClient
          *主窗口事件 
          */
 
-        private void Goto_Click(object sender, RoutedEventArgs e)
-        {
-            ChromiumWebBrowser.Address = URLAddress.Text.ToString();
-        }
-    
+        //        private void Goto_Click(object sender, RoutedEventArgs e)
+        //        {
+        //            ChromiumWebBrowser.Address = URLAddress.Text.ToString();
+        //        }
+
         //clear game list
         private void ClearGame(object sender, RoutedEventArgs e)
         {
@@ -136,7 +136,7 @@ namespace ControlClient
                         config.AppSettings.Settings.Remove(key);
                 }
                 config.Save(ConfigurationSaveMode.Modified);
-                ConfigurationManager.RefreshSection("appSettings");         ;
+                ConfigurationManager.RefreshSection("appSettings"); ;
             }
         }
         //show login window
@@ -162,13 +162,11 @@ namespace ControlClient
         //switch serve
         private void SwitchServe(object sender, RoutedEventArgs e)
         {
+            Console.WriteLine("SwitchServe");
             if (csm == null)
             {
                 csm = ControlServerManage.GetInstance(lbl_gloveStatus);
-            }
-            if (csm == null)
-            {
-                MessageBox.Show("手套未连接", "出错了");
+                MessageBox.Show("手套未连接", "出错了", MessageBoxButton.OK, MessageBoxImage.Exclamation);
                 return;
             }
             if (csm.getServerStatus())
@@ -186,7 +184,7 @@ namespace ControlClient
                 }
                 catch (Exception ee)
                 {
-                    MessageBox.Show(ee.ToString(), "出错了");
+                    Console.WriteLine(ee.ToString());
                     ControlServerManage.DestoryInstance();  //手套未连接，控制器无效，置null
                 }
             }
@@ -205,11 +203,12 @@ namespace ControlClient
                 }
                 catch (Exception ee)
                 {
-                    MessageBox.Show(ee.ToString(), "出错了");
+                    // 弹出调试信息
+                    Console.WriteLine(ee.ToString());
                 }
+
             }
         }
-
         //glove config
         private void btn_Config_Click(object sender, RoutedEventArgs e)
         {
@@ -231,19 +230,19 @@ namespace ControlClient
             Setting settingWindow = new Setting();
             settingWindow.Owner = this;
             settingWindow.WindowStartupLocation = WindowStartupLocation.CenterOwner;
-            settingWindow.Show();       
+            settingWindow.Show();
         }
 
         private void alignment_Click(object sender, RoutedEventArgs e)
         {
-           ShowAlignmentDialog(sender, e);
+            ShowAlignmentDialog(sender, e);
         }
 
         private void reset_Click(object sender, RoutedEventArgs e)
         {
             ResetPosture(sender, e);
         }
-        //手膜姿势重置
+        //手模姿势重置
         private async void ResetPosture(object sender, RoutedEventArgs e)
         {
             GameArea.Visibility = Visibility.Hidden;
@@ -281,6 +280,24 @@ namespace ControlClient
         private async void ShowAlignmentDialog(object sender, RoutedEventArgs e)
         {
             GameArea.Visibility = Visibility.Hidden;
+<<<<<<< HEAD
+=======
+            // 从配置中获取磁场校准信息
+            String MagneticAlignSuccessConfig = Utils.getConfig("isMagneticAlignSuccess");
+            if (MagneticAlignSuccessConfig != null)
+            {
+                int i;
+                if (!Int32.TryParse(MagneticAlignSuccessConfig, out i))
+                {
+                    i = 0;
+                }
+                isMagneticAlignSuccess = i == 1;
+            }
+            else
+            {
+                isMagneticAlignSuccess = false;
+            }
+>>>>>>> e46348f2ef57730ec3cb61f68070f89ed0f31247
             if (ControlServerManage.GetInstance(lbl_gloveStatus) == null)
             {
                 var errorDialog = (BaseMetroDialog)this.Resources["AlignmentDialog"];
@@ -333,12 +350,15 @@ namespace ControlClient
                 if (result == MessageDialogResult.Affirmative)
                 {
                     sc.EndCalibrate(ShowData, FinishCallback);
-                    await Task.Delay(2000);
+                    await Task.Delay(3000);
                     await this.ShowMessageAsync("磁场校准成功", "请点击按钮进行姿态校准",
                         MessageDialogStyle.Affirmative, new MetroDialogSettings() { AffirmativeButtonText = "好的" });
+                    // 写入磁场校准信息到配置文件
+                    Utils.UpdateAppConfig("isMagneticAlignSuccess", (isMagneticAlignSuccess ? 1 : 0).ToString());
+                    Console.WriteLine(isMagneticAlignSuccess);
                 }
             }
-            if (doingMagneticAlignment != MessageDialogResult.FirstAuxiliary)
+            if (doingMagneticAlignment != MessageDialogResult.FirstAuxiliary && isMagneticAlignSuccess)
             {
                 var f_r = dh.GetFrameData(HandType.Right, Definition.MODEL_TYPE);
                 var f_l = dh.GetFrameData(HandType.Left, Definition.MODEL_TYPE);
@@ -356,11 +376,20 @@ namespace ControlClient
 
                 dialog.Title = "手套校准已完成";
                 var textBlock = dialog.FindChild<TextBlock>("MessageTextBlock");
-                textBlock.Text = "对话框将在3秒后关闭......";
+                textBlock.Text = "对话框将在2秒后关闭......";
 
-                await Task.Delay(3000);
+                await Task.Delay(2000);
                 await this.HideMetroDialogAsync(dialog);
             }
+<<<<<<< HEAD
+=======
+            if (!isMagneticAlignSuccess && doingMagneticAlignment == MessageDialogResult.Negative)
+            {
+                await this.ShowMessageAsync("还未进行磁场校准", "提示：请返回上一步重新进行磁场校准",
+                    MessageDialogStyle.Affirmative, new MetroDialogSettings() { AffirmativeButtonText = "上一步" });
+                ShowAlignmentDialog(sender, e);
+            }
+>>>>>>> e46348f2ef57730ec3cb61f68070f89ed0f31247
             GameArea.Visibility = Visibility.Visible;
         }
 
@@ -518,6 +547,16 @@ namespace ControlClient
             gameNum = 0;
             gamepath = null;
             InitGame();
+        }
+
+        private void CommandBinding_RefreshWebpage_CanExecute(object sender, CanExecuteRoutedEventArgs e)
+        {
+            e.CanExecute = true;
+        }
+
+        private void CommandBinding_RefreshWebpage_Executed(object sender, ExecutedRoutedEventArgs e)
+        {
+            ChromiumWebBrowser.Address = "http://localhost:8080";
         }
     }
 }
