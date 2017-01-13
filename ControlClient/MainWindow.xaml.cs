@@ -280,8 +280,6 @@ namespace ControlClient
         private async void ShowAlignmentDialog(object sender, RoutedEventArgs e)
         {
             GameArea.Visibility = Visibility.Hidden;
-<<<<<<< HEAD
-=======
             // 从配置中获取磁场校准信息
             String MagneticAlignSuccessConfig = Utils.getConfig("isMagneticAlignSuccess");
             if (MagneticAlignSuccessConfig != null)
@@ -297,7 +295,6 @@ namespace ControlClient
             {
                 isMagneticAlignSuccess = false;
             }
->>>>>>> e46348f2ef57730ec3cb61f68070f89ed0f31247
             if (ControlServerManage.GetInstance(lbl_gloveStatus) == null)
             {
                 var errorDialog = (BaseMetroDialog)this.Resources["AlignmentDialog"];
@@ -381,15 +378,12 @@ namespace ControlClient
                 await Task.Delay(2000);
                 await this.HideMetroDialogAsync(dialog);
             }
-<<<<<<< HEAD
-=======
             if (!isMagneticAlignSuccess && doingMagneticAlignment == MessageDialogResult.Negative)
             {
                 await this.ShowMessageAsync("还未进行磁场校准", "提示：请返回上一步重新进行磁场校准",
                     MessageDialogStyle.Affirmative, new MetroDialogSettings() { AffirmativeButtonText = "上一步" });
                 ShowAlignmentDialog(sender, e);
             }
->>>>>>> e46348f2ef57730ec3cb61f68070f89ed0f31247
             GameArea.Visibility = Visibility.Visible;
         }
 
