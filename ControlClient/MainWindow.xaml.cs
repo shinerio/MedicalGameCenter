@@ -550,7 +550,9 @@ namespace ControlClient
 
         private void CommandBinding_RefreshWebpage_Executed(object sender, ExecutedRoutedEventArgs e)
         {
-            ChromiumWebBrowser.Address = "http://localhost:8080";
+//            String address = ChromiumWebBrowser.Address;
+//            ChromiumWebBrowser.Address = address;
+            ChromiumWebBrowser.Reload();
         }
     }
 }

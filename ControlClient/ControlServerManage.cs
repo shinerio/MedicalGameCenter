@@ -72,6 +72,7 @@ namespace ControlClient
                 }
                 try
                 {
+                    isServe = true;
                     if (!gc.IsConnected(0)) //接入手套
                     {
                         var PortName = Utils.getConfig("port").ToString();
@@ -87,25 +88,28 @@ namespace ControlClient
                     WSServer.AddWebSocketService<ScoreData>(ScoreDataServerName);
                     WSServer.AddWebSocketService<CommandData>(CommandDataServerName);
                     WSServer.Start();
-                    isServe = true;
                 }
                 catch (NullReferenceException)
                 {
+                    isServe = false;
                     MessageBox.Show("请检查手套是否连接正常", "出错了", MessageBoxButton.OK, MessageBoxImage.Exclamation);
                     throw new Exception("这是已处理错误");
                 }
                 catch (IOException)
                 {
+                    isServe = false;
                     MessageBox.Show("请检查手套是否连接正常", "出错了", MessageBoxButton.OK, MessageBoxImage.Exclamation);
                     throw new Exception("这是已处理错误");
                 }
                 catch (FormatException)
                 {
+                    isServe = false;
                     MessageBox.Show("源IP地址无效", "出错了", MessageBoxButton.OK, MessageBoxImage.Exclamation);
                     throw new Exception("这是已处理错误");
                 }
                 catch (Exception e)
                 {
+                    isServe = false;
                     Console.WriteLine(e.ToString());
                 }
                 finally
@@ -166,7 +170,7 @@ namespace ControlClient
                     if (server != null && (now = rhb.GetScore()) != -1)
                     {
                         server.SendTo(Encoding.UTF8.GetBytes(now.ToString()), point);
-                        Console.WriteLine(now.ToString());
+                        //Console.WriteLine(now.ToString());
                     }
                     Thread.Sleep(10);
                 }
