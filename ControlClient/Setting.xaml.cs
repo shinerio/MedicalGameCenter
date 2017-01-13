@@ -35,8 +35,14 @@ namespace ControlClient
                 targetIP.Text = Utils.getConfig("targetIP");
                 modelPath.Text = ".../" + Path.GetFileName(Utils.getConfig("modelPath"));
                 String port = Utils.getConfig("port");
-                gc = GloveController.GetSingleton(ModelType.HandOnly);
-                 TScaleSize.Text = Utils.GetScaleSize().ToString();
+                gc = GloveController.GetSingleton(ModelType.HandOnly);               
+                if (Utils.GetScaleSize()==0)
+                {
+                    TScaleSize.Text = "1";
+                 }else
+                {
+                    TScaleSize.Text = Utils.GetScaleSize().ToString();
+                }
                 String[] ports = gc.GetPorts();
                 if (ports.Length > 0)
                 {

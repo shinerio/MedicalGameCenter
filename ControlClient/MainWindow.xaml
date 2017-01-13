@@ -149,7 +149,7 @@
                 </Grid.RowDefinitions>
                 <Grid Grid.Row="0">
                     <TextBox Name="URLAddress" Background="White" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="0,0,50,0" />
-                    <Button  Name="Goto" HorizontalAlignment="Right" FontSize="11" Content="Go" Width="50" Margin="0,0,0,0" VerticalAlignment="Stretch" Click="Goto_Click"/>
+                    <Button  Name="Goto" HorizontalAlignment="Right" FontSize="11" Content="前往" Width="50" Margin="0,0,0,0" VerticalAlignment="Stretch" Click="Goto_Click"/>
                 </Grid>
                 <Grid Grid.Row="1">
                     <cefSharp:ChromiumWebBrowser

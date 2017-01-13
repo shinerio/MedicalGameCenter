@@ -38,7 +38,7 @@ namespace ControlClient
     /// Notice:Main只有页面交互逻辑，勿做后台业务逻辑工作
     /// </summary>
     public partial class MainWindow : MetroWindow
-    {
+    { 
         private SensorCalibrator sc;
         private SkeletonCalculator skc;
         private ControlServerManage csm;
@@ -246,11 +246,13 @@ namespace ControlClient
         //手膜姿势重置
         private async void ResetPosture(object sender, RoutedEventArgs e)
         {
+            GameArea.Visibility = Visibility.Hidden;
             await this.ShowMessageAsync("正在重置姿态", "提示：请将手掌置于前方，将五指自然张开，保持该姿势并点击确定按钮",
                     MessageDialogStyle.Affirmative, new MetroDialogSettings() { AffirmativeButtonText = "确定" });
             var f_r = dh.GetFrameData(HandType.Right, Definition.MODEL_TYPE);
             var f_l = dh.GetFrameData(HandType.Left, Definition.MODEL_TYPE);
             skc.ResetHandShape(f_r, f_l);
+            GameArea.Visibility = Visibility.Visible;
         }
         /*
          * 校准操作
@@ -358,12 +360,6 @@ namespace ControlClient
 
                 await Task.Delay(3000);
                 await this.HideMetroDialogAsync(dialog);
-            }
-            if (!isMagneticAlignSuccess && doingMagneticAlignment == MessageDialogResult.Negative)
-            {
-                await this.ShowMessageAsync("还未进行磁场校准", "提示：请返回上一步重新进行磁场校准",
-                    MessageDialogStyle.Affirmative, new MetroDialogSettings() { AffirmativeButtonText = "上一步" });
-                ShowAlignmentDialog(sender, e);
             }
             GameArea.Visibility = Visibility.Visible;
         }
