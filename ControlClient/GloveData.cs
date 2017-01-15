@@ -57,7 +57,7 @@ namespace ControlClient
         private void SendMsg(object source, ElapsedEventArgs e)
         {
             int score = rhb.GetScore();          
-            var f_r = dh.GetFrameData(HandType.Right, Definition.MODEL_TYPE);
+            var f_r = dh.GetFrameData(HandType.Left, Definition.MODEL_TYPE);
             WebSockData wsd = new WebSockData();
             wsd.nodes = f_r.Nodes;
             wsd.score = score;

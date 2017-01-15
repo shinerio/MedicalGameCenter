@@ -50,9 +50,9 @@ namespace ControlClient
         private static Socket server = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
         private static Socket bindedSocket;
         // 数据库配置
-        private static string _connectionString = "server=10.103.238.28;" +
+        private static string _connectionString = "server=localhost;" +
                                          "user id=root; " +
-                                         "pwd=bigdata;" +
+                                         "pwd=admin;" +
                                          "database=medical_manage;" +
                                          "allowuservariables=True;" +
                                          "Allow Zero Datetime=True";
