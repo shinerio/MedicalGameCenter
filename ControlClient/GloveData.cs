@@ -6,8 +6,10 @@ using System.Threading.Tasks;
 using WebSocketSharp.Server;
 using WebSocketSharp;
 using System.Timers;
-using GloveLib;
 using Newtonsoft.Json;
+using GloveLib; //旧的驱动
+//using SenseSDK;   //新的驱动
+
 namespace ControlClient
 {
     // WebSocket数据处理类
@@ -15,6 +17,7 @@ namespace ControlClient
     {
         private static int _interval = 1000;  //[TEST]数据发送间隔
         private static Rehabilitation rhb = Rehabilitation.GetSingleton();
+        private HandType handType = GloveModule.handType; //左右手
         private DataWarehouse dh;
         static System.Timers.Timer _timer = new System.Timers.Timer
         {
@@ -57,13 +60,16 @@ namespace ControlClient
         private void SendMsg(object source, ElapsedEventArgs e)
         {
             int score = rhb.GetScore();          
-            var f_r = dh.GetFrameData(HandType.Left, Definition.MODEL_TYPE);
+            var f_r = dh.GetFrameData(handType, Definition.MODEL_TYPE);
             WebSockData wsd = new WebSockData();
             wsd.nodes = f_r.Nodes;
+            //Console.WriteLine(f_r.Nodes[2].Y);
             wsd.score = score;
             if (State == WebSocketState.Open)
             {
-                Send(JsonConvert.SerializeObject(wsd));
+                String s = JsonConvert.SerializeObject(wsd);
+//                Console.WriteLine(s);
+                Send(s);
                 // Send(wsd.score.ToString());
             }
         }

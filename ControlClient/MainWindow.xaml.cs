@@ -17,9 +17,7 @@ using System.Configuration;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using GloveLib;
 using MahApps.Metro.Controls;
-
 using MahApps.Metro.Controls.Dialogs;
 using Application = System.Windows.Application;
 using HorizontalAlignment = System.Windows.HorizontalAlignment;
@@ -30,6 +28,9 @@ using MouseEventArgs = System.Windows.Input.MouseEventArgs;
 using System.IO;
 using System.Runtime.CompilerServices;
 using System.Threading;
+using GloveLib;
+using GloveLib; //旧的驱动
+//using SenseSDK;   //新的驱动
 
 namespace ControlClient
 {
@@ -38,7 +39,7 @@ namespace ControlClient
     /// Notice:Main只有页面交互逻辑，勿做后台业务逻辑工作
     /// </summary>
     public partial class MainWindow : MetroWindow
-    { 
+    {
         private SensorCalibrator sc;
         private SkeletonCalculator skc;
         private ControlServerManage csm;
@@ -162,6 +163,8 @@ namespace ControlClient
         //switch serve
         private void SwitchServe(object sender, RoutedEventArgs e)
         {
+//            Thread taskThread = new Thread(SwitchServiceTask);
+//            taskThread.Start();
             Console.WriteLine("SwitchServe");
             if (csm == null)
             {
@@ -193,6 +196,7 @@ namespace ControlClient
                 try
                 {
                     csm.startServer();
+
                     ControlTemplate template = serverBtn.FindName("serverBtnTemp") as ControlTemplate;
                     if (template != null)
                     {
@@ -200,6 +204,64 @@ namespace ControlClient
                         img.Source = new BitmapImage(new Uri("./img/service_on.png",
                                                            UriKind.Relative));
                     }
+                }
+                catch (Exception ee)
+                {
+                    // 弹出调试信息
+                    Console.WriteLine(ee.ToString());
+                }
+
+            }
+        }
+
+        private void SwitchServiceTask()
+        {
+            Console.WriteLine("SwitchServe");
+            if (csm == null)
+            {
+                csm = ControlServerManage.GetInstance(lbl_gloveStatus);
+                MessageBox.Show("手套未连接", "出错了", MessageBoxButton.OK, MessageBoxImage.Exclamation);
+                return;
+            }
+            if (csm.getServerStatus())
+            {
+                try
+                {
+                    csm.endServer();
+                    this.Dispatcher.BeginInvoke((Action)delegate()
+                    {
+                        ControlTemplate template = serverBtn.FindName("serverBtnTemp") as ControlTemplate;
+                        if (template != null)
+                        {
+                            Image img = template.FindName("imgWork", serverBtn) as Image;
+                            img.Source = new BitmapImage(new Uri("./img/service_off.png",
+                                                               UriKind.Relative));
+                        }
+                    });
+                    
+                }
+                catch (Exception ee)
+                {
+                    Console.WriteLine(ee.ToString());
+                    ControlServerManage.DestoryInstance();  //手套未连接，控制器无效，置null
+                }
+            }
+            else
+            {
+                try
+                {
+                    csm.startServer();
+                    this.Dispatcher.BeginInvoke((Action) delegate()
+                    {
+                        ControlTemplate template = serverBtn.FindName("serverBtnTemp") as ControlTemplate;
+                        if (template != null)
+                        {
+                            Image img = template.FindName("imgWork", serverBtn) as Image;
+                            img.Source = new BitmapImage(new Uri("./img/service_on.png",
+                                                               UriKind.Relative));
+                        }
+                    });
+                    
                 }
                 catch (Exception ee)
                 {
@@ -347,7 +409,7 @@ namespace ControlClient
                 if (result == MessageDialogResult.Affirmative)
                 {
                     sc.EndCalibrate(ShowData, FinishCallback);
-                    await Task.Delay(3000);
+                    await Task.Delay(5000);
                     await this.ShowMessageAsync("磁场校准成功", "请点击按钮进行姿态校准",
                         MessageDialogStyle.Affirmative, new MetroDialogSettings() { AffirmativeButtonText = "好的" });
                     // 写入磁场校准信息到配置文件
@@ -550,8 +612,8 @@ namespace ControlClient
 
         private void CommandBinding_RefreshWebpage_Executed(object sender, ExecutedRoutedEventArgs e)
         {
-//            String address = ChromiumWebBrowser.Address;
-//            ChromiumWebBrowser.Address = address;
+            //            String address = ChromiumWebBrowser.Address;
+            //            ChromiumWebBrowser.Address = address;
             ChromiumWebBrowser.Reload();
         }
     }

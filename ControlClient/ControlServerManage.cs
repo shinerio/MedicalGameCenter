@@ -1,5 +1,4 @@
-﻿using GloveLib;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -10,7 +9,10 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
+
 using WebSocketSharp.Server;
+using GloveLib; //旧的驱动
+//using SenseSDK;   //新的驱动
 
 namespace ControlClient
 {
@@ -27,7 +29,8 @@ namespace ControlClient
         private String GloveDataServerName = "/GloveData";   //四元数据在WebSocket上的服务名
         private String ScoreDataServerName = "/ScoreData";   //四元数据在WebSocket上的服务名
         private String CommandDataServerName = "/CommandData";   //评估命令在WebSocket上的服务名
-        private bool isServe = false;  //是否在服务中
+        public static bool isServe = false;  //是否在服务中
+        private HandType handType = GloveModule.handType; //设置左右手
         //lable for glove connection
         private static Label lbl_gloveStatus;
         private ControlServerManage() { gc = GloveModule.GetSingleton().gc; }
@@ -36,13 +39,13 @@ namespace ControlClient
         {
             if (instance == null)
             {
-                //ConsoleManager.Show();
+                ConsoleManager.Show();
                 gloveModule = GloveModule.GetSingleton();
                 lbl_gloveStatus = gloveStatus;
-                if (gloveModule.gc.GetPorts()!=null)
+                if (gloveModule.gc.GetPorts() != null)
                 {
                     String selected_port = Utils.getConfig("port");
-                    if(selected_port==null|| selected_port.Equals(""))
+                    if (selected_port == null || selected_port.Equals(""))
                     {
                         Utils.UpdateAppConfig("port", gloveModule.gc.GetPorts().Last());
                     }
@@ -77,7 +80,7 @@ namespace ControlClient
                 try
                 {
                     isServe = true;
-                    if (!gc.IsConnected(0)) //接入手套
+                    if (!gc.IsConnected((int)handType)) //接入手套
                     {
                         var PortName = Utils.getConfig("port").ToString();
                         gc.Connect(PortName, 0);
@@ -121,7 +124,7 @@ namespace ControlClient
                     if (!isServe)
                     {
                         endServer();
-                    }  
+                    }
                 }
             }
             else
@@ -134,9 +137,9 @@ namespace ControlClient
             isServe = false;
             try
             {
-                if (gc.IsConnected(0))        //接入手套
+                if (gc.IsConnected((int)handType))        //接入手套
                 {
-                    gc.Close(0);
+                    gc.Close((int)handType);
                     lbl_gloveStatus.Content = "手套未接入";
                 }
             }
@@ -174,7 +177,7 @@ namespace ControlClient
                     if (server != null && (now = rhb.GetScore()) != -1)
                     {
                         server.SendTo(Encoding.UTF8.GetBytes(now.ToString()), point);
-                        //Console.WriteLine(now.ToString());
+                        // Console.WriteLine(now.ToString());
                     }
                     Thread.Sleep(10);
                 }

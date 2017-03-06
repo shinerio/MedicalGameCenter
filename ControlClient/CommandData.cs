@@ -17,6 +17,7 @@ using System.Net;
 using System.Net.Sockets;
 using System.Windows.Threading;
 using MySql.Data.MySqlClient;
+//using SenseSDK;
 
 namespace ControlClient
 {
@@ -60,7 +61,8 @@ namespace ControlClient
         private static String dir = String.Format(@"{0}", Patient.GetInstance().id);
         private static String filePath;
         private static Rehabilitation rhb = Rehabilitation.GetSingleton();
-        public static DataWarehouse dh = DataWarehouse.GetSingleton();
+        private static DataWarehouse dh = DataWarehouse.GetSingleton();
+        private static HandType handType = GloveModule.handType; //左右手
         private static EvaluateStatus status = EvaluateStatus.Idle;
         private static EvaluationWindow ew;
         public static bool isRunning = false;
@@ -244,7 +246,7 @@ namespace ControlClient
             public static ManualResetEvent Event = new ManualResetEvent(false);
             private static SkeletonCalculator sc = SkeletonCalculator.GetSingleton("");
             private static SkeletonCalculator skc = SkeletonCalculator.GetSingleton("");
-            public static FrameData fd = dh.GetFrameData(HandType.Right, Definition.MODEL_TYPE);
+            public static FrameData fd = dh.GetFrameData(handType, Definition.MODEL_TYPE);
 
             public static void Run()
             {
@@ -293,7 +295,7 @@ namespace ControlClient
                             _evalustionSuccess++;   // 统计成功一次
                             waitingBest = false;
                         }
-                        fd = dh.GetFrameData(HandType.Right, Definition.MODEL_TYPE);
+                        fd = dh.GetFrameData(handType, Definition.MODEL_TYPE);
                         _timeStamp = GetCurrentTimeLong();
                         // scoreFile.WriteLine(String.Format("{0}\t{1}\t{2}", TimeStamp, Patient.GetInstance().id, rhb.GetScore()));
                         nodesFile.WriteLine(String.Format("{0}\t{1}\t{2}", _timeStamp, rhb.GetScore(), sc.UpdateRaw(fd).ToJson()));

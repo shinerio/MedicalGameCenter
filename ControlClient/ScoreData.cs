@@ -6,8 +6,10 @@ using System.Threading.Tasks;
 using WebSocketSharp.Server;
 using WebSocketSharp;
 using System.Timers;
-using GloveLib;
 using Newtonsoft.Json;
+using GloveLib; //旧的驱动
+//using SenseSDK;   //新的驱动
+
 namespace ControlClient
 {
     // WebSocket数据处理类
@@ -60,6 +62,7 @@ namespace ControlClient
             
             if (State == WebSocketState.Open)
             {
+                // Console.WriteLine(score.ToString());
                 Send(score.ToString());
                 // Send(wsd.score.ToString());
             }

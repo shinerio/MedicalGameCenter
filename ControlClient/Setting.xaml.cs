@@ -15,8 +15,9 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
-using GloveLib;
+//using GloveLib;
 using MahApps.Metro.Controls;
+using SenseSDK;
 using Path = System.IO.Path;
 
 namespace ControlClient
@@ -84,7 +85,7 @@ namespace ControlClient
                 img.Source = new BitmapImage(new Uri("./img/service_off.png",
                                                    UriKind.Relative));
             }
-            MessageBox.Show("修改成功,请重启服务", "提示", MessageBoxButton.OK, MessageBoxImage.Information);
+            MessageBox.Show("修改成功,请重新启动服务", "提示", MessageBoxButton.OK, MessageBoxImage.Information);
             //Console.WriteLine(Utils.getConfig("port"));
             this.Close();
         }

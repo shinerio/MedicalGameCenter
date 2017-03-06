@@ -3,9 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using GloveLib;
+//using GloveLib;
 using System.Windows.Controls;
 using System.Windows;
+using SenseSDK;
 
 namespace ControlClient
 {

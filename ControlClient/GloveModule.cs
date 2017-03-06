@@ -3,9 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using GloveLib;
+
 using System.Timers;
 using System.Windows.Controls;
+using GloveLib; //旧的驱动
+//using SenseSDK;   //新的驱动
 
 namespace ControlClient
 {
@@ -30,6 +32,7 @@ namespace ControlClient
         private SkeletonCalculator sc;
         private Rehabilitation rhb;
         private Timer pullDataTimer;
+        public static HandType handType = HandType.Right; //左右手
 
         private GloveModule()
         {
@@ -60,13 +63,14 @@ namespace ControlClient
             try
             {
                 //send right
-                var f_r = dh.GetFrameData(HandType.Right, Definition.MODEL_TYPE);          
+                var f_r = dh.GetFrameData(handType, Definition.MODEL_TYPE);          
 
                 var s = sc.UpdateRaw(f_r);
                 if (s != null)
                 {
                     sm.Send(s.ToJson());
                 }
+                // gc.GetCurrentAngle(handType);
                 var score = rhb.GetScore();
                 if (score!=-1)
                 {
