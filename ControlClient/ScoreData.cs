@@ -15,7 +15,7 @@ namespace ControlClient
     // WebSocket数据处理类
     public class ScoreData : WebSocketBehavior
     {
-        private static int _interval = 50;  //[TEST]数据发送间隔
+        private static int _interval = 100;  //[TEST]数据发送间隔
         private static Rehabilitation rhb = Rehabilitation.GetSingleton();
         private DataWarehouse dh;
         static System.Timers.Timer _timer = new System.Timers.Timer

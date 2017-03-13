@@ -1,6 +1,7 @@
 ﻿using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
@@ -29,7 +30,10 @@ using System.IO;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using GloveLib;
-using GloveLib; //旧的驱动
+using GloveLib;
+using Binding = System.Windows.Data.Binding;
+
+//旧的驱动
 //using SenseSDK;   //新的驱动
 
 namespace ControlClient
@@ -52,10 +56,62 @@ namespace ControlClient
         //private System.Windows.Forms.NotifyIcon notifyIcon; //任务栏图标
         private int gameHwd;
         private static SynchronizationContext _syncContext = null;
+        public static GloveStatus gloveStatus;
+        public class GloveStatus : INotifyPropertyChanged
+        {
+            public event PropertyChangedEventHandler PropertyChanged;
+
+            public bool isGloveOK
+            {
+                set
+                {
+                    if (value)
+                    {
+                        status = "./img/ok.png";
+                        label = "手套已接入";
+                    }
+                    else
+                    {
+                        status = "./img/error.png";
+                        label = "手套未接入";
+                    }
+                }
+            }
+
+            private string img_path = "./img/error.png";
+            private string lbl_text = "手套未接入";
+
+            public string status
+            {
+                get { return img_path; }
+                set
+                {
+                    img_path = value;
+                    if (this.PropertyChanged != null)
+                    {
+                        this.PropertyChanged.Invoke(this, new PropertyChangedEventArgs("status"));
+                    }
+                }
+            }
+            public string label
+            {
+                get { return lbl_text; }
+                set
+                {
+                    lbl_text = value;
+                    if (this.PropertyChanged != null)
+                    {
+                        this.PropertyChanged.Invoke(this, new PropertyChangedEventArgs("label"));
+                    }
+                }
+            } 
+        } 
+
         public MainWindow()
         {
+            
             InitializeComponent();
-            csm = ControlServerManage.GetInstance(lbl_gloveStatus);
+            csm = ControlServerManage.GetInstance();
             this.WindowState = WindowState.Maximized;
             sc = SensorCalibrator.GetSingleton();
             skc = SkeletonCalculator.GetSingleton("");
@@ -64,6 +120,9 @@ namespace ControlClient
             //settingWindow = new Setting();
             _syncContext = SynchronizationContext.Current;
             InitGame();
+            gloveStatus = new GloveStatus();
+            img_gloveStatus.SetBinding(Image.SourceProperty, new Binding("status") { Source = gloveStatus });
+            lbl_gloveStatus.SetBinding(Label.ContentProperty, new Binding("label") { Source = gloveStatus });
         }
 
         //        private void topTitle_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
@@ -168,7 +227,7 @@ namespace ControlClient
             Console.WriteLine("SwitchServe");
             if (csm == null)
             {
-                csm = ControlServerManage.GetInstance(lbl_gloveStatus);
+                csm = ControlServerManage.GetInstance();
                 MessageBox.Show("手套未连接", "出错了", MessageBoxButton.OK, MessageBoxImage.Exclamation);
                 return;
             }
@@ -219,7 +278,7 @@ namespace ControlClient
             Console.WriteLine("SwitchServe");
             if (csm == null)
             {
-                csm = ControlServerManage.GetInstance(lbl_gloveStatus);
+                csm = ControlServerManage.GetInstance();
                 MessageBox.Show("手套未连接", "出错了", MessageBoxButton.OK, MessageBoxImage.Exclamation);
                 return;
             }
@@ -357,7 +416,7 @@ namespace ControlClient
             {
                 isMagneticAlignSuccess = false;
             }
-            if (ControlServerManage.GetInstance(lbl_gloveStatus) == null)
+            if (ControlServerManage.GetInstance() == null)
             {
                 var errorDialog = (BaseMetroDialog)this.Resources["AlignmentDialog"];
 
@@ -372,7 +431,7 @@ namespace ControlClient
                 GameArea.Visibility = Visibility.Visible;
                 return;
             }
-            if (!ControlServerManage.GetInstance(lbl_gloveStatus).getServerStatus())
+            if (!ControlServerManage.GetInstance().getServerStatus())
             {
                 var errorDialog = (BaseMetroDialog)this.Resources["AlignmentDialog"];
 
@@ -408,13 +467,35 @@ namespace ControlClient
                     MessageDialogStyle.Affirmative, new MetroDialogSettings() { AffirmativeButtonText = "下一步" });
                 if (result == MessageDialogResult.Affirmative)
                 {
-                    sc.EndCalibrate(ShowData, FinishCallback);
-                    await Task.Delay(5000);
-                    await this.ShowMessageAsync("磁场校准成功", "请点击按钮进行姿态校准",
-                        MessageDialogStyle.Affirmative, new MetroDialogSettings() { AffirmativeButtonText = "好的" });
+                    try
+                    {
+                        Console.WriteLine("准备结束磁场校准！");
+                        await CanTimeoutTask<CaliCallback>(sc.EndCalibrate, 5000, ShowData, FinishCallback);
+                        isMagneticAlignSuccess = true;
+                    }
+                    catch (Exception exception)
+                    {
+                        Console.WriteLine(exception);
+                        isMagneticAlignSuccess = false;
+                    }
+                    
+                    // sc.EndCalibrate(ShowData, FinishCallback);
+                    // await Task.Delay(5000);
                     // 写入磁场校准信息到配置文件
                     Utils.UpdateAppConfig("isMagneticAlignSuccess", (isMagneticAlignSuccess ? 1 : 0).ToString());
                     Console.WriteLine(isMagneticAlignSuccess);
+                    if (isMagneticAlignSuccess)
+                    {
+                        await this.ShowMessageAsync("磁场校准成功", "请点击按钮进行姿态校准",
+                            MessageDialogStyle.Affirmative, new MetroDialogSettings() {AffirmativeButtonText = "好的"});
+                    }
+                    else
+                    {
+                        await this.ShowMessageAsync("磁场校准失败", "请检查手套连接是否正常",
+                            MessageDialogStyle.Affirmative, new MetroDialogSettings() { AffirmativeButtonText = "退出" });
+                        GameArea.Visibility = Visibility.Visible;
+                        return;
+                    }   
                 }
             }
             if (doingMagneticAlignment != MessageDialogResult.FirstAuxiliary && isMagneticAlignSuccess)
@@ -448,6 +529,25 @@ namespace ControlClient
             }
             GameArea.Visibility = Visibility.Visible;
         }
+        private async Task CanTimeoutTask<T>(Action<T, T> action, int timeout, params T[] args)
+        {
+            var task1 = Task.Run(() =>
+            {
+                if (args.Length == 2)
+                {
+                    action(args[0], args[1]);
+                }
+            });
+
+            var task2 = Task.Delay(timeout);
+
+            var firstTask = await Task.WhenAny(task1, task2);
+
+            if (firstTask == task2)
+            {
+                throw new TimeoutException();
+            }
+        }
 
         private void ShowData()
         {
@@ -462,7 +562,7 @@ namespace ControlClient
         {
             Application.Current.Dispatcher.Invoke(() =>
             {
-                isMagneticAlignSuccess = true;
+                // isMagneticAlignSuccess = true;
                 Console.WriteLine("已完成磁力计校准，请继续姿态校准");
             });
 

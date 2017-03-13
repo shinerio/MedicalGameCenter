@@ -299,6 +299,7 @@
     <Resource Include="img\light_off.png" />
     <Resource Include="img\light_on.png" />
     <Resource Include="img\go.png" />
+    <Resource Include="img\ok.png" />
     <Content Include="model\HandArm.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>

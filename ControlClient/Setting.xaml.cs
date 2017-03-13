@@ -59,7 +59,7 @@ namespace ControlClient
         private void settingsDer_Click(object sender, RoutedEventArgs e)
         {
             mainWindow = (MainWindow)this.Owner;
-            csm = ControlServerManage.GetInstance(mainWindow.lbl_gloveStatus);
+            csm = ControlServerManage.GetInstance();
             String slocalIP = localIP.Text.ToString();
             String stargetIP = targetIP.Text.ToString();
             if (cbb_port.SelectedItem == null)

@@ -9,7 +9,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-
+using System.Windows.Media.Imaging;
 using WebSocketSharp.Server;
 using GloveLib; //旧的驱动
 //using SenseSDK;   //新的驱动
@@ -31,17 +31,14 @@ namespace ControlClient
         private String CommandDataServerName = "/CommandData";   //评估命令在WebSocket上的服务名
         public static bool isServe = false;  //是否在服务中
         private HandType handType = GloveModule.handType; //设置左右手
-        //lable for glove connection
-        private static Label lbl_gloveStatus;
         private ControlServerManage() { gc = GloveModule.GetSingleton().gc; }
 
-        public static ControlServerManage GetInstance(Label gloveStatus)
+        public static ControlServerManage GetInstance()
         {
             if (instance == null)
             {
                 ConsoleManager.Show();
                 gloveModule = GloveModule.GetSingleton();
-                lbl_gloveStatus = gloveStatus;
                 if (gloveModule.gc.GetPorts() != null)
                 {
                     String selected_port = Utils.getConfig("port");
@@ -83,8 +80,11 @@ namespace ControlClient
                     if (!gc.IsConnected((int)handType)) //接入手套
                     {
                         var PortName = Utils.getConfig("port").ToString();
-                        gc.Connect(PortName, 0);
-                        lbl_gloveStatus.Content = "手套已接入";
+                        gc.Connect(PortName, handType);
+                        // MainWindow.gloveStatus.label = "手套已接入";
+                        // img_gloveStatus.Source = new BitmapImage(new Uri("./img/ok.png", UriKind.Relative));
+                        // MainWindow.gloveStatus.status = "./img/ok.png";
+                        MainWindow.gloveStatus.isGloveOK = true;
                     }
                     server.Bind(new IPEndPoint(IPAddress.Parse(localIP), 6001)); //绑定端口号和IP
                     Thread t = new Thread(sendMsg); //开启发送消息线程
@@ -140,7 +140,10 @@ namespace ControlClient
                 if (gc.IsConnected((int)handType))        //接入手套
                 {
                     gc.Close((int)handType);
-                    lbl_gloveStatus.Content = "手套未接入";
+                    // MainWindow.gloveStatus.label = "手套未接入";
+                    // img_gloveStatus.Source = new BitmapImage(new Uri("./img/error.png", UriKind.Relative));
+                    // MainWindow.gloveStatus.status = "./img/error.png";
+                    MainWindow.gloveStatus.isGloveOK = false;
                 }
             }
             catch (Exception e)
