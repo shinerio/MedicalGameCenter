@@ -16,6 +16,8 @@
                        Icon=".\img\logo.png"
                        MinHeight="720"
                        MinWidth="1280"
+                       ContentRendered="Window_ContentRendered"
+                       Loaded="MainWindow_OnLoaded"
                        >
     <Window.Resources>
 
@@ -147,6 +149,18 @@
                         </Button.Template>
                     </Button>
                     <Label Content="重置" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="0,5,10,5" FontWeight="Bold" FontSize="15" Height="30"/>
+                </StackPanel>
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" MouseEnter="ServiceToolIcon_OnMouseEnter" MouseLeave="ServiceToolIcon_OnMouseLeave" MouseLeftButtonUp="refresh_Click">
+                    <Button  Name="refresh" HorizontalAlignment="Left"  Focusable="False" BorderBrush="Transparent"  Height="30" Width="30" Margin="10,5,0,5" VerticalAlignment="Center" Click="refresh_Click">
+                        <Button.Template>
+                            <ControlTemplate x:Name="refreshTemp">
+                                <ContentControl>
+                                    <Image Name="imgWork" Source=".\img\refresh.png" SnapsToDevicePixels="False" Height="Auto"/>
+                                </ContentControl>
+                            </ControlTemplate>
+                        </Button.Template>
+                    </Button>
+                    <Label Content="刷新" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="0,5,10,5" FontWeight="Bold" FontSize="15" Height="30"/>
                 </StackPanel>
             </StackPanel>
         </Grid>

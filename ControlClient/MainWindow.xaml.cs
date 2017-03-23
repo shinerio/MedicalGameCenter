@@ -716,5 +716,20 @@ namespace ControlClient
             //            ChromiumWebBrowser.Address = address;
             ChromiumWebBrowser.Reload();
         }
+
+        private void refresh_Click(object sender, RoutedEventArgs e)
+        {
+            ChromiumWebBrowser.Reload();
+        }
+
+        private void MainWindow_OnLoaded(object sender, RoutedEventArgs e)
+        {
+            // MessageBox.Show("Main Loaded");
+        }
+
+        private void Window_ContentRendered(object sender, EventArgs e)
+        {
+            MessageBox.Show("Main ContentRendered");
+        }
     }
 }
