@@ -29,6 +29,7 @@ using MouseEventArgs = System.Windows.Input.MouseEventArgs;
 using System.IO;
 using System.Runtime.CompilerServices;
 using System.Threading;
+using System.Windows.Media.Animation;
 using GloveLib;
 using GloveLib;
 using Binding = System.Windows.Data.Binding;
@@ -104,13 +105,14 @@ namespace ControlClient
                         this.PropertyChanged.Invoke(this, new PropertyChangedEventArgs("label"));
                     }
                 }
-            } 
-        } 
+            }
+        }
 
         public MainWindow()
         {
-            
+
             InitializeComponent();
+            ((Storyboard)FindResource("WaitStoryboard")).Begin();
             csm = ControlServerManage.GetInstance();
             this.WindowState = WindowState.Maximized;
             sc = SensorCalibrator.GetSingleton();
@@ -222,8 +224,8 @@ namespace ControlClient
         //switch serve
         private void SwitchServe(object sender, RoutedEventArgs e)
         {
-//            Thread taskThread = new Thread(SwitchServiceTask);
-//            taskThread.Start();
+            //            Thread taskThread = new Thread(SwitchServiceTask);
+            //            taskThread.Start();
             Console.WriteLine("SwitchServe");
             if (csm == null)
             {
@@ -297,7 +299,7 @@ namespace ControlClient
                                                                UriKind.Relative));
                         }
                     });
-                    
+
                 }
                 catch (Exception ee)
                 {
@@ -310,7 +312,7 @@ namespace ControlClient
                 try
                 {
                     csm.startServer();
-                    this.Dispatcher.BeginInvoke((Action) delegate()
+                    this.Dispatcher.BeginInvoke((Action)delegate()
                     {
                         ControlTemplate template = serverBtn.FindName("serverBtnTemp") as ControlTemplate;
                         if (template != null)
@@ -320,7 +322,7 @@ namespace ControlClient
                                                                UriKind.Relative));
                         }
                     });
-                    
+
                 }
                 catch (Exception ee)
                 {
@@ -478,7 +480,7 @@ namespace ControlClient
                         Console.WriteLine(exception);
                         isMagneticAlignSuccess = false;
                     }
-                    
+
                     // sc.EndCalibrate(ShowData, FinishCallback);
                     // await Task.Delay(5000);
                     // 写入磁场校准信息到配置文件
@@ -487,7 +489,7 @@ namespace ControlClient
                     if (isMagneticAlignSuccess)
                     {
                         await this.ShowMessageAsync("磁场校准成功", "请点击按钮进行姿态校准",
-                            MessageDialogStyle.Affirmative, new MetroDialogSettings() {AffirmativeButtonText = "好的"});
+                            MessageDialogStyle.Affirmative, new MetroDialogSettings() { AffirmativeButtonText = "好的" });
                     }
                     else
                     {
@@ -495,7 +497,7 @@ namespace ControlClient
                             MessageDialogStyle.Affirmative, new MetroDialogSettings() { AffirmativeButtonText = "退出" });
                         GameArea.Visibility = Visibility.Visible;
                         return;
-                    }   
+                    }
                 }
             }
             if (doingMagneticAlignment != MessageDialogResult.FirstAuxiliary && isMagneticAlignSuccess)
@@ -729,7 +731,24 @@ namespace ControlClient
 
         private void Window_ContentRendered(object sender, EventArgs e)
         {
-            MessageBox.Show("Main ContentRendered");
+            Task.Factory.StartNew(SchedulerWork);
+        }
+        private void SchedulerWork()
+        {
+            //fistr,second,three是三个TextBlock控件的名字
+            Task task = new Task(() => ShowMainComponents(this.MainGrid, this.LoadingGrid));
+            task.Start();
+            Task.WaitAll(task);
+        }
+
+        private void ShowMainComponents(Grid mainGrid, Grid loadingGrid)
+        {
+            this.Dispatcher.BeginInvoke(new Action(async () =>
+            {
+                await Task.Delay(2000);
+                loadingGrid.Visibility = Visibility.Collapsed;
+                mainGrid.Visibility = Visibility.Visible;
+            }));
         }
     }
 }

@@ -1,6 +1,8 @@
 ﻿<Controls:MetroWindow  x:Class="ControlClient.MainWindow"
                        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                       xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+                       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
                        xmlns:Controls="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
                        xmlns:dialogs="clr-namespace:MahApps.Metro.Controls.Dialogs;assembly=MahApps.Metro"
                        xmlns:cefSharp="clr-namespace:CefSharp.Wpf;assembly=CefSharp.Wpf"
@@ -18,9 +20,9 @@
                        MinWidth="1280"
                        ContentRendered="Window_ContentRendered"
                        Loaded="MainWindow_OnLoaded"
+                       mc:Ignorable="d"
                        >
     <Window.Resources>
-
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/FlatButton.xaml"/>
@@ -39,8 +41,16 @@
                                  Title="手套校准已完成">
             </dialogs:CustomDialog>
             <RoutedUICommand x:Key="RefreshWebpage" Text="Increase Font Size" />
+            <Storyboard x:Key="WaitStoryboard">
+                <DoubleAnimation
+                    Storyboard.TargetName="Wait"
+                    Storyboard.TargetProperty="(TextBlock.RenderTransform).(RotateTransform.Angle)"
+                    From="0"
+                    To="360"
+                    Duration="0:0:2"
+                    RepeatBehavior="Forever" />
+            </Storyboard>
         </ResourceDictionary>
-
     </Window.Resources>
     <Window.InputBindings>
         <KeyBinding Gesture="Ctrl+F5" Command="{StaticResource RefreshWebpage}"/>
@@ -72,127 +82,136 @@
         </Controls:WindowCommands>
     </Controls:MetroWindow.RightWindowCommands>
     <Grid Background="White">
-        <Grid HorizontalAlignment="Stretch" Background="Gray" Height="30" VerticalAlignment="Bottom">
-            <Image x:Name="img_gloveStatus" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="9,0,0,0" Source="img/error.png" Width="23"/>
-            <Label x:Name="lbl_gloveStatus" Content="手套未接入" TextBlock.FontWeight="Bold" FontSize="16" Foreground="White"  HorizontalAlignment="Left" VerticalAlignment="Center" Margin="49,0,0,0"/>
+        <Grid x:Name="LoadingGrid"  Grid.ZIndex="1" HorizontalAlignment="Center" VerticalAlignment="Center">
+            <TextBlock Name="Wait" FontFamily="font/#FontAwesome" FontSize="100" Text="&#xf110;" RenderTransformOrigin="0.5, 0.5">
+                <TextBlock.RenderTransform>
+                    <RotateTransform Angle="0" />
+                </TextBlock.RenderTransform>
+            </TextBlock>
         </Grid>
-        <Grid HorizontalAlignment="Stretch" Background="#f2f2f2" Height="auto" VerticalAlignment="Top">
-            <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" Width="auto">
-                <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" MouseEnter="ServiceToolIcon_OnMouseEnter" MouseLeave="ServiceToolIcon_OnMouseLeave"  MouseLeftButtonUp="SwitchServe">
-                    <Button  x:Name="serverBtn" HorizontalAlignment="Left"  Focusable="False" BorderBrush="Transparent"  Height="30" Width="30" Margin="10,5,0,5" VerticalAlignment="Center" Click="SwitchServe">
-                        <Button.Template>
-                            <ControlTemplate x:Name="serverBtnTemp">
-                                <ContentControl>
-                                    <Image x:Name="imgWork" Source=".\img\service_off.png"/>
-                                </ContentControl>
-                            </ControlTemplate>
-                        </Button.Template>
-                    </Button>
-                    <Label Content="服务" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="0,5,10,5" FontWeight="Bold" FontSize="15" Height="30"/>
-                </StackPanel>
-                <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" MouseEnter="ServiceToolIcon_OnMouseEnter" MouseLeave="ServiceToolIcon_OnMouseLeave" MouseLeftButtonUp="ClearGame">
-                    <Button  HorizontalAlignment="Left" Focusable="False"  Margin="10,5,0,5" VerticalAlignment="Center" Width="30" Click="ClearGame">
-                        <Button.Template>
-                            <ControlTemplate x:Name="clearGameTemp">
-                                <ContentControl>
-                                    <Image Name="imgWork" Source=".\img\delete.png"></Image>
-                                </ContentControl>
-                            </ControlTemplate>
-                        </Button.Template>
-                    </Button>
-                    <Label Content="清空游戏" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="0,5,10,5" FontWeight="Bold" FontSize="15" Height="30"/>
-                </StackPanel>
-                <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" MouseEnter="ServiceToolIcon_OnMouseEnter" MouseLeave="ServiceToolIcon_OnMouseLeave" MouseLeftButtonUp="gameBar_Click">
-                    <Button  x:Name="gameBar" HorizontalAlignment="Left"  Focusable="False" BorderBrush="Transparent"  Height="30" Width="30" Margin="10,5,0,5" VerticalAlignment="Center" Click="gameBar_Click">
-                        <Button.Template>
-                            <ControlTemplate x:Name="gameBarTemp">
-                                <ContentControl>
-                                    <Image x:Name="imgWork" Source=".\img\start_gamebar.png"/>
-                                </ContentControl>
-                            </ControlTemplate>
-                        </Button.Template>
-                    </Button>
-                    <Label Content="编辑游戏" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="0,5,10,5" FontWeight="Bold" FontSize="15" Height="30"/>
-                </StackPanel>
-                <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" MouseEnter="ServiceToolIcon_OnMouseEnter" MouseLeave="ServiceToolIcon_OnMouseLeave" MouseLeftButtonUp="setting_Click">
-                    <Button  Name="setting" HorizontalAlignment="Left"  Focusable="False" BorderBrush="Transparent"  Height="30" Width="30" Margin="10,5,0,5" VerticalAlignment="Center" Click="setting_Click" Content="c">
-                        <Button.Template>
-                            <ControlTemplate x:Name="settingTemp">
-                                <ContentControl>
-                                    <Image Name="imgWork" Source=".\img\settings.png" SnapsToDevicePixels="False" Height="Auto"/>
-                                </ContentControl>
-                            </ControlTemplate>
-                        </Button.Template>
-                    </Button>
-                    <Label Content="设置" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="0,5,10,5" FontWeight="Bold" FontSize="15" Height="30"/>
-                </StackPanel>
-                <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" MouseEnter="ServiceToolIcon_OnMouseEnter" MouseLeave="ServiceToolIcon_OnMouseLeave" MouseLeftButtonUp="alignment_Click">
-                    <Button  Name="alignment" HorizontalAlignment="Left"  Focusable="False" BorderBrush="Transparent"  Height="30" Width="30" Margin="10,5,0,5" VerticalAlignment="Center" Click="alignment_Click">
-                        <Button.Template>
-                            <ControlTemplate x:Name="alignmentTemp">
-                                <ContentControl>
-                                    <Image Name="imgWork" Source=".\img\alignment.png" SnapsToDevicePixels="False" Height="Auto"/>
-                                </ContentControl>
-                            </ControlTemplate>
-                        </Button.Template>
-                    </Button>
-                    <Label Content="校准" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="0,5,10,5" FontWeight="Bold" FontSize="15" Height="30"/>
-                </StackPanel>
-                <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" MouseEnter="ServiceToolIcon_OnMouseEnter" MouseLeave="ServiceToolIcon_OnMouseLeave" MouseLeftButtonUp="reset_Click">
-                    <Button  Name="reset" HorizontalAlignment="Left"  Focusable="False" BorderBrush="Transparent"  Height="30" Width="30" Margin="10,5,0,5" VerticalAlignment="Center" Click="reset_Click">
-                        <Button.Template>
-                            <ControlTemplate x:Name="resetTemp">
-                                <ContentControl>
-                                    <Image Name="imgWork" Source=".\img\reset.png" SnapsToDevicePixels="False" Height="Auto"/>
-                                </ContentControl>
-                            </ControlTemplate>
-                        </Button.Template>
-                    </Button>
-                    <Label Content="重置" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="0,5,10,5" FontWeight="Bold" FontSize="15" Height="30"/>
-                </StackPanel>
-                <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" MouseEnter="ServiceToolIcon_OnMouseEnter" MouseLeave="ServiceToolIcon_OnMouseLeave" MouseLeftButtonUp="refresh_Click">
-                    <Button  Name="refresh" HorizontalAlignment="Left"  Focusable="False" BorderBrush="Transparent"  Height="30" Width="30" Margin="10,5,0,5" VerticalAlignment="Center" Click="refresh_Click">
-                        <Button.Template>
-                            <ControlTemplate x:Name="refreshTemp">
-                                <ContentControl>
-                                    <Image Name="imgWork" Source=".\img\refresh.png" SnapsToDevicePixels="False" Height="Auto"/>
-                                </ContentControl>
-                            </ControlTemplate>
-                        </Button.Template>
-                    </Button>
-                    <Label Content="刷新" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="0,5,10,5" FontWeight="Bold" FontSize="15" Height="30"/>
-                </StackPanel>
-            </StackPanel>
-        </Grid>
-        <Grid HorizontalAlignment="Stretch"  Name="MainContainer" Margin="0,40,0,30" VerticalAlignment="Stretch" Background="#f2f2f2">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="75.0*" />
-                <ColumnDefinition Width="50.0*" />
-                <ColumnDefinition Width="80"/>
-            </Grid.ColumnDefinitions>
-            <Grid HorizontalAlignment="Stretch" Grid.Column="0" Margin="0,0,0,0" VerticalAlignment="Stretch" Name="Browser">
-                <Grid Grid.Row="1">
-                    <cefSharp:ChromiumWebBrowser
-                         x:Name="ChromiumWebBrowser"
-                         Address="http://localhost:8080" />
-                </Grid>
+        <Grid x:Name="MainGrid" Visibility="Hidden">
+            <Grid HorizontalAlignment="Stretch" Background="Gray" Height="30" VerticalAlignment="Bottom">
+                <Image x:Name="img_gloveStatus" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="9,0,0,0" Source="img/error.png" Width="23"/>
+                <Label x:Name="lbl_gloveStatus" Content="手套未接入" TextBlock.FontWeight="Bold" FontSize="16" Foreground="White"  HorizontalAlignment="Left" VerticalAlignment="Center" Margin="49,0,0,0"/>
             </Grid>
-            <Grid HorizontalAlignment="Stretch" Grid.Column="1" Margin="0,0,0,0" VerticalAlignment="Stretch" Name="GameArea"></Grid>
-            <Grid Grid.Column="2" Name="GameMenu">
-                <Border BorderThickness ="3" BorderBrush ="#1b6093" CornerRadius ="2,2,2,2">
-                    <Grid Background="White">
-                        <Rectangle Name="RefreshGame" Width="50" Height="50" VerticalAlignment="Top" HorizontalAlignment="Center" MouseLeftButtonUp="RefreshGame_MouseLeftButtonUp" Margin="0,0,0,0">
-                            <Rectangle.Fill>
-                                <ImageBrush ImageSource="img/refresh.png"></ImageBrush>
-<!--                                <VisualBrush Visual="{StaticResource appbar_refresh}" />-->
-                            </Rectangle.Fill>
-                        </Rectangle>
-                        <ScrollViewer Style ="{StaticResource {x:Type ScrollViewer}}" HorizontalAlignment="Stretch" Margin="0,80,0,0" VerticalAlignment="Stretch" >
-                            <StackPanel Name="GameContainer" Orientation="Vertical"  Margin="0,0,0,0" HorizontalAlignment="Left" Width="auto" Height="auto">
-                            </StackPanel>
-                        </ScrollViewer>
+            <Grid HorizontalAlignment="Stretch" Background="#f2f2f2" Height="auto" VerticalAlignment="Top">
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" Width="auto">
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" MouseEnter="ServiceToolIcon_OnMouseEnter" MouseLeave="ServiceToolIcon_OnMouseLeave"  MouseLeftButtonUp="SwitchServe">
+                        <Button  x:Name="serverBtn" HorizontalAlignment="Left"  Focusable="False" BorderBrush="Transparent"  Height="30" Width="30" Margin="10,5,0,5" VerticalAlignment="Center" Click="SwitchServe">
+                            <Button.Template>
+                                <ControlTemplate x:Name="serverBtnTemp">
+                                    <ContentControl>
+                                        <Image x:Name="imgWork" Source=".\img\service_off.png"/>
+                                    </ContentControl>
+                                </ControlTemplate>
+                            </Button.Template>
+                        </Button>
+                        <Label Content="服务" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="0,5,10,5" FontWeight="Bold" FontSize="15" Height="30"/>
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" MouseEnter="ServiceToolIcon_OnMouseEnter" MouseLeave="ServiceToolIcon_OnMouseLeave" MouseLeftButtonUp="ClearGame">
+                        <Button  HorizontalAlignment="Left" Focusable="False"  Margin="10,5,0,5" VerticalAlignment="Center" Width="30" Click="ClearGame">
+                            <Button.Template>
+                                <ControlTemplate x:Name="clearGameTemp">
+                                    <ContentControl>
+                                        <Image Name="imgWork" Source=".\img\delete.png"></Image>
+                                    </ContentControl>
+                                </ControlTemplate>
+                            </Button.Template>
+                        </Button>
+                        <Label Content="清空游戏" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="0,5,10,5" FontWeight="Bold" FontSize="15" Height="30"/>
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" MouseEnter="ServiceToolIcon_OnMouseEnter" MouseLeave="ServiceToolIcon_OnMouseLeave" MouseLeftButtonUp="gameBar_Click">
+                        <Button  x:Name="gameBar" HorizontalAlignment="Left"  Focusable="False" BorderBrush="Transparent"  Height="30" Width="30" Margin="10,5,0,5" VerticalAlignment="Center" Click="gameBar_Click">
+                            <Button.Template>
+                                <ControlTemplate x:Name="gameBarTemp">
+                                    <ContentControl>
+                                        <Image x:Name="imgWork" Source=".\img\start_gamebar.png"/>
+                                    </ContentControl>
+                                </ControlTemplate>
+                            </Button.Template>
+                        </Button>
+                        <Label Content="编辑游戏" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="0,5,10,5" FontWeight="Bold" FontSize="15" Height="30"/>
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" MouseEnter="ServiceToolIcon_OnMouseEnter" MouseLeave="ServiceToolIcon_OnMouseLeave" MouseLeftButtonUp="setting_Click">
+                        <Button  Name="setting" HorizontalAlignment="Left"  Focusable="False" BorderBrush="Transparent"  Height="30" Width="30" Margin="10,5,0,5" VerticalAlignment="Center" Click="setting_Click" Content="c">
+                            <Button.Template>
+                                <ControlTemplate x:Name="settingTemp">
+                                    <ContentControl>
+                                        <Image Name="imgWork" Source=".\img\settings.png" SnapsToDevicePixels="False" Height="Auto"/>
+                                    </ContentControl>
+                                </ControlTemplate>
+                            </Button.Template>
+                        </Button>
+                        <Label Content="设置" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="0,5,10,5" FontWeight="Bold" FontSize="15" Height="30"/>
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" MouseEnter="ServiceToolIcon_OnMouseEnter" MouseLeave="ServiceToolIcon_OnMouseLeave" MouseLeftButtonUp="alignment_Click">
+                        <Button  Name="alignment" HorizontalAlignment="Left"  Focusable="False" BorderBrush="Transparent"  Height="30" Width="30" Margin="10,5,0,5" VerticalAlignment="Center" Click="alignment_Click">
+                            <Button.Template>
+                                <ControlTemplate x:Name="alignmentTemp">
+                                    <ContentControl>
+                                        <Image Name="imgWork" Source=".\img\alignment.png" SnapsToDevicePixels="False" Height="Auto"/>
+                                    </ContentControl>
+                                </ControlTemplate>
+                            </Button.Template>
+                        </Button>
+                        <Label Content="校准" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="0,5,10,5" FontWeight="Bold" FontSize="15" Height="30"/>
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" MouseEnter="ServiceToolIcon_OnMouseEnter" MouseLeave="ServiceToolIcon_OnMouseLeave" MouseLeftButtonUp="reset_Click">
+                        <Button  Name="reset" HorizontalAlignment="Left"  Focusable="False" BorderBrush="Transparent"  Height="30" Width="30" Margin="10,5,0,5" VerticalAlignment="Center" Click="reset_Click">
+                            <Button.Template>
+                                <ControlTemplate x:Name="resetTemp">
+                                    <ContentControl>
+                                        <Image Name="imgWork" Source=".\img\reset.png" SnapsToDevicePixels="False" Height="Auto"/>
+                                    </ContentControl>
+                                </ControlTemplate>
+                            </Button.Template>
+                        </Button>
+                        <Label Content="重置" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="0,5,10,5" FontWeight="Bold" FontSize="15" Height="30"/>
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" MouseEnter="ServiceToolIcon_OnMouseEnter" MouseLeave="ServiceToolIcon_OnMouseLeave" MouseLeftButtonUp="refresh_Click">
+                        <Button  Name="refresh" HorizontalAlignment="Left"  Focusable="False" BorderBrush="Transparent"  Height="30" Width="30" Margin="10,5,0,5" VerticalAlignment="Center" Click="refresh_Click">
+                            <Button.Template>
+                                <ControlTemplate x:Name="refreshTemp">
+                                    <ContentControl>
+                                        <Image Name="imgWork" Source=".\img\refresh.png" SnapsToDevicePixels="False" Height="Auto"/>
+                                    </ContentControl>
+                                </ControlTemplate>
+                            </Button.Template>
+                        </Button>
+                        <Label Content="刷新" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="0,5,10,5" FontWeight="Bold" FontSize="15" Height="30"/>
+                    </StackPanel>
+                </StackPanel>
+            </Grid>
+            <Grid HorizontalAlignment="Stretch"  Name="MainContainer" Margin="0,40,0,30" VerticalAlignment="Stretch" Background="#f2f2f2">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="75.0*" />
+                    <ColumnDefinition Width="50.0*" />
+                    <ColumnDefinition Width="80"/>
+                </Grid.ColumnDefinitions>
+                <Grid HorizontalAlignment="Stretch" Grid.Column="0" Margin="0,0,0,0" VerticalAlignment="Stretch" Name="Browser">
+                    <Grid Grid.Row="1">
+                        <cefSharp:ChromiumWebBrowser
+                             x:Name="ChromiumWebBrowser"
+                             Address="http://localhost:8080" />
                     </Grid>
-                </Border>
+                </Grid>
+                <Grid HorizontalAlignment="Stretch" Grid.Column="1" Margin="0,0,0,0" VerticalAlignment="Stretch" Name="GameArea"></Grid>
+                <Grid Grid.Column="2" Name="GameMenu">
+                    <Border BorderThickness ="3" BorderBrush ="#1b6093" CornerRadius ="2,2,2,2">
+                        <Grid Background="White">
+                            <Rectangle Name="RefreshGame" Width="50" Height="50" VerticalAlignment="Top" HorizontalAlignment="Center" MouseLeftButtonUp="RefreshGame_MouseLeftButtonUp" Margin="0,0,0,0">
+                                <Rectangle.Fill>
+                                    <ImageBrush ImageSource="img/refresh.png"></ImageBrush>
+                                    <!--                                <VisualBrush Visual="{StaticResource appbar_refresh}" />-->
+                                </Rectangle.Fill>
+                            </Rectangle>
+                            <ScrollViewer Style ="{StaticResource {x:Type ScrollViewer}}" HorizontalAlignment="Stretch" Margin="0,80,0,0" VerticalAlignment="Stretch" >
+                                <StackPanel Name="GameContainer" Orientation="Vertical"  Margin="0,0,0,0" HorizontalAlignment="Left" Width="auto" Height="auto">
+                                </StackPanel>
+                            </ScrollViewer>
+                        </Grid>
+                    </Border>
+                </Grid>
             </Grid>
         </Grid>
     </Grid>
