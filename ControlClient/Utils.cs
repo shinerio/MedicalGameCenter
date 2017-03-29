@@ -5,6 +5,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -104,14 +105,14 @@ namespace ControlClient
 
                 ProcessStartInfo psi = new ProcessStartInfo(path);
 
-                psi.WindowStyle = ProcessWindowStyle.Maximized;
+                //psi.WindowStyle = ProcessWindowStyle.Maximized;
                 
                 Process PR = Process.Start(psi);
 
                 // true if the associated process has reached an idle state:
                 PR.WaitForInputIdle();
 
-                //System.Threading.Thread.Sleep(3000);
+                Thread.Sleep(1000);
 
                 hwd = PR.MainWindowHandle;
 
