@@ -80,7 +80,7 @@ namespace ControlClient
                     if (!gc.IsConnected((int)handType)) //接入手套
                     {
                         var PortName = Utils.getConfig("port").ToString();
-                        gc.Connect(PortName, handType);
+                        gc.Connect(PortName, (int)handType);
                         // MainWindow.gloveStatus.label = "手套已接入";
                         // img_gloveStatus.Source = new BitmapImage(new Uri("./img/ok.png", UriKind.Relative));
                         // MainWindow.gloveStatus.status = "./img/ok.png";
