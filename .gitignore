@@ -11,6 +11,7 @@
 *.userosscache
 *.sln.docstates
 *.vcxproj.filters
+Release.zip
 
 # User-specific files (MonoDevelop/Xamarin Studio)
 *.userprefs
