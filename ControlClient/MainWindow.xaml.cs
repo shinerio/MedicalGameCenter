@@ -31,7 +31,6 @@ using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Windows.Media.Animation;
 using GloveLib;
-using GloveLib;
 using Binding = System.Windows.Data.Binding;
 
 //旧的驱动
