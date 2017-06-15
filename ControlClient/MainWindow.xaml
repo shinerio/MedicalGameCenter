@@ -106,7 +106,7 @@
                                 </ControlTemplate>
                             </Button.Template>
                         </Button>
-                        <Label Content="服务" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="0,5,10,5" FontWeight="Bold" FontSize="15" Height="30"/>
+                        <Label Content="设备连接" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="0,5,10,5" FontWeight="Bold" FontSize="15" Height="30"/>
                     </StackPanel>
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" MouseEnter="ServiceToolIcon_OnMouseEnter" MouseLeave="ServiceToolIcon_OnMouseLeave" MouseLeftButtonUp="ClearGame">
                         <Button  HorizontalAlignment="Left" Focusable="False"  Margin="10,5,0,5" VerticalAlignment="Center" Width="30" Click="ClearGame">
@@ -192,7 +192,7 @@
                     <Grid Grid.Row="1">
                         <cefSharp:ChromiumWebBrowser
                              x:Name="ChromiumWebBrowser"
-                             Address="http://localhost:8080" />
+                             Address="http://47.94.172.143:8080/shinerio/" />
                     </Grid>
                 </Grid>
                 <Grid HorizontalAlignment="Stretch" Grid.Column="1" Margin="0,0,0,0" VerticalAlignment="Stretch" Name="GameArea"></Grid>

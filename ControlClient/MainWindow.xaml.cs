@@ -500,6 +500,7 @@ namespace ControlClient
                 }
             }
             if (doingMagneticAlignment != MessageDialogResult.FirstAuxiliary && isMagneticAlignSuccess)
+//            if (doingMagneticAlignment != MessageDialogResult.FirstAuxiliary)
             {
                 var f_r = dh.GetFrameData(HandType.Right, Definition.MODEL_TYPE);
                 var f_l = dh.GetFrameData(HandType.Left, Definition.MODEL_TYPE);
@@ -523,6 +524,7 @@ namespace ControlClient
                 await this.HideMetroDialogAsync(dialog);
             }
             if (!isMagneticAlignSuccess && doingMagneticAlignment == MessageDialogResult.Negative)
+//            if (doingMagneticAlignment == MessageDialogResult.Negative)
             {
                 await this.ShowMessageAsync("还未进行磁场校准", "提示：请返回上一步重新进行磁场校准",
                     MessageDialogStyle.Affirmative, new MetroDialogSettings() { AffirmativeButtonText = "上一步" });
@@ -744,7 +746,7 @@ namespace ControlClient
         {
             this.Dispatcher.BeginInvoke(new Action(async () =>
             {
-                await Task.Delay(2000);
+                await Task.Delay(3000);
                 loadingGrid.Visibility = Visibility.Collapsed;
                 mainGrid.Visibility = Visibility.Visible;
             }));

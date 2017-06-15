@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.Specialized;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -17,12 +18,16 @@ using System.Net;
 using System.Net.Sockets;
 using System.Windows.Threading;
 using MySql.Data.MySqlClient;
+using Newtonsoft.Json;
+
 //using SenseSDK;
 
 namespace ControlClient
 {
     public class CommandData : WebSocketBehavior
     {
+        // URL
+        private static String URL = "http://47.94.172.143:8080/shinerio/";
         // 标识评估状态
         enum EvaluateStatus
         {
@@ -40,7 +45,7 @@ namespace ControlClient
         private const String EvaluatePlaybackAck = "evaluate_playback_ack";
 
         static readonly Regex DigitRegex = new Regex(@"\d+");
-        private static int _evaluateTime = 0;
+        private static int _evaluateTime = 1;
         private static long _timeStamp = GetCurrentTimeLong();
         private static long _startTime = GetCurrentTimeLong();
         private static long _endTime = GetCurrentTimeLong();
@@ -86,13 +91,15 @@ namespace ControlClient
             String data = e.Data;
             if (status == EvaluateStatus.Ready && DigitRegex.IsMatch(data))
             {
-                int d = String2Int(data);
+                int d = String2Int(data, 110);
                 _evaluateTime = d / 100;
+                _evaluateTime = _evaluateTime > 5 ? 5 : _evaluateTime;
                 _evaluationTestSpeed = d % 100;
+                _evaluationTestSpeed = _evaluationTestSpeed > 10 ? 10 : _evaluationTestSpeed;
             }
             if (waitingPlaybackParam && DigitRegex.IsMatch(data))
             {
-                EvaluationPlaybackThread.Run(String2Int(data));
+                EvaluationPlaybackThread.Run(String2Int(data, 110));
                 waitingPlaybackParam = false;
             }
             switch (data)
@@ -144,12 +151,12 @@ namespace ControlClient
             _timer.Stop();
         }
 
-        private int String2Int(String s)
+        private int String2Int(String s, int def)
         {
             int i;
             if (!Int32.TryParse(s, out i))
             {
-                i = 110;
+                i = def;
             }
             return i;
         }
@@ -166,28 +173,51 @@ namespace ControlClient
         // 向数据库插入评估信息
         private static void InsertEvaluationInfo(int userId, long startTime, long endTime, int successRatio)
         {
-            using (MySqlConnection conn = new MySqlConnection(_connectionString))
+            //            using (MySqlConnection conn = new MySqlConnection(_connectionString))
+            //            {
+            //                conn.Open();
+            //                using (MySqlCommand cmd = conn.CreateCommand())
+            //                {
+            //                    cmd.CommandText = "insert into evaluation_info(patient_id, start_time, end_time, success_ratio) values (@patient_id, @start_time, @end_time, @success_ratio)";
+            //                    cmd.Parameters.AddWithValue("@patient_id", userId);
+            //                    cmd.Parameters.AddWithValue("@start_time", startTime);
+            //                    cmd.Parameters.AddWithValue("@end_time", endTime);
+            //                    cmd.Parameters.AddWithValue("@success_ratio", successRatio);
+            //                    try
+            //                    {
+            //                        cmd.ExecuteNonQuery();
+            //                    }
+            //                    catch (MySqlException ex)
+            //                    {
+            //                        // Console.WriteLine(ex.Message);
+            //                    }
+            //                    finally
+            //                    {
+            //                        _evalustionSuccess = 0;
+            //                    }
+            //                }
+            //            }
+            Console.WriteLine("adding evaluation record......");
+            String url = String.Format("{0}evaluation/addEvaluation_info", URL);
+            IDictionary<string, string> parameters = new Dictionary<string, string>();
+            parameters.Add("patientID", userId.ToString());
+            parameters.Add("start_time", startTime.ToString());
+            parameters.Add("end_time", endTime.ToString());
+            parameters.Add("success_ratio", successRatio.ToString());
+            HttpWebResponse response = null;
+            try
             {
-                conn.Open();
-                using (MySqlCommand cmd = conn.CreateCommand())
+                response = HttpWebResponseUtility.CreatePostHttpResponse(url, parameters, null, null, Encoding.UTF8, null);
+            }
+            catch (Exception exception)
+            {
+                MessageBox.Show("评估信息上传失败，请检查网络设置", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+            finally
+            {
+                if (response != null)
                 {
-                    cmd.CommandText = "insert into evaluation_info(patient_id, start_time, end_time, success_ratio) values (@patient_id, @start_time, @end_time, @success_ratio)";
-                    cmd.Parameters.AddWithValue("@patient_id", userId);
-                    cmd.Parameters.AddWithValue("@start_time", startTime);
-                    cmd.Parameters.AddWithValue("@end_time", endTime);
-                    cmd.Parameters.AddWithValue("@success_ratio", successRatio);
-                    try
-                    {
-                        cmd.ExecuteNonQuery();
-                    }
-                    catch (MySqlException ex)
-                    {
-                        // Console.WriteLine(ex.Message);
-                    }
-                    finally
-                    {
-                        _evalustionSuccess = 0;
-                    }
+                    response.Close();
                 }
             }
         }
@@ -195,27 +225,67 @@ namespace ControlClient
         private static int GetEvaluationId(int userId, long startTime)
         {
             int evaluationId = -1;
-            using (MySqlConnection conn = new MySqlConnection(_connectionString))
+//            using (MySqlConnection conn = new MySqlConnection(_connectionString))
+//            {
+//                conn.Open();
+//                using (MySqlCommand cmd = conn.CreateCommand())
+//                {
+//                    cmd.CommandType = CommandType.Text;
+//                    cmd.CommandText = "select id from evaluation_info where patient_id=@patient_id and start_time=@start_time;";
+//                    cmd.Parameters.AddWithValue("@patient_id", userId);
+//                    cmd.Parameters.AddWithValue("@start_time", startTime);
+//                    using (MySqlDataReader reader = cmd.ExecuteReader())
+//                    {
+//                        while (reader.Read())
+//                        {
+//                            if (reader.HasRows)
+//                            {
+//                                evaluationId = reader.GetInt32(0);
+//                                //Console.WriteLine(reader.GetString(0));
+//                            }
+//                        }
+//                    }
+//
+//                }
+//            }
+            String url = String.Format("{0}evaluation/getEvaluationId", URL);
+            IDictionary<string, string> parameters = new Dictionary<string, string>();
+            parameters.Add("patient_id", userId.ToString());
+            parameters.Add("start_time", startTime.ToString());
+            HttpWebResponse response = null;
+            StreamReader readStream = null;
+            try
             {
-                conn.Open();
-                using (MySqlCommand cmd = conn.CreateCommand())
+                response = HttpWebResponseUtility.CreatePostHttpResponse(url, parameters, null, null, Encoding.UTF8, null);
+                Encoding encode = System.Text.Encoding.GetEncoding("utf-8");
+                readStream = new StreamReader(response.GetResponseStream(), encode);
+                Char[] read = new Char[256];
+                int count = readStream.Read(read, 0, 256);
+                String str = "";
+                while (count > 0)
                 {
-                    cmd.CommandType = CommandType.Text;
-                    cmd.CommandText = "select id from evaluation_info where patient_id=@patient_id and start_time=@start_time;";
-                    cmd.Parameters.AddWithValue("@patient_id", userId);
-                    cmd.Parameters.AddWithValue("@start_time", startTime);
-                    using (MySqlDataReader reader = cmd.ExecuteReader())
+                    str += new String(read, 0, count);
+                    // Console.Write(str);
+                    count = readStream.Read(read, 0, 256);
+                }
+                if (!str.Equals(""))
+                {
+                    str = str.Replace("\"", "'"); //java和c#的json格式转化
+                    if (!Int32.TryParse(str, out evaluationId))
                     {
-                        while (reader.Read())
-                        {
-                            if (reader.HasRows)
-                            {
-                                evaluationId = reader.GetInt32(0);
-                                //Console.WriteLine(reader.GetString(0));
-                            }
-                        }
+                        evaluationId = -1;
                     }
-
+                }
+            }
+            catch (Exception exception)
+            {
+                Console.WriteLine(exception.Message);
+            }
+            finally
+            {
+                if (response != null)
+                {
+                    response.Close();
                 }
             }
             return evaluationId;
@@ -238,6 +308,14 @@ namespace ControlClient
             {
                 // Console.WriteLine(ex.Message);
             }
+        }
+        // 原始数据文件上传
+        private static void SendRawData(String upload, int evaluationId)
+        {
+            NameValueCollection data = new NameValueCollection();
+            data.Add("evaluation_info_id", evaluationId.ToString());
+            HttpWebResponse response = HttpHelper.HttpUploadFile(String.Format("{0}evaluation/addRawdatas", URL),
+                new string[] { "upload" }, new String[] { upload }, data);
         }
 
         // 写文件进程
@@ -305,7 +383,41 @@ namespace ControlClient
                 }
                 _endTime = GetCurrentTimeLong();
                 Console.WriteLine("Write File Done!");
-                WriteFileToDatabase.Run();
+                // WriteFileToDatabase.Run();
+                UploadFileToServer.Run();
+            }
+        }
+        // 将文件上传到服务器
+        private class UploadFileToServer
+        {
+            public static void Run()
+            {
+                UploadFileToServer t = new UploadFileToServer();
+                Thread thread = new Thread(new ThreadStart(t.Excute));
+                thread.IsBackground = true;
+                thread.Name = "UploadFileToServerThread";
+                thread.Start();
+                Console.WriteLine("RawData is Uploading!");
+            }
+
+            private void Excute()
+            {
+                int max = _evaluationTestSpeed * _evaluateTime;
+                int evaluationSuccessRatio = (_evalustionSuccess > max ? max : _evalustionSuccess) * 100 / (_evaluationTestSpeed * _evaluateTime);
+                // InsertEvaluationInfo(Patient.GetInstance().id, _startTime, _endTime, evaluationSuccessRatio);
+                InsertEvaluationInfo(1, _startTime, _endTime, evaluationSuccessRatio);
+                // _evaluationId = GetEvaluationId(Patient.GetInstance().id, _startTime);
+                _evaluationId = GetEvaluationId(1, _startTime); // TODO 此处的用户编号为测试编号
+                Console.WriteLine(String.Format("{0}:{1}", filePath, _evaluationId));
+                if (!filePath.IsNullOrEmpty() && _evaluationId != -1)
+                {
+                    SendRawData(filePath, _evaluationId);
+                    Console.WriteLine("Upload Done!");
+                }
+                else
+                {
+                    Console.WriteLine("Get Param Fail!");
+                }
             }
         }
         // 将文件写入数据库
@@ -323,7 +435,8 @@ namespace ControlClient
 
             private void Excute()
             {
-                int evaluationSuccessRatio = (_evalustionSuccess > 100 ? 100 : _evalustionSuccess) * 100 / (_evaluationTestSpeed * _evaluateTime);
+                int max = _evaluationTestSpeed * _evaluateTime;
+                int evaluationSuccessRatio = (_evalustionSuccess > max ? max : _evalustionSuccess) * 100 / (_evaluationTestSpeed * _evaluateTime);
                 // InsertEvaluationInfo(Patient.GetInstance().id, _startTime, _endTime, evaluationSuccessRatio);
                 InsertEvaluationInfo(1, _startTime, _endTime, evaluationSuccessRatio);
                 // _evaluationId = GetEvaluationId(Patient.GetInstance().id, _startTime);
@@ -361,10 +474,10 @@ namespace ControlClient
         {
             private static int EvaluationId;
             private static bool isAccepted = false; // 客户端是否接入
-            
+
             public static void Run(int id)
             {
-                
+
                 EvaluationId = id;
                 Console.WriteLine(id);
                 EvaluationPlaybackThread t = new EvaluationPlaybackThread();
@@ -380,6 +493,8 @@ namespace ControlClient
 
             private void Excute()
             {
+                HttpWebResponse response = null;
+                StreamReader readStream = null;
                 try
                 {
                     // sm.Start(10201);    // 开启socket
@@ -394,15 +509,17 @@ namespace ControlClient
                         isAccepted = true;
                         Console.WriteLine("客户端已连接");
                     }
-                    using (MySqlConnection conn = new MySqlConnection(_connectionString))
-                    {
-                        conn.Open();
-                        using (MySqlCommand cmd = conn.CreateCommand())
-                        {
-                            //Console.WriteLine(EvaluationId);
-                            SendRawdataToSocket(conn, cmd, EvaluationId);
-                        }
-                    }
+                    List<String> rawDatas = GetRawDataById(EvaluationId);
+                    SendRawdataToSocket(rawDatas);
+//                    using (MySqlConnection conn = new MySqlConnection(_connectionString))
+//                    {
+//                        conn.Open();
+//                        using (MySqlCommand cmd = conn.CreateCommand())
+//                        {
+//                            //Console.WriteLine(EvaluationId);
+//                            SendRawdataToSocket(conn, cmd, EvaluationId);
+//                        }
+//                    }
                 }
                 catch (Exception e)
                 {
@@ -428,7 +545,7 @@ namespace ControlClient
                 }
             }
         }
-        // 将原始数据通过socket发送出去
+        // 将原始数据通过socket发送出去(直接读取数据库)
         private static void SendRawdataToSocket(MySqlConnection connection, MySqlCommand cmd, int evaluationId)
         {
             cmd.CommandText = "select json_string from rawdata where evaluation_id=@evaluation_id order by time_stamp asc;";
@@ -454,6 +571,77 @@ namespace ControlClient
             server.Close();
             //server.Disconnect();
         }
+        // 获得原始数据
+        private static List<String> GetRawDataById(int EvaluationId)
+        {
+            Console.WriteLine(String.Format("Evaluation ID: {0}",EvaluationId));
+            HttpWebResponse response = null;
+            Stream resStream = null;
+            try
+            {
+                String url = String.Format("{0}patient/getRawData", URL);
+                IDictionary<string, string> parameters = new Dictionary<string, string>();
+                parameters.Add("evaluation_id", EvaluationId.ToString());
+
+                response = HttpWebResponseUtility.CreatePostHttpResponse(url, parameters, null, null,
+                    Encoding.UTF8, null);
+                Encoding encode = System.Text.Encoding.GetEncoding("utf-8");
+                //readStream = new StreamReader(response.GetResponseStream(), encode);
+                StringBuilder sb = new StringBuilder();
+                Byte[] buf = new byte[8192];
+                resStream = response.GetResponseStream();
+                int count = buf.Length;
+                do
+                {
+                    count = resStream.Read(buf, 0, buf.Length);
+                    if (count != 0)
+                    {
+                        sb.Append(Encoding.UTF8.GetString(buf, 0, count)); // just hardcoding UTF8 here
+                    }
+                } while (count > 0);
+                String str = sb.ToString();
+                if (!str.Equals(""))
+                {
+                    str = str.Replace("\"", "'"); //java和c#的json格式转化
+                    List<String> rawdatas = str.Split('\n').ToList();
+                    Console.WriteLine(String.Format("Get Raw Datas: {0}", rawdatas.Count));
+                    return rawdatas;
+                }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+            }
+            finally
+            {
+                if (response != null)
+                {
+                    response.Close();
+                }
+                if (resStream != null)
+                {
+                    resStream.Close();
+                }
+            }
+            return null;
+        }
+        // 将原始数据通过socket发送出去
+        private static void SendRawdataToSocket(List<String> rawdatas)
+        {
+            foreach (var rawdata in rawdatas)
+            {
+                Thread.Sleep(10);
+                if (bindedSocket != null)
+                {
+                    bindedSocket.Send(Encoding.ASCII.GetBytes(rawdata + "<EOF>"));
+                    // Console.WriteLine("SendRawdataToSocket:" + evaluationId);
+                }
+            }
+            bindedSocket.Send(Encoding.ASCII.GetBytes("<AFK><EOF>"));
+            Console.WriteLine("评估再现完成！");
+            server.Close();
+            //server.Disconnect();
+        }
 
         private static void StartHandModel()
         {
@@ -461,7 +649,7 @@ namespace ControlClient
             Console.WriteLine(path);
             try
             {
-                if (path!=null && !"exe".Equals(Path.GetExtension(path)))
+                if (path != null && !"exe".Equals(Path.GetExtension(path)))
                 {
                     Process.Start(path);
                 }
@@ -483,16 +671,16 @@ namespace ControlClient
             public static void Run()
             {
                 int time = 60000 / _evaluationTestSpeed;
-//                if (threadRun != null)
-//                {
-//                    threadRun.Abort();
-//                    threadRun = null;
-//                }
-//                if (threadStop != null)
-//                {
-//                    threadStop.Abort();
-//                    threadStop = null;
-//                }
+                //                if (threadRun != null)
+                //                {
+                //                    threadRun.Abort();
+                //                    threadRun = null;
+                //                }
+                //                if (threadStop != null)
+                //                {
+                //                    threadStop.Abort();
+                //                    threadStop = null;
+                //                }
                 threadRun = new Thread(delegate()
                 {
                     ew = EvaluationWindow.GetInstance(time);
@@ -506,16 +694,16 @@ namespace ControlClient
             }
             public static void Stop()
             {
-//                if (threadRun != null)
-//                {
-//                    threadRun.Abort();
-//                    threadRun = null;
-//                }
-//                if (threadStop != null)
-//                {
-//                    threadStop.Abort();
-//                    threadStop = null;
-//                }
+                //                if (threadRun != null)
+                //                {
+                //                    threadRun.Abort();
+                //                    threadRun = null;
+                //                }
+                //                if (threadStop != null)
+                //                {
+                //                    threadStop.Abort();
+                //                    threadStop = null;
+                //                }
                 threadStop = new Thread(delegate()
                 {
                     ew.Stop();

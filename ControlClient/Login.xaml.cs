@@ -1,6 +1,7 @@
 ﻿using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.IO;
 using System.Net;
 using System.Text;
@@ -11,6 +12,7 @@ using System.Windows.Media.Imaging;
 using MahApps.Metro.Controls;
 using AForge.Video.DirectShow;
 using System.Threading;
+using MySql.Data.MySqlClient;
 
 namespace ControlClient
 {
@@ -19,6 +21,14 @@ namespace ControlClient
     /// </summary>
     public partial class Login : MetroWindow
     {
+        // 数据库配置
+        private static string _connectionString = "server=localhost;" +
+                                         "user id=root; " +
+                                         "pwd=admin;" +
+                                         "database=medical_manage;" +
+                                         "allowuservariables=True;" +
+                                         "Allow Zero Datetime=True";
+
         public static String UserName = "tom";
         private TextBlock loginstatus;
         public Login(TextBlock loginStatus)
@@ -62,63 +72,65 @@ namespace ControlClient
         //登录操作
         private void Login_Click(object sender, RoutedEventArgs e)
         {
-            if (loginMethod) { 
-            String username = userNameText.Text.ToString();
-            UserName = username;
-            String password = passwordText.Password.ToString();
-            if (username == "" || password == "")
+            if (loginMethod)
             {
-                MessageBox.Show("用户名或密码不能为空", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
-                return;
-            }
-            String url = "http://localhost:8080/patient/login";
-            IDictionary<string, string> parameters = new Dictionary<string, string>();
-            parameters.Add("username", username);
-            parameters.Add("password", password);
-            HttpWebResponse response = null;
-            StreamReader readStream = null;
-            try
-            {
-                response = HttpWebResponseUtility.CreatePostHttpResponse(url, parameters, null, null,
-                    Encoding.UTF8, null);
-                Encoding encode = System.Text.Encoding.GetEncoding("utf-8");
-                readStream = new StreamReader(response.GetResponseStream(), encode);
-                Char[] read = new Char[256];
-                int count = readStream.Read(read, 0, 256);
-                String str = "";
-                while (count > 0)
+                String username = userNameText.Text.ToString();
+                UserName = username;
+                String password = passwordText.Password.ToString();
+                if (username == "" || password == "")
                 {
-                    str += new String(read, 0, count);
-                    Console.Write(str);
-                    count = readStream.Read(read, 0, 256);
+                    MessageBox.Show("用户名或密码不能为空", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
+                    return;
                 }
-                if (!str.Equals(""))
+                String url = "http://localhost:8080/patient/login";
+                IDictionary<string, string> parameters = new Dictionary<string, string>();
+                parameters.Add("username", username);
+                parameters.Add("password", password);
+                HttpWebResponse response = null;
+                StreamReader readStream = null;
+                try
                 {
-                    str = str.Replace("\"", "'"); //java和c#的json格式转化
-                    Patient.SetPatient(JsonConvert.DeserializeObject<Patient>(str));
-                    loginstatus.Text = "你好！" + Patient.GetInstance().realname;
-                    this.Close();
+                    response = HttpWebResponseUtility.CreatePostHttpResponse(url, parameters, null, null,
+                        Encoding.UTF8, null);
+                    Encoding encode = System.Text.Encoding.GetEncoding("utf-8");
+                    readStream = new StreamReader(response.GetResponseStream(), encode);
+                    Char[] read = new Char[256];
+                    int count = readStream.Read(read, 0, 256);
+                    String str = "";
+                    while (count > 0)
+                    {
+                        str += new String(read, 0, count);
+                        // Console.Write(str);
+                        count = readStream.Read(read, 0, 256);
+                    }
+                    if (!str.Equals(""))
+                    {
+                        str = str.Replace("\"", "'"); //java和c#的json格式转化
+                        Patient.SetPatient(JsonConvert.DeserializeObject<Patient>(str));
+                        loginstatus.Text = "你好！" + Patient.GetInstance().realname;
+                        Console.WriteLine(String.Format("{0}:{1}", Patient.GetInstance().id, Patient.GetInstance().realname));
+                        this.Close();
+                    }
+                    else
+                    {
+                        MessageBox.Show("用户名或密码错误", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
+                    }
                 }
-                else
+                catch (Exception exception)
                 {
-                    MessageBox.Show("用户名或密码错误", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
+                    MessageBox.Show("登陆失败，请检查网络设置", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
                 }
-            }
-            catch (Exception exception)
-            {
-                MessageBox.Show("登陆失败，请检查网络设置", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
-            }
-            finally
-            {
-                if (response != null)
+                finally
                 {
-                    response.Close();
+                    if (response != null)
+                    {
+                        response.Close();
+                    }
+                    if (readStream != null)
+                    {
+                        readStream.Close();
+                    }
                 }
-                if (readStream != null)
-                {
-                    readStream.Close();
-                }
-            }
             }
             else      //face to login
             {
@@ -204,24 +216,96 @@ namespace ControlClient
         private void Authenticate()   //异步验证线程
         {
             tryCount++;
-            try {
-                Boolean faceloginRes = FaceRecognition.Search();
-                 if (faceloginRes)
-                 {
-                     tryCount = 0;               
-                     MessageBox.Show("认证成功");
-                     sourcePlayer.Stop();
-                     ContinueAuth = false;
-                  }
-                  else if(tryCount>4)
-                 {
-                     tryCount = 0;
-                     MessageBox.Show("认证失败");
-                }else
+            try
+            {
+                FaceSearchResult res = FaceRecognition.Search();
+                string user_face_id = null;
+                if (res != null && res.results != null && res.results[0] != null && res.results[0].confidence > 80)
                 {
-                    MessageBox.Show("认证失败");
+                    user_face_id = res.results[0].user_id;
                 }
+                if (user_face_id != null)
+                {
+                    LoginBody body = GetUserByFaceId(user_face_id);
+                    if (!loginMethod && body != null)
+                    {
+                        String username = body.username;
+                        UserName = username;
+                        String password = body.password;
+                        if (string.IsNullOrEmpty(username) || string.IsNullOrEmpty(password))
+                        {
+                            return;
+                        }
+                        String url = "http://localhost:8080/patient/login";
+                        IDictionary<string, string> parameters = new Dictionary<string, string>();
+                        parameters.Add("username", username);
+                        parameters.Add("password", password);
+                        HttpWebResponse response = null;
+                        StreamReader readStream = null;
+                        try
+                        {
+                            response = HttpWebResponseUtility.CreatePostHttpResponse(url, parameters, null, null,
+                                Encoding.UTF8, null);
+                            Encoding encode = System.Text.Encoding.GetEncoding("utf-8");
+                            readStream = new StreamReader(response.GetResponseStream(), encode);
+                            Char[] read = new Char[256];
+                            int count = readStream.Read(read, 0, 256);
+                            String str = "";
+                            while (count > 0)
+                            {
+                                str += new String(read, 0, count);
+                                Console.Write(str);
+                                count = readStream.Read(read, 0, 256);
+                            }
+                            if (!str.Equals(""))
+                            {
+                                str = str.Replace("\"", "'"); //java和c#的json格式转化
+                                Patient.SetPatient(JsonConvert.DeserializeObject<Patient>(str));
+                                loginstatus.Text = "你好！" + Patient.GetInstance().realname;
+                                tryCount = 0;
+                                sourcePlayer.Stop();
+                                ContinueAuth = false;
+                                this.Close();
+                            }
+                        }
+                        catch (Exception exception)
+                        {
+                            // MessageBox.Show("登陆失败，请检查网络设置", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
+                        }
+                        finally
+                        {
+                            if (response != null)
+                            {
+                                response.Close();
+                            }
+                            if (readStream != null)
+                            {
+                                readStream.Close();
+                            }
+                        }
+                    }
                 }
+                if (tryCount > 4)
+                {
+                    tryCount = 0;
+                    MessageBox.Show("人脸登录失败!", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+                //                 if (faceloginRes)
+                //                 {
+                //                     tryCount = 0;               
+                //                     MessageBox.Show("认证成功");
+                //                     sourcePlayer.Stop();
+                //                     ContinueAuth = false;
+                //                  }
+                //                  else if(tryCount>4)
+                //                 {
+                //                     tryCount = 0;
+                //                     MessageBox.Show("认证失败");
+                //                }else
+                //                {
+                //                    MessageBox.Show("认证失败");
+                //                }
+            }
             catch (Exception)
             {
                 tryCount = 0;
@@ -237,7 +321,7 @@ namespace ControlClient
                                  IntPtr.Zero,
                                  Int32Rect.Empty,
                                  BitmapSizeOptions.FromEmptyOptions());
-                string ProImgPath = "H:/test.png";//要保存的图片的地址，包含文件名
+                string ProImgPath = "F:/tmp.png";//要保存的图片的地址，包含文件名
                 PngBitmapEncoder PBE = new PngBitmapEncoder();
                 PBE.Frames.Add(BitmapFrame.Create(b));
                 using (Stream stream = File.Create(ProImgPath))
@@ -248,6 +332,46 @@ namespace ControlClient
             Thread thread = new Thread(new ThreadStart(Authenticate));
             thread.IsBackground = true;
             thread.Start();//启动线程  
+        }
+
+        // 根据userFaceId获取登录体
+        private static LoginBody GetUserByFaceId(string userFaceId)
+        {
+            LoginBody body = new LoginBody();
+            using (MySqlConnection conn = new MySqlConnection(_connectionString))
+            {
+                conn.Open();
+                using (MySqlCommand cmd = conn.CreateCommand())
+                {
+                    cmd.CommandType = CommandType.Text;
+                    cmd.CommandText = "select username,password from patient where user_face_id = @user_face_id;";
+                    cmd.Parameters.AddWithValue("@user_face_id", userFaceId);
+                    using (MySqlDataReader reader = cmd.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            if (reader.HasRows)
+                            {
+                                body.username = reader.GetString(0);
+                                body.password = reader.GetString(1);
+                                Console.WriteLine(body);
+                            }
+                        }
+                    }
+
+                }
+            }
+            return body;
+        }
+
+        private class LoginBody
+        {
+            public string username { set; get; }
+            public string password { set; get; }
+            public override string ToString()
+            {
+                return String.Format("username:{0} password:{1}", username, password);
+            }
         }
     }
 }

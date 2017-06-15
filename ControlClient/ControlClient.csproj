@@ -110,8 +110,8 @@
     <Reference Include="AForge.Video.DirectShow">
       <HintPath>..\..\..\..\..\..\proj\C#\NET库\AForge.NET Framework-2.2.5-(libs only)\Release\AForge.Video.DirectShow.dll</HintPath>
     </Reference>
-    <Reference Include="GloveLibPCGenerel">
-      <HintPath>..\SDK\GloveLibPCGenerel.dll</HintPath>
+    <Reference Include="GloveLibPC">
+      <HintPath>libs\GloveLibPC.dll</HintPath>
     </Reference>
     <Reference Include="MahApps.Metro">
       <HintPath>..\packages\MahApps.Metro.1.3.0\lib\net45\MahApps.Metro.dll</HintPath>
@@ -123,9 +123,6 @@
     <Reference Include="Newtonsoft.Json, Version=9.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <HintPath>..\packages\Newtonsoft.Json.9.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
       <Private>True</Private>
-    </Reference>
-    <Reference Include="SenseSDK">
-      <HintPath>libs\SenseSDK.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Configuration" />

@@ -17,7 +17,7 @@ namespace ControlClient
     {
         private static String api_key = "5W-BJb6yjHg83NS1nVnAI9g6NgMurLq8";
         private static String api_value = "zGcehF-OVy2DNMxkHuPH1p0DxysmClcz";
-        public static Boolean Search()
+        public static FaceSearchResult Search()
         {
             NameValueCollection data = new NameValueCollection();
             data.Add("api_key", api_key);
@@ -26,7 +26,7 @@ namespace ControlClient
             BitmapImage img = new BitmapImage(new Uri("./img/faceToLogin.png",
                                                    UriKind.Relative));
             String mainPath = Application.ExecutablePath;
-            String filePath = "H:/test.png";
+            String filePath = "F:/test.jpg";
             String jsonText = "";
             if (img != null)
             {
@@ -37,11 +37,12 @@ namespace ControlClient
                 }
             }
             FaceSearchResult res = JsonConvert.DeserializeObject<FaceSearchResult>(jsonText);
-            if (res != null && res.results != null && res.results[0]!=null&&res.results[0].confidence> 80)
-            {
-                return true;
-            }
-            return false;
+            return res;
+//            if (res != null && res.results != null && res.results[0]!=null&&res.results[0].confidence> 80)
+//            {
+//                return true;
+//            }
+//            return false;
         }
     }
 }

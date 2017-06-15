@@ -21,13 +21,13 @@ namespace ControlClient
         public Object face_rectangle { get; set; }//里面的字段没加，如果有需要，请参考官方文档加上
     }
 
-    class FaceSearchResult
+    public class FaceSearchResult
     {
         public String request_id { get; set; }
         public Results[] results { get; set; }
     }
 
-    class Results
+    public class Results
     {
         public float confidence { get; set; }
         public String user_id { get; set; }

@@ -15,9 +15,9 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
-//using GloveLib;
+using GloveLib;
 using MahApps.Metro.Controls;
-using SenseSDK;
+//using SenseSDK;
 using Path = System.IO.Path;
 
 namespace ControlClient
