@@ -32,7 +32,7 @@ namespace ControlClient
         private SkeletonCalculator sc;
         private Rehabilitation rhb;
         private Timer pullDataTimer;
-        public static HandType handType = HandType.Left; //左右手
+        public static HandType handType = HandType.Right; //左右手
 
         private GloveModule()
         {
